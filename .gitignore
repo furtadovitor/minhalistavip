@@ -82,6 +82,7 @@ php_errors.log
 # Local database dump (deploy manual via phpMyAdmin)
 #-------------------------
 /tools/db/*.sql
+/tools/deploy/
 
 # Don't save phpunit under version control.
 /phpunit
