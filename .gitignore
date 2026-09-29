@@ -78,13 +78,21 @@ php_errors.log
 #-------------------------
 /tests/coverage*
 
+#-------------------------
+# Local database dump (deploy manual via phpMyAdmin)
+#-------------------------
+/tools/db/*.sql
+
 # Don't save phpunit under version control.
 /phpunit
 
 #-------------------------
 # Composer
 #-------------------------
-vendor/
+# vendor/ fica VERSIONADO de proposito: o Web Hosting da Hostinger nao roda
+# "composer install" no deploy (Git so faz pull). Se um dia usar SSH la,
+# pode voltar a ignorar esta pasta.
+# vendor/
 
 #-------------------------
 # IDE / Development Files

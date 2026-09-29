@@ -237,3 +237,16 @@ Rotas novas:
 3. Notificações por e-mail (recibo do convidado, aviso de presente ao organizador, saque pago).
 4. Retomada do tema visual dos eventos (`Views/templates`) e upload de imagem nos presentes.
 5. Expiração automática de pedidos `pendente` (job/cron) usando `pedidos.expira_em`.
+
+---
+
+## 6. DEPLOY (Hostinger — Web Hosting PHP/MySQL)
+
+O projeto é **PHP/CodeIgniter 4**: não publicar pelo fluxo **Node.js** da Hostinger
+(é ele que exige `package.json` e causa o erro "Não foi possível encontrar o arquivo package.json").
+
+* Guia completo: **`tools/DEPLOY-HOSTINGER.md`**.
+* Modelo de ambiente de produção: **`env.producao`** (copiar para `.env` no servidor; o `.env` não vai para o Git).
+* Dump do banco local para importar via phpMyAdmin: **`tools/db/minhalistavip-local.sql`**.
+* Pontos que dependem do servidor: `vendor/` (Composer, fora do Git), `RewriteBase /` no
+  `public/.htaccess`, document root apontando para `public/`, e troca das credenciais/chaves de teste.
