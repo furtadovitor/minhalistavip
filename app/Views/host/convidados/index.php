@@ -45,7 +45,7 @@ $rotuloStatus = [
                 <p class="h3 fw-bold mb-0"><?= (int) $resumo['pessoas_confirmadas'] ?></p>
                 <p class="text-muted fs-8 mb-0">
                     <?= (int) $resumo['confirmados'] ?> confirmação(ões) ·
-                    <?= (int) $acompanhantesResumo['menores'] ?> menor(es) / <?= (int) $acompanhantesResumo['maiores'] ?> maior(es)
+                    <?= (int) $acompanhantesResumo['criancas'] ?> criança(s) / <?= (int) $acompanhantesResumo['bebes'] ?> bebê(s)
                 </p>
             </div>
         </div>

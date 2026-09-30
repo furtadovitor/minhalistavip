@@ -3,7 +3,7 @@
 > Atualizado ao final da sessão de 30/09/2026. O histórico completo das etapas está no `SCRIPT.md`.
 
 ## Onde paramos
-- **Etapas 1 a 16 concluídas** (ver `SCRIPT.md`).
+- **Etapas 1 a 17 concluídas** (ver `SCRIPT.md`).
 - **Local:** `http://localhost/minhalistavip/public/`
 - **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
   `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
@@ -13,14 +13,17 @@
 
 ## O que já está pronto
 Eventos, presentes (com imagem), catálogo global, checkout + PIX sandbox + webhook + carteira,
-saques (com processamento pelo SuperAdmin), **lista de convidados com homologação/limite**, e
+saques (com processamento pelo SuperAdmin), **lista de convidados com homologação/limite**,
 **acompanhantes com nome/idade (menor-ou-maior automático, exigido no front)**, Home + listas de
-exemplo, painel do organizador e do SuperAdmin redesenhados, erros 404/500 personalizados.
+exemplo, erros 404/500 personalizados e o **novo painel do organizador "Minhas listas"**
+(menu colapsável/contextual, abas Ativas/Arquivadas, workspace da lista com Galeria, Recadinhos,
+Compartilhar, Pagamentos, Forma de pagamento, Funcionalidades, Aparência, Informações e Configurações).
 
 ## Pendências no servidor (Hostinger)
 1. Rodar as **migrations novas** (ou reimportar o dump):
-   `eventos.limite_convidados` e a tabela `rsvp_acompanhantes`.
-2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas).
+   `eventos.limite_convidados`, tabela `rsvp_acompanhantes`, `eventos.arquivado`,
+   tabela `evento_galeria` e `rsvp_acompanhantes.categoria`.
+2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), trocar o
    `pix_webhook_token` e a chave PIX da plataforma.
 

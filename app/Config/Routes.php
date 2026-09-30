@@ -47,6 +47,35 @@ $routes->group('painel', ['filter' => 'auth'], static function (RouteCollection 
     $routes->post('eventos/(:num)/presentes/(:num)/excluir', 'Host\Presentes::excluir/$1/$2');
     $routes->post('eventos/(:num)/presentes/(:num)', 'Host\Presentes::atualizar/$1/$2');
 
+    // --- Workspace da lista (evento) ---
+    $routes->get('eventos/(:num)', 'Host\Evento::index/$1');
+    $routes->get('eventos/(:num)/informacoes', 'Host\Evento::informacoes/$1');
+    $routes->post('eventos/(:num)/informacoes', 'Host\Evento::salvarInformacoes/$1');
+    $routes->get('eventos/(:num)/aparencia', 'Host\Evento::aparencia/$1');
+    $routes->post('eventos/(:num)/aparencia', 'Host\Evento::salvarAparencia/$1');
+    $routes->get('eventos/(:num)/funcionalidades', 'Host\Evento::funcionalidades/$1');
+    $routes->post('eventos/(:num)/funcionalidades', 'Host\Evento::salvarFuncionalidades/$1');
+    $routes->get('eventos/(:num)/configuracoes', 'Host\Evento::configuracoes/$1');
+    $routes->post('eventos/(:num)/configuracoes', 'Host\Evento::salvarConfiguracoes/$1');
+    $routes->get('eventos/(:num)/forma-pagamento', 'Host\Evento::formaPagamento/$1');
+    $routes->post('eventos/(:num)/forma-pagamento', 'Host\Evento::salvarFormaPagamento/$1');
+    $routes->get('eventos/(:num)/pagamentos', 'Host\Evento::pagamentos/$1');
+    $routes->get('eventos/(:num)/compartilhar', 'Host\Evento::compartilhar/$1');
+    $routes->post('eventos/(:num)/arquivar', 'Host\Eventos::arquivar/$1');
+
+    // --- Galeria de fotos ---
+    $routes->get('eventos/(:num)/galeria', 'Host\Galeria::index/$1');
+    $routes->post('eventos/(:num)/galeria', 'Host\Galeria::upload/$1');
+    $routes->post('eventos/(:num)/galeria/(:num)/alternar', 'Host\Galeria::alternar/$1/$2');
+    $routes->post('eventos/(:num)/galeria/(:num)/excluir', 'Host\Galeria::excluir/$1/$2');
+    $routes->post('eventos/(:num)/galeria/(:num)', 'Host\Galeria::atualizar/$1/$2');
+
+    // --- Recadinhos (mural) ---
+    $routes->get('eventos/(:num)/recadinhos', 'Host\Recados::index/$1');
+    $routes->post('eventos/(:num)/recadinhos/(:num)/publicar', 'Host\Recados::publicar/$1/$2');
+    $routes->post('eventos/(:num)/recadinhos/(:num)/ocultar', 'Host\Recados::ocultar/$1/$2');
+    $routes->post('eventos/(:num)/recadinhos/(:num)/excluir', 'Host\Recados::excluir/$1/$2');
+
     // --- Lista de convidados (RSVP) ---
     $routes->get('eventos/(:num)/convidados', 'Host\Convidados::index/$1');
     $routes->get('eventos/(:num)/convidados/exportar', 'Host\Convidados::exportar/$1');

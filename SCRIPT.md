@@ -359,6 +359,57 @@ Rotas novas (grupo `/admin`):
 * Botão **Acompanhantes** na listagem e resumo de menores/maiores nos KPIs; o **CSV** passou a
   incluir colunas de menores/maiores e os nomes dos acompanhantes.
 
+### Etapa 17 — Painel do organizador estilo "Minhas listas" (concluída)
+Redesenho do painel do organizador inspirado no Lista Ideal, com foco em clareza:
+* **Menu colapsável** (`templates/layouts/app.php`): o menu lateral global (Minhas listas,
+  Carteira, Pedidos) alterna entre "ícone + nome" e "só ícone" (estado salvo em `localStorage`).
+  A navegação da lista **não fica no menu global**: dentro de um evento ela aparece em uma barra
+  própria ao lado do conteúdo (`templates/partials/evento_nav.php`), com os grupos **Lista**
+  (Presentes, Galeria, Recadinhos, Convidados, Compartilhar), **Dinheiro** (Pagamentos,
+  Forma de pagamento) e **Personalização** (Funcionalidades, Aparência, Informações, Configurações).
+  No desktop é uma coluna vertical; no mobile vira o dropdown **"Menu da lista"**.
+* **Home "Minhas listas"** (`Host\Dashboard`): abas **Ativas** e **Arquivadas**, cards com capa,
+  status e ações ("Gerenciar", "Ver página", arquivar/reativar) + KPIs (ativas, publicadas,
+  arrecadado, saldo). Arquivamento via `eventos.arquivado` (migration `2026-09-30-000018`).
+* **Workspace do evento** (`Host\Evento`, rota `painel/eventos/{id}`): visão geral com KPIs e
+  páginas dedicadas para editar cada aspecto da lista (informações, aparência com prévia,
+  funcionalidades, configurações com slug/publicação/zona de risco, forma de pagamento e
+  pagamentos do evento).
+* **Galeria de fotos** (`Host\Galeria` + tabela `evento_galeria`, migration `2026-09-30-000019`):
+  envio múltiplo, legenda, ordem, ocultar/exibir e exclusão. As fotos ativas aparecem no
+  **hotsite público** (seção "Galeria", com pill na navegação e lightbox em modal) e as
+  listas de exemplo ganharam galerias demonstrativas (`Public\Demo`).
+* **Recadinhos** (`Host\Recados`): moderação do mural (publicar, ocultar, excluir) com filtros.
+* **Compartilhar** (`Host\Evento::compartilhar`): link da lista, copiar, compartilhamento nativo,
+  botão de WhatsApp e QR Code (qrcodejs).
+
+### Etapa 18 — RSVP em destaque e acompanhantes por categoria (concluída)
+Confirmação de presença passou a ser a **primeira seção** do hotsite (antes dos presentes),
+com foco na ação mais importante da lista:
+* **Dois botões** ("Sim, estarei lá" / "Não posso ir") abrem um **modal** de confirmação.
+* No modal "vou": nome/telefone do titular e acompanhantes; no "não vou": só a confirmação de ausência.
+* **Acompanhantes** com nome completo + **categoria em cartões selecionáveis** com ícones
+  (🧑 Adulto ou adolescente, 🧒 Criança 5 a 12 anos, 👶 Bebê menos de 5 anos). O botão
+  **"Adicionar acompanhante"** clona a linha e cada linha pode ser removida. O modal tem
+  cabeçalho ilustrado e alterna entre "vou" (🎉) e "não vou" (👋).
+* Nova coluna `rsvp_acompanhantes.categoria` (migration `2026-09-30-000020`); o campo `menor`
+  passa a ser derivado da categoria (criança e bebê ⇒ menor). A idade continua suportada nos
+  registros antigos.
+* Painel de convidados (`Host\Convidados`) atualizado: acompanhante é adicionado por categoria,
+  o detalhe mostra Adultos / Crianças / Bebês, e o CSV exporta a categoria.
+* Nav do hotsite reordenada (Presença → Presentes → Galeria → Recados), com Presença ativa por
+  padrão, e o CTA principal do hero aponta para a confirmação.
+
+### Etapa 19 — Padronização de botões e campos (concluída)
+Unifica o raio de cantos, que antes misturava o default do Bootstrap (6px) com pills avulsos:
+* **Páginas públicas do evento** (`design_evento.php`): token `--raio-btn: 999px` aplicado a
+  todos os `.btn`, `.form-control` e `.form-select` (e cantos do `input-group`) — visual pill
+  consistente no hotsite, checkout e pedido.
+* **Painel, Home e login** (`design_system.php`): token `--raio-btn: .7rem` (canto suave,
+  alinhado aos cards `rounded-4` e à navegação lateral).
+* Removidos os `999px`/`rounded-pill` avulsos (`hotsite/lista.php` e `home.php`) — tudo passa a
+  herdar o token. Campos `textarea` usam raio menor para não virar "cápsula".
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

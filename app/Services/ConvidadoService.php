@@ -17,6 +17,9 @@ use CodeIgniter\Exceptions\PageNotFoundException;
  */
 class ConvidadoService
 {
+    /** Categorias válidas de acompanhante (radio no hotsite). */
+    public const CATEGORIAS = ['adulto', 'crianca', 'bebe'];
+
     protected RsvpConfirmacaoModel $convidados;
 
     protected RsvpAcompanhanteModel $acompanhantes;
@@ -73,13 +76,15 @@ class ConvidadoService
     }
 
     /**
-     * Registra um acompanhante. O campo `menor` é derivado da idade.
+     * Registra um acompanhante. A categoria define menor/maior.
      *
-     * @param array{nome?: string, idade?: mixed} $dados
+     * @param array{nome?: string, categoria?: string} $dados
      * @return array{ok: bool, mensagem: string}
      */
     public function adicionarAcompanhante(int $eventoId, int $convidadoId, array $dados): array
     {
+        helper('formato');
+
         $this->um($eventoId, $convidadoId);
 
         $nome = trim((string) ($dados['nome'] ?? ''));
@@ -88,23 +93,23 @@ class ConvidadoService
             return ['ok' => false, 'mensagem' => 'Informe o nome completo do acompanhante.'];
         }
 
-        $idadeBruta = $dados['idade'] ?? null;
-        $idade      = ($idadeBruta === null || $idadeBruta === '') ? null : (int) $idadeBruta;
+        $categoria = trim((string) ($dados['categoria'] ?? ''));
 
-        if ($idade !== null && ($idade < 0 || $idade > 120)) {
-            return ['ok' => false, 'mensagem' => 'Informe uma idade válida (0 a 120).'];
+        if (! in_array($categoria, self::CATEGORIAS, true)) {
+            return ['ok' => false, 'mensagem' => 'Escolha a categoria do acompanhante.'];
         }
 
         $ok = $this->acompanhantes->insert([
             'rsvp_confirmacao_id' => $convidadoId,
             'nome'                => $nome,
-            'idade'               => $idade,
-            'menor'               => $this->classificarMenor($idade),
+            'categoria'           => $categoria,
+            'idade'               => null,
+            'menor'               => $this->classificarMenorCategoria($categoria),
         ]);
 
         return $ok === false
             ? ['ok' => false, 'mensagem' => 'Não foi possível salvar o acompanhante.']
-            : ['ok' => true, 'mensagem' => $nome . ' (' . $this->rotuloIdade($idade) . ') registrado(a).'];
+            : ['ok' => true, 'mensagem' => $nome . ' (' . rotulo_categoria_acompanhante($categoria) . ') registrado(a).'];
     }
 
     /**
@@ -128,23 +133,25 @@ class ConvidadoService
     /**
      * Valida e normaliza as linhas de acompanhantes do formulário público.
      *
-     * @param list<mixed> $nomes
-     * @param list<mixed> $idades
-     * @return array{linhas: list<array{nome: string, idade: int}>, erros: list<string>}
+     * @param array<int|string, mixed> $nomes
+     * @param array<int|string, mixed> $categorias
+     * @return array{linhas: list<array{nome: string, categoria: string, menor: int}>, erros: list<string>}
      */
-    public function validarAcompanhantes(array $nomes, array $idades): array
+    public function validarAcompanhantes(array $nomes, array $categorias): array
     {
         $linhas = [];
         $erros  = [];
-        $total  = max(count($nomes), count($idades));
+
+        $nomes      = array_values($nomes);
+        $categorias = array_values($categorias);
+        $total      = max(count($nomes), count($categorias));
 
         for ($i = 0; $i < $total; $i++) {
-            $nome       = trim((string) ($nomes[$i] ?? ''));
-            $idadeBruta = $idades[$i] ?? null;
-            $idade      = ($idadeBruta === null || $idadeBruta === '') ? null : (int) $idadeBruta;
+            $nome      = trim((string) ($nomes[$i] ?? ''));
+            $categoria = trim((string) ($categorias[$i] ?? ''));
 
-            // Linha totalmente vazia é ignorada (o convidado reduziu a quantidade).
-            if ($nome === '' && $idade === null) {
+            // Linha totalmente vazia é ignorada.
+            if ($nome === '' && $categoria === '') {
                 continue;
             }
 
@@ -155,17 +162,16 @@ class ConvidadoService
                 continue;
             }
 
-            if ($idade === null) {
-                $erros[] = "Informe a idade do acompanhante {$numero}.";
+            if (! in_array($categoria, self::CATEGORIAS, true)) {
+                $erros[] = "Escolha a categoria do acompanhante {$numero}.";
                 continue;
             }
 
-            if ($idade < 0 || $idade > 120) {
-                $erros[] = "Idade inválida para o acompanhante {$numero}.";
-                continue;
-            }
-
-            $linhas[] = ['nome' => $nome, 'idade' => $idade];
+            $linhas[] = [
+                'nome'      => $nome,
+                'categoria' => $categoria,
+                'menor'     => $this->classificarMenorCategoria($categoria),
+            ];
         }
 
         return ['linhas' => $linhas, 'erros' => $erros];
@@ -174,18 +180,33 @@ class ConvidadoService
     /**
      * Grava (já validados) os acompanhantes de uma confirmação.
      *
-     * @param list<array{nome: string, idade: int}> $linhas
+     * @param list<array{nome: string, categoria: string}> $linhas
      */
     public function gravarAcompanhantes(int $convidadoId, array $linhas): void
     {
         foreach ($linhas as $linha) {
+            $categoria = (string) ($linha['categoria'] ?? '');
+
             $this->acompanhantes->insert([
                 'rsvp_confirmacao_id' => $convidadoId,
                 'nome'                => $linha['nome'],
-                'idade'               => (int) $linha['idade'],
-                'menor'               => $this->classificarMenor((int) $linha['idade']),
+                'categoria'           => $categoria,
+                'idade'               => null,
+                'menor'               => $this->classificarMenorCategoria($categoria),
             ]);
         }
+    }
+
+    /**
+     * Deriva menor/maior da categoria: criança e bebê ⇒ menor.
+     */
+    private function classificarMenorCategoria(?string $categoria): ?int
+    {
+        if ($categoria === null || $categoria === '') {
+            return null;
+        }
+
+        return $categoria === 'adulto' ? 0 : 1;
     }
 
     /**

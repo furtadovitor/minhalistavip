@@ -27,6 +27,7 @@ $titulo = $titulo ?? 'Minha Lista VIP';
         --bg: #F9FAFB;
         --ink: #111827;
         --muted: #6B7280;
+        --raio-btn: .7rem;
     }
     body {
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -34,6 +35,21 @@ $titulo = $titulo ?? 'Minha Lista VIP';
         color: var(--ink);
     }
     h1, h2, h3, h4, h5, h6, .font-display { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+
+    /* Botões e campos padronizados (canto suave) no painel/Home/login */
+    .btn,
+    .form-control,
+    .form-select {
+        border-radius: var(--raio-btn);
+    }
+    .input-group > :first-child {
+        border-top-left-radius: var(--raio-btn);
+        border-bottom-left-radius: var(--raio-btn);
+    }
+    .input-group > :last-child {
+        border-top-right-radius: var(--raio-btn);
+        border-bottom-right-radius: var(--raio-btn);
+    }
 
     /* Utilitários do design system */
     .fs-7 { font-size: .875rem; }

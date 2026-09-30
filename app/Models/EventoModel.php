@@ -45,6 +45,7 @@ class EventoModel extends Model
         'permite_rsvp',
         'permite_recados',
         'exibir_valores',
+        'arquivado',
         'status',
         'publicado_em',
     ];

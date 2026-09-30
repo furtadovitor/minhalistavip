@@ -46,7 +46,7 @@ class Convidados extends BaseController
     }
 
     /**
-     * Detalhe do convidado: acompanhantes com nome, idade e menor/maior.
+     * Detalhe do convidado: acompanhantes com nome e categoria.
      */
     public function ver($eventoId = null, $id = null)
     {
@@ -65,8 +65,8 @@ class Convidados extends BaseController
     {
         $evento    = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
         $resultado = $this->convidados->adicionarAcompanhante((int) $evento->id, (int) $id, [
-            'nome'  => $this->request->getPost('nome'),
-            'idade' => $this->request->getPost('idade'),
+            'nome'      => $this->request->getPost('nome'),
+            'categoria' => $this->request->getPost('categoria'),
         ]);
 
         return $this->responderConvidado((int) $evento->id, (int) $id, $resultado);
@@ -124,7 +124,7 @@ class Convidados extends BaseController
         $evento = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
         $lista  = $this->convidados->listar((int) $evento->id);
 
-        $linhas = ['Nome;E-mail;Telefone;Acompanhantes;Pessoas;Menores;Maiores;Nome dos acompanhantes (idade);Status;Observacao;Enviado em'];
+        $linhas = ['Nome;E-mail;Telefone;Acompanhantes;Pessoas;Menores;Maiores;Nome dos acompanhantes (categoria);Status;Observacao;Enviado em'];
 
         foreach ($lista as $c) {
             $acompanhantes = $this->convidados->acompanhantes((int) $c['id']);
@@ -133,11 +133,17 @@ class Convidados extends BaseController
             $maiores       = 0;
 
             foreach ($acompanhantes as $a) {
-                $nomes[] = $a['nome'] . ($a['idade'] !== null ? ' (' . (int) $a['idade'] . ')' : '');
+                $categoria = $a['categoria'] ?? null;
 
-                if ((int) $a['menor'] === 1) {
+                $nomes[] = $a['nome'] . ' (' . rotulo_categoria_acompanhante($categoria) . ')';
+
+                $ehMenor = $categoria !== null
+                    ? $categoria !== 'adulto'
+                    : (int) ($a['menor'] ?? 0) === 1;
+
+                if ($ehMenor) {
                     $menores++;
-                } elseif ((int) $a['menor'] === 0) {
+                } else {
                     $maiores++;
                 }
             }

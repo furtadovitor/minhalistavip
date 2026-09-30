@@ -123,7 +123,7 @@
                             <p class="card-text fs-7 text-secondary flex-grow-1"><?= esc($demo['resumo']) ?></p>
                             <div class="pt-3 border-top d-flex justify-content-between align-items-center">
                                 <span class="fs-8 text-muted"><?= esc($demo['presentes']) ?> presentes</span>
-                                <a href="<?= site_url('demo/' . $demo['slug']) ?>" class="btn btn-outline-brand btn-sm rounded-pill fw-semibold px-3">
+                                <a href="<?= site_url('demo/' . $demo['slug']) ?>" class="btn btn-outline-brand btn-sm fw-semibold px-3">
                                     Ver exemplo &rarr;
                                 </a>
                             </div>
@@ -134,7 +134,7 @@
         </div>
 
         <p class="text-center mt-4 mb-0">
-            <a class="btn btn-outline-secondary rounded-pill px-4" href="<?= site_url('registro') ?>">
+            <a class="btn btn-outline-secondary px-4" href="<?= site_url('registro') ?>">
                 Quero uma lista assim para o meu evento
             </a>
         </p>

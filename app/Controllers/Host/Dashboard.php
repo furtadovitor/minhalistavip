@@ -10,7 +10,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Painel do Organizador (cliente).
+ * Painel do Organizador (cliente): home "Minhas listas".
  */
 class Dashboard extends BaseController
 {
@@ -28,16 +28,19 @@ class Dashboard extends BaseController
 
     public function index()
     {
-        $eventos    = $this->eventos->listar($this->usuarioId());
-        $publicados = array_filter($eventos, static fn ($evento): bool => $evento->status === 'publicado');
+        $usuarioId  = $this->usuarioId();
+        $ativos     = $this->eventos->listarAtivos($usuarioId);
+        $arquivados = $this->eventos->listarArquivados($usuarioId);
+        $publicados = array_filter($ativos, static fn ($evento): bool => $evento->status === 'publicado');
 
         return $this->render('host/dashboard', [
-            'titulo'     => 'Dashboard',
-            'eventos'    => $eventos,
-            'total'      => count($eventos),
+            'titulo'     => 'Minhas listas',
+            'ativos'     => $ativos,
+            'arquivados' => $arquivados,
+            'total'      => count($ativos) + count($arquivados),
             'publicados' => count($publicados),
-            'arrecadado' => $this->carteira->totalArrecadado($this->usuarioId()),
-            'saldo'      => $this->carteira->saldo($this->usuarioId()),
+            'arrecadado' => $this->carteira->totalArrecadado($usuarioId),
+            'saldo'      => $this->carteira->saldo($usuarioId),
         ]);
     }
 }

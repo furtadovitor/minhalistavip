@@ -39,6 +39,14 @@ class Demo extends BaseController
                 ['autor' => 'Tia Cláudia', 'mensagem' => 'Que felicidade! Desejo toda a sorte do mundo para vocês. 💛'],
                 ['autor' => 'Rafael e Bia', 'mensagem' => 'Nos vemos em Ilhabela! Parabéns aos noivos. 🥂'],
             ],
+            'galeria'         => [
+                ['imagem' => 'https://picsum.photos/seed/marina-gabriel-1/800/800', 'legenda' => 'O pedido, em Ilhabela'],
+                ['imagem' => 'https://picsum.photos/seed/marina-gabriel-2/800/800', 'legenda' => 'Ensaio pré-wedding'],
+                ['imagem' => 'https://picsum.photos/seed/marina-gabriel-3/800/800', 'legenda' => 'Nosso primeiro apartamento'],
+                ['imagem' => 'https://picsum.photos/seed/marina-gabriel-4/800/800', 'legenda' => 'Viagem de noivado'],
+                ['imagem' => 'https://picsum.photos/seed/marina-gabriel-5/800/800', 'legenda' => 'Com as famílias reunidas'],
+                ['imagem' => 'https://picsum.photos/seed/marina-gabriel-6/800/800', 'legenda' => 'Contagem regressiva!'],
+            ],
             'itens'           => [
                 ['nome' => 'Cota de Lua de Mel', 'descricao' => '7 noites na Tailândia', 'valor' => 300.00, 'meta' => 10, 'vendida' => 3],
                 ['nome' => 'Jogo de Panelas', 'descricao' => 'Panela antiaderente para a cozinha nova', 'valor' => 250.00, 'meta' => 1, 'vendida' => 0],
@@ -70,6 +78,12 @@ class Demo extends BaseController
                 ['autor' => 'Turma da faculdade', 'mensagem' => 'Bora pra cima! Já garantimos a cota do bar. 🍻'],
                 ['autor' => 'Camila', 'mensagem' => '30 anos, hein! Que venham muitos mais. ❤️'],
             ],
+            'galeria'         => [
+                ['imagem' => 'https://picsum.photos/seed/lucas-30-1/800/800', 'legenda' => 'A turma reunida'],
+                ['imagem' => 'https://picsum.photos/seed/lucas-30-2/800/800', 'legenda' => 'Pré-festa'],
+                ['imagem' => 'https://picsum.photos/seed/lucas-30-3/800/800', 'legenda' => 'Viagem com os amigos'],
+                ['imagem' => 'https://picsum.photos/seed/lucas-30-4/800/800', 'legenda' => 'Momentos que ficam'],
+            ],
             'itens'           => [
                 ['nome' => 'Cota da Festa', 'descricao' => 'Aluguel do espaço e decoração', 'valor' => 100.00, 'meta' => 100, 'vendida' => 35],
                 ['nome' => 'Cota da Viagem', 'descricao' => 'Roteiro com os amigos em Floripa', 'valor' => 150.00, 'meta' => 20, 'vendida' => 6],
@@ -98,6 +112,12 @@ class Demo extends BaseController
             'recados'         => [
                 ['autor' => 'Vovó Marlene', 'mensagem' => 'Ansiosa para conhecer a Sofia! Já presenteei o enxoval. 🍼'],
                 ['autor' => 'Amanda', 'mensagem' => 'Que fase linda! Muitas bençãos para essa família. ✨'],
+            ],
+            'galeria'         => [
+                ['imagem' => 'https://picsum.photos/seed/sofia-1/800/800', 'legenda' => 'O quartinho ficando pronto'],
+                ['imagem' => 'https://picsum.photos/seed/sofia-2/800/800', 'legenda' => 'Chá revelação'],
+                ['imagem' => 'https://picsum.photos/seed/sofia-3/800/800', 'legenda' => 'Enxoval chegando'],
+                ['imagem' => 'https://picsum.photos/seed/sofia-4/800/800', 'legenda' => 'Esperando a Sofia'],
             ],
             'itens'           => [
                 ['nome' => 'Fraldas Tamanho P', 'descricao' => 'Pacote com 40 unidades', 'valor' => 60.00, 'meta' => 100, 'vendida' => 42],
@@ -184,6 +204,7 @@ class Demo extends BaseController
             'evento'    => $evento,
             'presentes' => $presentes,
             'recados'   => $recados,
+            'galeria'   => $demo['galeria'] ?? [],
             'modo'      => 'demo',
             'escuro'    => ! empty($demo['escuro']),
             'dataTexto' => $demo['data'],

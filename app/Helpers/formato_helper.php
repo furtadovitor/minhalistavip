@@ -127,3 +127,25 @@ if (! function_exists('cor_status_saque')) {
         ][$status] ?? 'secondary';
     }
 }
+
+if (! function_exists('rotulo_categoria_acompanhante')) {
+    function rotulo_categoria_acompanhante(?string $categoria): string
+    {
+        return [
+            'adulto'  => 'Adulto ou adolescente',
+            'crianca' => 'Criança (5 a 12 anos)',
+            'bebe'    => 'Bebê (menos de 5 anos)',
+        ][(string) $categoria] ?? 'Não informado';
+    }
+}
+
+if (! function_exists('cor_categoria_acompanhante')) {
+    function cor_categoria_acompanhante(?string $categoria): string
+    {
+        return [
+            'adulto'  => 'secondary',
+            'crianca' => 'info',
+            'bebe'    => 'warning',
+        ][(string) $categoria] ?? 'light';
+    }
+}

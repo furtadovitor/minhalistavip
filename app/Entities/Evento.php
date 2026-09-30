@@ -22,6 +22,7 @@ class Evento extends Entity
         'permite_rsvp'    => 'boolean',
         'permite_recados' => 'boolean',
         'exibir_valores'  => 'boolean',
+        'arquivado'       => 'boolean',
         'status'          => 'string',
     ];
 

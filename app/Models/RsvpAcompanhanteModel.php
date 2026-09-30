@@ -23,6 +23,7 @@ class RsvpAcompanhanteModel extends Model
         'rsvp_confirmacao_id',
         'nome',
         'idade',
+        'categoria',
         'menor',
     ];
 
@@ -37,9 +38,9 @@ class RsvpAcompanhanteModel extends Model
     }
 
     /**
-     * Totais de menores e maiores de um evento.
+     * Totais de acompanhantes de um evento, por categoria e por menor/maior.
      *
-     * @return array{menores:int,maiores:int,total:int}
+     * @return array{menores:int,maiores:int,total:int,adultos:int,criancas:int,bebes:int,sem_categoria:int}
      */
     public function resumoEvento(int $eventoId): array
     {
@@ -47,6 +48,10 @@ class RsvpAcompanhanteModel extends Model
             ->select('
                 SUM(a.menor = 1) AS menores,
                 SUM(a.menor = 0) AS maiores,
+                SUM(a.categoria = "adulto") AS adultos,
+                SUM(a.categoria = "crianca") AS criancas,
+                SUM(a.categoria = "bebe") AS bebes,
+                SUM(a.categoria IS NULL) AS sem_categoria,
                 COUNT(*) AS total
             ', false)
             ->join('rsvp_confirmacoes r', 'r.id = a.rsvp_confirmacao_id')
@@ -54,9 +59,13 @@ class RsvpAcompanhanteModel extends Model
             ->get()->getRow();
 
         return [
-            'menores' => (int) ($linha->menores ?? 0),
-            'maiores' => (int) ($linha->maiores ?? 0),
-            'total'   => (int) ($linha->total ?? 0),
+            'menores'       => (int) ($linha->menores ?? 0),
+            'maiores'       => (int) ($linha->maiores ?? 0),
+            'total'         => (int) ($linha->total ?? 0),
+            'adultos'       => (int) ($linha->adultos ?? 0),
+            'criancas'      => (int) ($linha->criancas ?? 0),
+            'bebes'         => (int) ($linha->bebes ?? 0),
+            'sem_categoria' => (int) ($linha->sem_categoria ?? 0),
         ];
     }
 }
