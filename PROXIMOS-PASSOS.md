@@ -3,21 +3,22 @@
 > Atualizado ao final da sessão de 30/09/2026. O histórico completo das etapas está no `SCRIPT.md`.
 
 ## Onde paramos
-- **Etapas 1 a 17 concluídas** (ver `SCRIPT.md`).
+- **Etapas 1 a 19 concluídas e commitadas** (ver `SCRIPT.md`; commit `eb7d637`).
 - **Local:** `http://localhost/minhalistavip/public/`
 - **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
   `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
 - **Repositório:** `github.com/furtadovitor/minhalistavip` (branch `master`).
 - **ZIP para upload:** `tools/deploy/minhalistavip-hostinger.zip`
-- **Dump do banco:** `tools/db/minhalistavip-local.sql`
+- **Dump do banco:** `tools/db/minhalistavip-local.sql` (regenerado com as migrations novas).
 
 ## O que já está pronto
 Eventos, presentes (com imagem), catálogo global, checkout + PIX sandbox + webhook + carteira,
 saques (com processamento pelo SuperAdmin), **lista de convidados com homologação/limite**,
-**acompanhantes com nome/idade (menor-ou-maior automático, exigido no front)**, Home + listas de
-exemplo, erros 404/500 personalizados e o **novo painel do organizador "Minhas listas"**
-(menu colapsável/contextual, abas Ativas/Arquivadas, workspace da lista com Galeria, Recadinhos,
-Compartilhar, Pagamentos, Forma de pagamento, Funcionalidades, Aparência, Informações e Configurações).
+**acompanhantes por categoria (adulto/criança/bebê)**, **RSVP em destaque com modal no hotsite**,
+Home + listas de exemplo (com galeria), erros 404/500 personalizados, **painel do organizador
+"Minhas listas"** (menu colapsável, abas Ativas/Arquivadas, workspace com Galeria, Recadinhos,
+Compartilhar, Pagamentos, Forma de pagamento, Funcionalidades, Aparência, Informações e
+Configurações) e **botões/campos padronizados**.
 
 ## Pendências no servidor (Hostinger)
 1. Rodar as **migrations novas** (ou reimportar o dump):
