@@ -145,13 +145,14 @@ Gere a chave de criptografia (SSH): `php spark key:generate`.
 
 ## Passo 6 — `RewriteBase` para o domínio raiz
 
-Como no servidor o site fica na **raiz** (document root = `public/`), edite `public/.htaccess`:
+Como no servidor o site fica na **raiz** (os arquivos do `public/` vão para `public_html/`),
+o `.htaccess` precisa de `RewriteBase /`.
 
-```apache
-RewriteBase /
-```
+Use o arquivo pronto **`public/.htaccess.producao`**: no servidor, renomeie-o para
+`public_html/.htaccess` (substituindo o de desenvolvimento, que aponta para `/minhalistavip/public/`).
 
-(o local estava como `/minhalistavip/public/`).
+> Se as URLs aparecerem com `index.php` (ex.: `/index.php/admin/...`) ou derem erro 500, é sinal de
+> `RewriteBase` errado e/ou `app.indexPage` diferente de `''` no `.env`.
 
 ---
 

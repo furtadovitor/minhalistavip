@@ -1,0 +1,40 @@
+# Disable directory browsing
+Options -Indexes
+
+# ----------------------------------------------------------------------
+# Rewrite engine
+# ----------------------------------------------------------------------
+#
+# VERSÃO DE PRODUÇÃO (Hostinger / domínio na raiz).
+# No servidor, o site roda direto em public_html, então o RewriteBase é "/".
+#
+# Uso no deploy: copie este arquivo para "public_html/.htaccess"
+# (substituindo o .htaccess de desenvolvimento, que usa RewriteBase /minhalistavip/public/).
+#
+<IfModule mod_rewrite.c>
+	Options +FollowSymlinks
+	RewriteEngine On
+
+	RewriteBase /
+
+	# Remove a barra no final
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI} (.+)/$
+	RewriteRule ^ %1 [L,R=301]
+
+	# Envia tudo para o front controller (index.php)
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^([\s\S]*)$ index.php/$1 [L,NC,QSA]
+
+	# Repassa o header Authorization
+	RewriteCond %{HTTP:Authorization} .
+	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+	ErrorDocument 404 index.php
+</IfModule>
+
+# Disable server signature
+ServerSignature Off
