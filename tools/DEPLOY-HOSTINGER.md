@@ -135,6 +135,10 @@ Gere a chave de criptografia (SSH): `php spark key:generate`.
      php spark db:seed EventoDemoSeeder   # opcional
      ```
 
+> **Atualizações de esquema:** sempre que houver uma migration nova, rode `php spark migrate`
+> (por SSH) ou reimporte o dump atualizado em `tools/db/minhalistavip-local.sql`.
+> Exemplo: a migration `2026-09-30-000016` adiciona `eventos.limite_convidados`.
+
 ---
 
 ## Passo 6 — `RewriteBase` para o domínio raiz

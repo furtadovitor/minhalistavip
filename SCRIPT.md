@@ -332,6 +332,19 @@ Rotas novas (grupo `/admin`):
   Moderno) que aplicam cores + tema de uma vez, e **pré-visualização ao vivo** (hero e card de
   presente) que reflete título, tipo, data, local, cores, tema e a capa escolhida.
 
+### Etapa 15 — Lista de convidados com homologação e limite (concluída)
+* **Nova tela** `Host\Convidados` (`/painel/eventos/{id}/convidados`): KPIs (confirmados, aguardando,
+  recusados, limite/vagas), barra de ocupação do limite, filtros (status/busca), **adicionar
+  convidado manualmente**, **aprovar / recusar / remover**, e **exportar CSV**.
+* **Homologação**: a confirmação pública passa a entrar como **`pendente`** e só conta como
+  confirmada após a aprovação do organizador (quem responde "não vou" entra como `recusado`).
+* **Contagem por pessoas**: considera registro + acompanhantes (`ConvidadoService::resumo()`).
+* **Limite de convidados** (`eventos.limite_convidados`, migration `2026-09-30-000016`):
+  * bloqueia novas confirmações públicas quando o limite é atingido (o hotsite mostra aviso);
+  * bloqueia a aprovação que ultrapassaria o limite (mensagem orienta ajustar o limite ou recusar);
+  * campo no formulário do evento (vazio = ilimitado).
+* Botões "Convidados" na listagem de eventos e no topo da lista de presentes.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Services;
+
+use App\Entities\Evento;
+use App\Models\RsvpConfirmacaoModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
+
+/**
+ * Lista de convidados (RSVP) do evento.
+ *
+ * Regras:
+ *  - a confirmação pública entra como 'pendente' e precisa ser homologada;
+ *  - a contagem considera as PESSOAS (registro + acompanhantes);
+ *  - o limite do evento (limite_convidados) é respeitado na aprovação e no público.
+ */
+class ConvidadoService
+{
+    protected RsvpConfirmacaoModel $convidados;
+
+    public function __construct(?RsvpConfirmacaoModel $convidados = null)
+    {
+        $this->convidados = $convidados ?? new RsvpConfirmacaoModel();
+    }
+
+    /**
+     * @param array{status?: string|null, busca?: string|null} $filtros
+     * @return list<array<string, mixed>>
+     */
+    public function listar(int $eventoId, array $filtros = []): array
+    {
+        return $this->convidados->doEvento($eventoId, $filtros);
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws PageNotFoundException
+     */
+    public function um(int $eventoId, int $id): array
+    {
+        $convidado = $this->convidados->find($id);
+
+        if ($convidado === null || (int) $convidado['evento_id'] !== $eventoId) {
+            throw PageNotFoundException::forPageNotFound('Convidado não encontrado.');
+        }
+
+        return $convidado;
+    }
+
+    /**
+     * @return array{pendentes:int,confirmados:int,recusados:int,pessoas_pendentes:int,pessoas_confirmadas:int,limite:int|null,vagas:int|null,percentual:int|null}
+     */
+    public function resumo(Evento $evento): array
+    {
+        $contagem = $this->convidados->contagem((int) $evento->id);
+        $limite   = $evento->limite_convidados !== null ? (int) $evento->limite_convidados : null;
+
+        return $contagem + [
+            'limite'     => $limite,
+            'vagas'      => $limite !== null ? max(0, $limite - $contagem['pessoas_confirmadas']) : null,
+            'percentual' => $limite !== null && $limite > 0
+                ? min(100, (int) round($contagem['pessoas_confirmadas'] / $limite * 100))
+                : null,
+        ];
+    }
+
+    /**
+     * O evento já atingiu o limite de pessoas confirmadas?
+     */
+    public function limiteAtingido(Evento $evento): bool
+    {
+        if ($evento->limite_convidados === null) {
+            return false;
+        }
+
+        return $this->convidados->contagem((int) $evento->id)['pessoas_confirmadas']
+            >= (int) $evento->limite_convidados;
+    }
+
+    /**
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function aprovar(int $eventoId, int $convidadoId, Evento $evento): array
+    {
+        $convidado = $this->um($eventoId, $convidadoId);
+
+        if ($convidado['status'] === 'confirmado') {
+            return ['ok' => true, 'mensagem' => 'Este convidado já está confirmado.'];
+        }
+
+        $pessoas = (int) $convidado['quantidade_acompanhantes'] + 1;
+        $resumo  = $this->resumo($evento);
+
+        if ($resumo['limite'] !== null && $resumo['pessoas_confirmadas'] + $pessoas > $resumo['limite']) {
+            return [
+                'ok'       => false,
+                'mensagem' => 'Isso ultrapassaria o limite de ' . $resumo['limite'] . ' convidados'
+                    . ' (restam ' . $resumo['vagas'] . ' vaga(s)). Ajuste o limite do evento ou recuse.',
+            ];
+        }
+
+        $this->convidados->update($convidadoId, ['status' => 'confirmado']);
+
+        return ['ok' => true, 'mensagem' => $convidado['nome'] . ' confirmado(a) — ' . $pessoas . ' pessoa(s).'];
+    }
+
+    /**
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function recusar(int $eventoId, int $convidadoId): array
+    {
+        $convidado = $this->um($eventoId, $convidadoId);
+
+        $this->convidados->update($convidadoId, ['status' => 'recusado']);
+
+        return ['ok' => true, 'mensagem' => $convidado['nome'] . ' marcado(a) como recusado(a).'];
+    }
+
+    /**
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function remover(int $eventoId, int $convidadoId): array
+    {
+        $convidado = $this->um($eventoId, $convidadoId);
+        $this->convidados->delete($convidadoId);
+
+        return ['ok' => true, 'mensagem' => 'Convidado "' . $convidado['nome'] . '" removido.'];
+    }
+
+    /**
+     * Adiciona um convidado já homologado (confirmado).
+     *
+     * @param array<string, mixed> $dados
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function adicionar(int $eventoId, array $dados, Evento $evento): array
+    {
+        $nome = trim((string) ($dados['nome'] ?? ''));
+
+        if (mb_strlen($nome) < 3) {
+            return ['ok' => false, 'mensagem' => 'Informe o nome do convidado.'];
+        }
+
+        $acompanhantes = max(0, (int) ($dados['quantidade_acompanhantes'] ?? 0));
+        $pessoas       = $acompanhantes + 1;
+        $resumo        = $this->resumo($evento);
+
+        if ($resumo['limite'] !== null && $resumo['pessoas_confirmadas'] + $pessoas > $resumo['limite']) {
+            return ['ok' => false, 'mensagem' => 'Limite de convidados atingido (' . $resumo['limite'] . ' pessoas).'];
+        }
+
+        $ok = $this->convidados->insert([
+            'evento_id'                => $eventoId,
+            'nome'                     => $nome,
+            'email'                    => trim((string) ($dados['email'] ?? '')) ?: null,
+            'telefone'                 => trim((string) ($dados['telefone'] ?? '')) ?: null,
+            'quantidade_acompanhantes' => $acompanhantes,
+            'status'                   => 'confirmado',
+            'observacao'               => trim((string) ($dados['observacao'] ?? '')) ?: null,
+        ]);
+
+        return $ok === false
+            ? ['ok' => false, 'mensagem' => 'Não foi possível adicionar o convidado.']
+            : ['ok' => true, 'mensagem' => $nome . ' adicionado(a) como confirmado(a).'];
+    }
+}

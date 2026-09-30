@@ -18,6 +18,9 @@
         <a class="btn btn-outline-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/catalogo') ?>">
             <i class="bi bi-collection me-1"></i>Clonar do catálogo
         </a>
+        <a class="btn btn-outline-secondary" href="<?= site_url('painel/eventos/' . $evento->id . '/convidados') ?>">
+            <i class="bi bi-people me-1"></i>Convidados
+        </a>
         <a class="btn btn-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/novo') ?>">
             <i class="bi bi-plus-lg me-1"></i>Novo presente
         </a>

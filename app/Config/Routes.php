@@ -47,6 +47,14 @@ $routes->group('painel', ['filter' => 'auth'], static function (RouteCollection 
     $routes->post('eventos/(:num)/presentes/(:num)/excluir', 'Host\Presentes::excluir/$1/$2');
     $routes->post('eventos/(:num)/presentes/(:num)', 'Host\Presentes::atualizar/$1/$2');
 
+    // --- Lista de convidados (RSVP) ---
+    $routes->get('eventos/(:num)/convidados', 'Host\Convidados::index/$1');
+    $routes->get('eventos/(:num)/convidados/exportar', 'Host\Convidados::exportar/$1');
+    $routes->post('eventos/(:num)/convidados', 'Host\Convidados::adicionar/$1');
+    $routes->post('eventos/(:num)/convidados/(:num)/aprovar', 'Host\Convidados::aprovar/$1/$2');
+    $routes->post('eventos/(:num)/convidados/(:num)/recusar', 'Host\Convidados::recusar/$1/$2');
+    $routes->post('eventos/(:num)/convidados/(:num)/remover', 'Host\Convidados::remover/$1/$2');
+
     // --- Pedidos e carteira ---
     $routes->get('pedidos', 'Host\Pedidos::index');
     $routes->get('carteira', 'Host\Carteira::index');

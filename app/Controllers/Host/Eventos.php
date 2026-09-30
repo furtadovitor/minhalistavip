@@ -137,6 +137,12 @@ class Eventos extends BaseController
             return ($valor === null || $valor === '') ? null : (float) $valor;
         };
 
+        $inteiro = function (string $campo): ?int {
+            $valor = $this->request->getPost($campo);
+
+            return ($valor === null || $valor === '') ? null : (int) $valor;
+        };
+
         return [
             'titulo'           => $texto('titulo'),
             'slug'             => $texto('slug'),
@@ -154,6 +160,7 @@ class Eventos extends BaseController
             'quem_paga_taxa'   => (string) $this->request->getPost('quem_paga_taxa'),
             'percentual_taxa'  => $decimal('percentual_taxa'),
             'meta_valor'       => $decimal('meta_valor'),
+            'limite_convidados' => $inteiro('limite_convidados'),
             'pix_chave'        => $texto('pix_chave') ?: null,
             'pix_tipo'         => $this->request->getPost('pix_tipo') ?: null,
             'pix_nome'         => $texto('pix_nome') ?: null,

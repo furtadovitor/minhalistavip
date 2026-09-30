@@ -14,6 +14,7 @@
 $modo    = $modo ?? 'real';
 $escuro  = $escuro ?? false;
 $stats   = $stats ?? ['cotas_total' => 0, 'cotas_vendidas' => 0, 'arrecadado' => 0.0, 'confirmados' => 0];
+$rsvpEncerrado = $rsvpEncerrado ?? false;
 $exibirValores = isset($evento->exibir_valores) ? (bool) $evento->exibir_valores : true;
 
 $imgUrl = static function (?string $caminho): ?string {
@@ -441,13 +442,25 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
                 <div class="card-body p-4 p-md-5">
                     <div class="text-center mb-4">
                         <h2 class="h3 secao-titulo mb-1">Confirme sua presença</h2>
-                        <p class="secao-sub mb-0">Sua resposta ajuda o organizador a preparar tudo com carinho.</p>
+                        <?php if (! empty($evento->limite_convidados)): ?>
+                            <p class="secao-sub mb-0">
+                                <?= (int) $stats['confirmados'] ?> confirmação(ões) ·
+                                limite de <?= (int) $evento->limite_convidados ?> convidados
+                            </p>
+                        <?php else: ?>
+                            <p class="secao-sub mb-0">Sua resposta ajuda o organizador a preparar tudo com carinho.</p>
+                        <?php endif; ?>
                     </div>
 
                     <?php if ($modo === 'demo'): ?>
                         <div class="text-center">
                             <p class="text-muted">Em uma lista real, o convidado confirma a presença por aqui.</p>
                             <button class="btn btn-presentear" data-bs-toggle="modal" data-bs-target="#modalDemo">Confirmar presença</button>
+                        </div>
+                    <?php elseif ($rsvpEncerrado): ?>
+                        <div class="alert alert-warning rounded-4 text-center mb-0">
+                            <i class="bi bi-people-fill me-1"></i>
+                            As confirmações estão <strong>encerradas</strong>: o limite de convidados foi atingido.
                         </div>
                     <?php else: ?>
                         <form method="post" action="<?= site_url($evento->slug . '/rsvp') ?>" class="row g-3 justify-content-center">

@@ -18,6 +18,7 @@ class Evento extends Entity
         'quem_paga_taxa'  => 'string',
         'percentual_taxa' => '?float',
         'meta_valor'      => '?float',
+        'limite_convidados' => '?integer',
         'permite_rsvp'    => 'boolean',
         'permite_recados' => 'boolean',
         'exibir_valores'  => 'boolean',

@@ -7,6 +7,7 @@ use App\Entities\Evento as EventoEntity;
 use App\Models\MuralRecadoModel;
 use App\Models\PresenteEventoModel;
 use App\Models\RsvpConfirmacaoModel;
+use App\Services\ConvidadoService;
 use App\Services\EventoService;
 
 /**
@@ -63,6 +64,7 @@ class Evento extends BaseController
                 'arrecadado'     => $arrecadado,
                 'confirmados'    => $confirmados,
             ],
+            'rsvpEncerrado' => $evento->permite_rsvp && (new ConvidadoService())->limiteAtingido($evento),
         ]);
     }
 
@@ -75,6 +77,14 @@ class Evento extends BaseController
                 ->with('erro', 'Este evento não está recebendo confirmações de presença.');
         }
 
+        $querIr     = $this->request->getPost('status') !== 'recusado';
+        $convidados = new ConvidadoService();
+
+        if ($querIr && $convidados->limiteAtingido($evento)) {
+            return redirect()->to(site_url($evento->slug))
+                ->with('erro', 'As confirmações estão encerradas: o limite de convidados foi atingido.');
+        }
+
         $model = new RsvpConfirmacaoModel();
 
         $dados = [
@@ -83,7 +93,8 @@ class Evento extends BaseController
             'email'                     => $this->request->getPost('email') ?: null,
             'telefone'                  => $this->request->getPost('telefone') ?: null,
             'quantidade_acompanhantes'  => (int) $this->request->getPost('quantidade_acompanhantes'),
-            'status'                    => $this->request->getPost('status') === 'recusado' ? 'recusado' : 'confirmado',
+            // Quem vai entra como PENDENTE (aguardando homologação do organizador).
+            'status'                    => $querIr ? 'pendente' : 'recusado',
             'observacao'                => $this->request->getPost('observacao') ?: null,
         ];
 
@@ -93,7 +104,9 @@ class Evento extends BaseController
         }
 
         return redirect()->to(site_url($evento->slug))
-            ->with('sucesso', 'Presença registrada. Obrigado!');
+            ->with('sucesso', $querIr
+                ? 'Confirmação enviada! Ela será exibida após a aprovação do organizador.'
+                : 'Resposta registrada. Sentiremos sua falta!');
     }
 
     public function recado($slug = null)

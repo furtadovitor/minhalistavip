@@ -272,6 +272,13 @@ $temas = [
                 <div class="card-body">
                     <h2 class="h6 text-uppercase text-muted mb-3">Funcionalidades</h2>
 
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold fs-7" for="limite_convidados">Limite de convidados</label>
+                        <input type="number" min="1" class="form-control" id="limite_convidados" name="limite_convidados"
+                               value="<?= esc($valor('limite_convidados')) ?>" placeholder="vazio = sem limite">
+                        <div class="form-text">Máximo de <strong>pessoas</strong> confirmadas (com acompanhantes). Vazio = ilimitado.</div>
+                    </div>
+
                     <?php
                     $opcoes = [
                         'permite_rsvp'    => 'Aceitar confirmação de presença (RSVP)',

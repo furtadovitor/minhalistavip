@@ -54,6 +54,10 @@
                                     <i class="bi bi-gift me-1"></i>Presentes
                                 </a>
                                 <a class="btn btn-sm btn-outline-secondary"
+                                   href="<?= site_url('painel/eventos/' . $evento->id . '/convidados') ?>">
+                                    <i class="bi bi-people me-1"></i>Convidados
+                                </a>
+                                <a class="btn btn-sm btn-outline-secondary"
                                    href="<?= site_url('painel/eventos/' . $evento->id . '/editar') ?>">Editar</a>
 
                                 <?php if ($evento->status === 'publicado'): ?>

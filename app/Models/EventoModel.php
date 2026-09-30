@@ -38,6 +38,7 @@ class EventoModel extends Model
         'quem_paga_taxa',
         'percentual_taxa',
         'meta_valor',
+        'limite_convidados',
         'pix_chave',
         'pix_tipo',
         'pix_nome',
