@@ -151,13 +151,16 @@ RewriteBase /
 
 ## Passo 7 — Permissões
 
-Garanta que `writable/` seja gravável pelo PHP (SSH):
+Garanta que `writable/` e `public/uploads/` sejam graváveis pelo PHP (SSH):
 
 ```bash
 chmod -R 755 writable
+chmod -R 755 public/uploads
 ```
 
-Pelo File Manager, as pastas costumam ficar em `755`.
+Pelo File Manager, as pastas costumam ficar em `755`. A pasta `public/uploads/` é criada
+automaticamente pelo `UploadService` (subpastas `eventos`, `presentes`, `catalogo`) e guarda as
+capas dos eventos e as imagens dos presentes.
 
 ---
 
