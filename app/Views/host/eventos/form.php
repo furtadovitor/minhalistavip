@@ -181,6 +181,33 @@ $temas = [
                         </select>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold fs-7">Paletas prontas</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <?php
+                            $presets = [
+                                ['Clássico', '#4F46E5', '#10B981', 'classico'],
+                                ['Casamento', '#D97706', '#B45309', 'casamento'],
+                                ['Chá de bebê', '#06B6D4', '#0891B2', 'cha_bebe'],
+                                ['Infantil', '#F472B6', '#FBBF24', 'infantil'],
+                                ['Moderno', '#EC4899', '#8B5CF6', 'moderno'],
+                            ];
+                            ?>
+                            <?php foreach ($presets as $preset): ?>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary preset-cor d-inline-flex align-items-center gap-1"
+                                        data-primaria="<?= esc($preset[1], 'attr') ?>"
+                                        data-secundaria="<?= esc($preset[2], 'attr') ?>"
+                                        data-tema="<?= esc($preset[3], 'attr') ?>">
+                                    <span class="d-inline-block rounded-circle"
+                                          style="width:14px;height:14px;background: linear-gradient(135deg, <?= esc($preset[1], 'attr') ?>, <?= esc($preset[2], 'attr') ?>);"></span>
+                                    <?= esc($preset[0]) ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="form-text">Aplica cores e tipografia sugeridas de uma vez.</div>
+                    </div>
+
                     <div class="row g-2">
                         <div class="col-6">
                             <label class="form-label" for="cor_primaria">Cor primária</label>
@@ -209,6 +236,35 @@ $temas = [
                             </div>
                         <?php endif; ?>
                     </div>
+                </div>
+            </div>
+
+            <!-- Pré-visualização -->
+            <div class="card border-0 shadow-sm rounded-4 mb-3" id="preview-card">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-muted mb-3">Pré-visualização</h2>
+
+                    <div class="rounded-3 p-3 text-white text-center mb-3" id="pv-hero">
+                        <p class="text-uppercase fs-8 mb-1 opacity-75" id="pv-tipo">Evento</p>
+                        <p class="fw-bold mb-1" id="pv-titulo">Título do evento</p>
+                        <p class="fs-8 mb-0 opacity-75" id="pv-local">Data · Local</p>
+                    </div>
+
+                    <div class="border rounded-3 p-3">
+                        <p class="fw-semibold mb-1 fs-7">Presente de exemplo</p>
+                        <p class="text-muted fs-8 mb-2">Descrição do presente</p>
+                        <div class="progress mb-2" style="height:6px;">
+                            <div class="progress-bar" style="width:40%; background: var(--pv-primaria);"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold" id="pv-preco" style="color: var(--pv-primaria);">R$ 100,00</span>
+                            <span class="btn btn-sm text-white" style="background: var(--pv-primaria);">Presentear</span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted fs-8 mt-3 mb-0">
+                        É assim que as cores e a tipografia do tema aparecem no hotsite.
+                    </p>
                 </div>
             </div>
 
@@ -243,4 +299,86 @@ $temas = [
         </div>
     </div>
 </form>
+
+<script>
+(function () {
+    const pvCard = document.getElementById('preview-card');
+    if (!pvCard) { return; }
+
+    const fontes = {
+        classico: "'Playfair Display', Georgia, serif",
+        casamento: "'Cormorant Garamond', Georgia, serif",
+        cha_bebe: "'Poppins', sans-serif",
+        infantil: "'Baloo 2', 'Comic Sans MS', cursive",
+        moderno: "'Space Grotesk', 'Segoe UI', sans-serif",
+    };
+
+    const el = (id) => document.getElementById(id);
+    const titulo = el('titulo');
+    const tipo = el('tipo_evento');
+    const data = el('data_evento');
+    const local = el('local_nome');
+    const primaria = el('cor_primaria');
+    const secundaria = el('cor_secundaria');
+    const tema = el('tema');
+    const capa = el('imagem_capa');
+
+    let capaUrl = '<?= $edicao && ! empty($evento->imagem_capa) ? base_url($evento->imagem_capa) : '' ?>';
+
+    function pintar() {
+        const p = (primaria && primaria.value) || '#4F46E5';
+        const s = (secundaria && secundaria.value) || '#10B981';
+        const t = (tema && tema.value) || 'classico';
+
+        pvCard.style.setProperty('--pv-primaria', p);
+        pvCard.style.setProperty('--pv-secundaria', s);
+
+        const hero = el('pv-hero');
+        const overlay = 'linear-gradient(180deg, rgba(17,24,39,.45), rgba(17,24,39,.72))';
+        hero.style.background = capaUrl
+            ? overlay + ", url('" + capaUrl + "') center/cover"
+            : 'linear-gradient(135deg, ' + p + ', ' + s + ')';
+
+        el('pv-titulo').textContent = (titulo && titulo.value) || 'Título do evento';
+        el('pv-titulo').style.fontFamily = fontes[t] || fontes.classico;
+        el('pv-tipo').textContent = tipo ? (tipo.options[tipo.selectedIndex] || {}).text : 'Evento';
+
+        const dataTxt = data && data.value ? data.value.split('-').reverse().join('/') : '';
+        const localTxt = local ? local.value : '';
+        el('pv-local').textContent = [dataTxt, localTxt].filter(Boolean).join(' · ') || 'Data · Local';
+
+        el('pv-preco').style.color = p;
+        const botao = el('pv-preco').parentElement.querySelector('span.btn');
+        if (botao) { botao.style.background = p; }
+    }
+
+    [titulo, tipo, data, local, primaria, secundaria, tema].forEach(function (campo) {
+        if (campo) {
+            campo.addEventListener('input', pintar);
+            campo.addEventListener('change', pintar);
+        }
+    });
+
+    if (capa) {
+        capa.addEventListener('change', function () {
+            const arquivo = capa.files && capa.files[0];
+            if (!arquivo) { return; }
+            const leitor = new FileReader();
+            leitor.onload = function (e) { capaUrl = e.target.result; pintar(); };
+            leitor.readAsDataURL(arquivo);
+        });
+    }
+
+    document.querySelectorAll('.preset-cor').forEach(function (botao) {
+        botao.addEventListener('click', function () {
+            primaria.value = botao.dataset.primaria;
+            secundaria.value = botao.dataset.secundaria;
+            tema.value = botao.dataset.tema;
+            pintar();
+        });
+    });
+
+    pintar();
+})();
+</script>
 <?= $this->endSection() ?>

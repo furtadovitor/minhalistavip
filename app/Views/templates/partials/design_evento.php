@@ -2,19 +2,30 @@
 /**
  * Cabeçalho temático das páginas públicas do evento (hotsite, checkout, pedido).
  *
- * Uso: <head><?= view('templates/partials/design_evento', [
- *     'titulo' => '...', 'corPrimaria' => '#...', 'corSecundaria' => '#...', 'escuro' => false,
- * ]) ?></head>
+ * O `tema` define a tipografia e o arredondamento dos cantos, além das cores.
  *
  * @var string|null $titulo
  * @var string|null $corPrimaria
  * @var string|null $corSecundaria
+ * @var string|null $tema
  * @var bool|null   $escuro
  */
 $titulo        = $titulo ?? 'Evento';
 $corPrimaria   = $corPrimaria ?? '#4F46E5';
 $corSecundaria = $corSecundaria ?? '#10B981';
 $escuro        = $escuro ?? false;
+
+/** Tipografia e estilo por tema. */
+$temas = [
+    'classico'  => ['titulo' => 'Playfair Display', 'corpo' => 'Inter', 'google' => 'Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600', 'raio' => '1.25rem'],
+    'casamento' => ['titulo' => 'Cormorant Garamond', 'corpo' => 'Inter', 'google' => 'Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600', 'raio' => '1.1rem'],
+    'cha_bebe'  => ['titulo' => 'Poppins', 'corpo' => 'Nunito', 'google' => 'Poppins:wght@600;700;800&family=Nunito:wght@400;600', 'raio' => '1.75rem'],
+    'infantil'  => ['titulo' => 'Baloo 2', 'corpo' => 'Nunito', 'google' => 'Baloo+2:wght@600;700;800&family=Nunito:wght@400;600', 'raio' => '1.9rem'],
+    'moderno'   => ['titulo' => 'Space Grotesk', 'corpo' => 'Inter', 'google' => 'Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600', 'raio' => '.75rem'],
+];
+
+$tema = $tema ?? 'classico';
+$fonte = $temas[$tema] ?? $temas['classico'];
 ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +33,7 @@ $escuro        = $escuro ?? false;
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=<?= $fonte['google'] ?>&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -30,9 +41,11 @@ $escuro        = $escuro ?? false;
     :root {
         --cor-primaria: <?= $corPrimaria ?>;
         --cor-secundaria: <?= $corSecundaria ?>;
+        --raio: <?= $fonte['raio'] ?>;
+        --fonte-titulo: '<?= $fonte['titulo'] ?>';
     }
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    h1, h2, h3, h4, h5, .font-display { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+    body { font-family: '<?= $fonte['corpo'] ?>', system-ui, sans-serif; }
+    h1, h2, h3, h4, h5, .font-display { font-family: var(--fonte-titulo), 'Inter', sans-serif; }
 
     .hero { background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria)); color: #fff; }
     .btn-evento { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: #fff; font-weight: 600; }
@@ -40,7 +53,7 @@ $escuro        = $escuro ?? false;
     .btn-outline-evento { color: var(--cor-primaria); border-color: var(--cor-primaria); font-weight: 600; }
     .btn-outline-evento:hover { background-color: var(--cor-primaria); color: #fff; }
     .titulo-evento { color: var(--cor-primaria); }
-    .card { border-radius: 1rem; }
+    .card { border-radius: var(--raio); }
     .fs-7 { font-size: .875rem; }
     .fs-8 { font-size: .75rem; }
 

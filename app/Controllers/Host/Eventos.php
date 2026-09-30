@@ -4,6 +4,7 @@ namespace App\Controllers\Host;
 
 use App\Controllers\BaseController;
 use App\Services\EventoService;
+use App\Services\UploadService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -16,11 +17,14 @@ class Eventos extends BaseController
 {
     protected EventoService $eventos;
 
+    protected UploadService $upload;
+
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
 
         $this->eventos = new EventoService();
+        $this->upload  = new UploadService();
     }
 
     public function index()
@@ -90,7 +94,7 @@ class Eventos extends BaseController
         }
 
         if ($this->request->getPost('remover_capa')) {
-            $this->apagarArquivo($evento->imagem_capa);
+            $this->upload->apagar($evento->imagem_capa, 'eventos');
             $dados['imagem_capa'] = null;
             $erroCapa             = null;
         } else {
@@ -166,50 +170,7 @@ class Eventos extends BaseController
      */
     private function tratarCapa(?string $atual): array
     {
-        $arquivo = $this->request->getFile('imagem_capa');
-
-        if ($arquivo === null || $arquivo->getError() === UPLOAD_ERR_NO_FILE) {
-            return [$atual, null];
-        }
-
-        if (! $arquivo->isValid()) {
-            return [$atual, 'Não foi possível receber a imagem enviada.'];
-        }
-
-        $regras = [
-            'imagem_capa' => 'uploaded[imagem_capa]|is_image[imagem_capa]|'
-                . 'mime_in[imagem_capa,image/jpeg,image/png,image/webp]|max_size[imagem_capa,2048]',
-        ];
-
-        if (! $this->validate($regras)) {
-            return [$atual, 'A capa deve ser JPG, PNG ou WEBP com no máximo 2 MB.'];
-        }
-
-        $destino = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'eventos';
-
-        if (! is_dir($destino) && ! mkdir($destino, 0o775, true) && ! is_dir($destino)) {
-            return [$atual, 'Não foi possível preparar o diretório de uploads.'];
-        }
-
-        $nome = $arquivo->getRandomName();
-        $arquivo->move($destino, $nome);
-
-        $this->apagarArquivo($atual);
-
-        return ['uploads/eventos/' . $nome, null];
-    }
-
-    private function apagarArquivo(?string $caminho): void
-    {
-        if ($caminho === null || ! str_starts_with($caminho, 'uploads/eventos/')) {
-            return;
-        }
-
-        $absoluto = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $caminho);
-
-        if (is_file($absoluto)) {
-            unlink($absoluto);
-        }
+        return $this->upload->imagem($this->request->getFile('imagem_capa'), 'eventos', $atual);
     }
 
     private function urlPresentes(int $eventoId): string

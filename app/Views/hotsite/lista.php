@@ -40,6 +40,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
         'titulo'        => $evento->titulo,
         'corPrimaria'   => $evento->cor_primaria,
         'corSecundaria' => $evento->cor_secundaria,
+        'tema'          => $evento->tema ?? 'classico',
         'escuro'        => $escuro,
     ]) ?>
     <style>
@@ -120,7 +121,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
         .tema-escuro .secao-sub { color: #9ca3af; }
 
         /* ---------- PROGRESSO DA META ---------- */
-        .meta-card { border-radius: 1.25rem; }
+        .meta-card { border-radius: var(--raio); }
         .progress { background: rgba(0,0,0,.07); border-radius: 999px; }
         .tema-escuro .progress { background: rgba(255,255,255,.12); }
         .progress-bar { border-radius: 999px; }
@@ -131,7 +132,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
 
         /* ---------- CARDS DE PRESENTE ---------- */
         .presente-card {
-            border: 0; border-radius: 1.25rem; overflow: hidden; background: #fff;
+            border: 0; border-radius: var(--raio); overflow: hidden; background: #fff;
             box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.1);
             transition: transform .22s ease, box-shadow .22s ease;
             display: flex; flex-direction: column; height: 100%;
@@ -171,7 +172,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
 
         /* ---------- RECADOS ---------- */
         .recado-card {
-            border: 0; border-radius: 1.1rem; background: #fff; padding: 1.1rem 1.2rem;
+            border: 0; border-radius: var(--raio); background: #fff; padding: 1.1rem 1.2rem;
             box-shadow: 0 1px 2px rgba(16,24,40,.06); position: relative; height: 100%;
         }
         .tema-escuro .recado-card { background: #15151F; border: 1px solid rgba(255,255,255,.08); }
@@ -208,7 +209,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
 <!-- ============================ HERO ============================ -->
 <header class="hotsite-hero <?= $capa !== null ? 'has-cover' : '' ?>"
     <?php if ($capa !== null): ?>
-        style="background-image: linear-gradient(180deg, rgba(17,24,39,.45), rgba(17,24,39,.72)), url('<?= esc($capa, 'attr') ?>');"
+        style="background-image: linear-gradient(180deg, rgba(17,24,39,.45), rgba(17,24,39,.72)), url('<?= esc($capa) ?>');"
     <?php endif; ?>>
     <div class="container text-center" style="max-width: 860px;">
         <span class="hero-badge text-uppercase mb-3">
@@ -231,7 +232,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
         </div>
 
         <?php if (! empty($dataIso) && strtotime($dataIso) > time()): ?>
-            <div class="countdown mb-4" id="countdown" data-data="<?= esc($dataIso, 'attr') ?>">
+            <div class="countdown mb-4" id="countdown" data-data="<?= esc($dataIso) ?>">
                 <div class="cx"><strong data-cd="dias">--</strong><span>dias</span></div>
                 <div class="cx"><strong data-cd="horas">--</strong><span>horas</span></div>
                 <div class="cx"><strong data-cd="min">--</strong><span>min</span></div>
@@ -361,14 +362,14 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
                         $imgP      = $imgUrl($presente['imagem'] ?? null);
                     ?>
                     <div class="col-sm-6 col-lg-4 presente-item reveal"
-                         data-nome="<?= esc(mb_strtolower((string) $presente['nome']), 'attr') ?>"
-                         data-valor="<?= esc((string) $presente['valor'], 'attr') ?>"
-                         data-tipo="<?= esc($tipoP, 'attr') ?>"
+                         data-nome="<?= esc(mb_strtolower((string) $presente['nome'])) ?>"
+                         data-valor="<?= esc((string) $presente['valor']) ?>"
+                         data-tipo="<?= esc($tipoP) ?>"
                          data-vendida="<?= $vendidasP ?>">
                         <article class="presente-card">
                             <div class="presente-img">
                                 <?php if ($imgP !== null): ?>
-                                    <img src="<?= esc($imgP, 'attr') ?>" alt="<?= esc($presente['nome'], 'attr') ?>" loading="lazy">
+                                    <img src="<?= esc($imgP) ?>" alt="<?= esc($presente['nome']) ?>" loading="lazy">
                                 <?php else: ?>
                                     <div class="ph"><i class="bi <?= $tipoP === 'real' ? 'bi-bag-heart' : 'bi-gift-fill' ?>"></i></div>
                                 <?php endif; ?>
@@ -400,7 +401,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
                                     <?php if ($tipoP === 'real'): ?>
                                         <?php if (! empty($presente['link_afiliado'])): ?>
                                             <a class="btn btn-presentear btn-sm" target="_blank" rel="noopener"
-                                               href="<?= esc($presente['link_afiliado'], 'attr') ?>">
+                                               href="<?= esc($presente['link_afiliado']) ?>">
                                                 <i class="bi bi-box-arrow-up-right me-1"></i>Comprar
                                             </a>
                                         <?php else: ?>

@@ -14,7 +14,7 @@ $campo = static fn (string $chave, $padrao = '') => old($chave, $edicao ? ($pres
     <p class="text-muted mb-0">Evento: <strong><?= esc($evento->titulo) ?></strong></p>
 </div>
 
-<form method="post" action="<?= $action ?>">
+<form method="post" action="<?= $action ?>" enctype="multipart/form-data">
     <?= csrf_field() ?>
 
     <div class="row g-3">
@@ -60,6 +60,22 @@ $campo = static fn (string $chave, $padrao = '') => old($chave, $edicao ? ($pres
                         <label class="form-label" for="link_afiliado">Link de afiliado <span class="text-muted">(só para presentes reais)</span></label>
                         <input type="url" class="form-control" id="link_afiliado" name="link_afiliado"
                                value="<?= esc($campo('link_afiliado')) ?>" placeholder="https://...">
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label fw-semibold fs-7" for="imagem">Imagem do presente</label>
+                        <input type="file" class="form-control" id="imagem" name="imagem"
+                               accept="image/jpeg,image/png,image/webp">
+                        <div class="form-text">JPG, PNG ou WEBP até 2 MB. Aparece no card da página pública.</div>
+
+                        <?php if ($edicao && ! empty($presente['imagem'])): ?>
+                            <img src="<?= base_url($presente['imagem']) ?>" alt="Imagem atual"
+                                 class="img-fluid rounded-3 mt-2 border" style="max-height: 150px;">
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="remover_imagem" name="remover_imagem" value="1">
+                                <label class="form-check-label fs-7" for="remover_imagem">Remover imagem atual</label>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

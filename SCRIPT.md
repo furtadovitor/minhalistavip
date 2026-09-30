@@ -318,6 +318,20 @@ Rotas novas (grupo `/admin`):
   * RSVP e mural de recados reorganizados, com avatares nos recados.
   * No modo demonstração, as ações abrem um modal explicando que é exemplo.
 
+### Etapa 14 — Imagens nos presentes e mais personalização (concluída)
+* **UploadService** reutilizável (`app/Services/UploadService.php`): valida JPG/PNG/WEBP até 2 MB,
+  gera nome aleatório e remove o arquivo anterior. Centraliza a lógica antes duplicada.
+* **Imagem do presente** (painel do organizador): campo no formulário, opção de remover, miniatura
+  na listagem, e a imagem aparece nos cards do hotsite. O arquivo é removido ao trocar/excluir.
+* **Imagem do item do catálogo** (SuperAdmin): mesmo fluxo.
+* **Capa do evento**: passou a usar o serviço (comportamento mantido).
+* **Personalização por tema**: `design_evento` agora aplica **tipografia e arredondamento** conforme
+  o tema — `classico` (Playfair Display), `casamento` (Cormorant Garamond), `cha_bebe` (Poppins),
+  `infantil` (Baloo 2) e `moderno` (Space Grotesk). Vale para hotsite, checkout e pedido.
+* **Formulário do evento**: **presets de paleta** (Clássico, Casamento, Chá de bebê, Infantil,
+  Moderno) que aplicam cores + tema de uma vez, e **pré-visualização ao vivo** (hero e card de
+  presente) que reflete título, tipo, data, local, cores, tema e a capa escolhida.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

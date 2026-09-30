@@ -7,6 +7,7 @@ use App\Models\CatalogoPresenteModel;
 use App\Models\CategoriaModel;
 use App\Services\EventoService;
 use App\Services\PresenteEventoService;
+use App\Services\UploadService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -20,12 +21,15 @@ class Presentes extends BaseController
 
     protected PresenteEventoService $presentes;
 
+    protected UploadService $upload;
+
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
 
         $this->eventos   = new EventoService();
         $this->presentes = new PresenteEventoService();
+        $this->upload    = new UploadService();
     }
 
     public function index($eventoId = null)
@@ -54,12 +58,15 @@ class Presentes extends BaseController
     {
         $evento = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
 
-        if ($this->presentes->criar((int) $evento->id, $this->dadosDoFormulario()) === null) {
+        $dados = $this->dadosDoFormulario();
+        [$dados['imagem'], $erroImagem] = $this->upload->imagem($this->request->getFile('imagem'), 'presentes', null);
+
+        if ($this->presentes->criar((int) $evento->id, $dados) === null) {
             return redirect()->back()->withInput()->with('erros', $this->presentes->erros());
         }
 
         return redirect()->to($this->urlPresentes((int) $evento->id))
-            ->with('sucesso', 'Presente adicionado à lista.');
+            ->with($erroImagem === null ? 'sucesso' : 'erro', $erroImagem ?? 'Presente adicionado à lista.');
     }
 
     public function editar($eventoId = null, $presenteId = null)
@@ -75,14 +82,30 @@ class Presentes extends BaseController
 
     public function atualizar($eventoId = null, $presenteId = null)
     {
-        $evento = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
+        $evento   = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
+        $presente = $this->presentes->um((int) $evento->id, (int) $presenteId);
 
-        if (! $this->presentes->atualizar((int) $evento->id, (int) $presenteId, $this->dadosDoFormulario())) {
+        $dados = $this->dadosDoFormulario();
+
+        if ($this->request->getPost('remover_imagem')) {
+            $this->upload->apagar($presente['imagem'] ?? null, 'presentes');
+            $dados['imagem'] = null;
+            $erroImagem      = null;
+        } else {
+            [$dados['imagem'], $erroImagem] = $this->upload->imagem(
+                $this->request->getFile('imagem'),
+                'presentes',
+                $presente['imagem'] ?? null
+            );
+        }
+
+        if (! $this->presentes->atualizar((int) $evento->id, (int) $presenteId, $dados)) {
             return redirect()->back()->withInput()->with('erros', $this->presentes->erros());
         }
 
-        return redirect()->to($this->urlPresentes((int) $evento->id))
-            ->with('sucesso', 'Presente atualizado.');
+        $redirect = redirect()->to($this->urlPresentes((int) $evento->id))->with('sucesso', 'Presente atualizado.');
+
+        return $erroImagem !== null ? $redirect->with('erro', $erroImagem) : $redirect;
     }
 
     public function alternar($eventoId = null, $presenteId = null)
@@ -97,9 +120,11 @@ class Presentes extends BaseController
 
     public function excluir($eventoId = null, $presenteId = null)
     {
-        $evento = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
+        $evento   = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
+        $presente = $this->presentes->um((int) $evento->id, (int) $presenteId);
 
         $this->presentes->excluir((int) $evento->id, (int) $presenteId);
+        $this->upload->apagar($presente['imagem'] ?? null, 'presentes');
 
         return redirect()->to($this->urlPresentes((int) $evento->id))
             ->with('sucesso', 'Presente removido da lista.');

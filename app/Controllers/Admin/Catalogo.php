@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\CatalogoPresenteModel;
 use App\Models\CategoriaModel;
+use App\Services\UploadService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -20,12 +21,15 @@ class Catalogo extends BaseController
 
     protected CategoriaModel $categorias;
 
+    protected UploadService $upload;
+
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
 
         $this->itens      = new CatalogoPresenteModel();
         $this->categorias = new CategoriaModel();
+        $this->upload     = new UploadService();
     }
 
     public function index()
@@ -55,11 +59,15 @@ class Catalogo extends BaseController
 
     public function criar()
     {
-        if ($this->itens->insert($this->dadosDoFormulario()) === false) {
+        $dados = $this->dadosDoFormulario();
+        [$dados['imagem'], $erroImagem] = $this->upload->imagem($this->request->getFile('imagem'), 'catalogo', null);
+
+        if ($this->itens->insert($dados) === false) {
             return redirect()->back()->withInput()->with('erros', $this->itens->errors());
         }
 
-        return redirect()->to(site_url('admin/catalogo'))->with('sucesso', 'Item adicionado ao catálogo.');
+        return redirect()->to(site_url('admin/catalogo'))
+            ->with($erroImagem === null ? 'sucesso' : 'erro', $erroImagem ?? 'Item adicionado ao catálogo.');
     }
 
     public function editar($id = null)
@@ -73,14 +81,30 @@ class Catalogo extends BaseController
 
     public function atualizar($id = null)
     {
-        $id = (int) $id;
-        $this->buscarItem($id);
+        $id   = (int) $id;
+        $item = $this->buscarItem($id);
 
-        if ($this->itens->update($id, $this->dadosDoFormulario()) === false) {
+        $dados = $this->dadosDoFormulario();
+
+        if ($this->request->getPost('remover_imagem')) {
+            $this->upload->apagar($item['imagem'] ?? null, 'catalogo');
+            $dados['imagem'] = null;
+            $erroImagem      = null;
+        } else {
+            [$dados['imagem'], $erroImagem] = $this->upload->imagem(
+                $this->request->getFile('imagem'),
+                'catalogo',
+                $item['imagem'] ?? null
+            );
+        }
+
+        if ($this->itens->update($id, $dados) === false) {
             return redirect()->back()->withInput()->with('erros', $this->itens->errors());
         }
 
-        return redirect()->to(site_url('admin/catalogo'))->with('sucesso', 'Item atualizado.');
+        $redirect = redirect()->to(site_url('admin/catalogo'))->with('sucesso', 'Item atualizado.');
+
+        return $erroImagem !== null ? $redirect->with('erro', $erroImagem) : $redirect;
     }
 
     public function alternar($id = null)
@@ -94,8 +118,9 @@ class Catalogo extends BaseController
 
     public function excluir($id = null)
     {
-        $this->buscarItem((int) $id);
+        $item = $this->buscarItem((int) $id);
         $this->itens->delete((int) $id);
+        $this->upload->apagar($item['imagem'] ?? null, 'catalogo');
 
         return redirect()->to(site_url('admin/catalogo'))->with('sucesso', 'Item removido do catálogo.');
     }

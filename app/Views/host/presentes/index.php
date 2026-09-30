@@ -56,13 +56,21 @@
                     <tr>
                         <td class="text-muted small"><?= (int) $presente['ordem'] ?></td>
                         <td>
-                            <div class="fw-semibold"><?= esc($presente['nome']) ?></div>
-                            <?php if (! empty($presente['descricao'])): ?>
-                                <div class="text-muted fs-8"><?= esc($presente['descricao']) ?></div>
-                            <?php endif; ?>
-                            <?php if (! empty($presente['catalogo_id'])): ?>
-                                <span class="badge text-bg-light border fs-8">clonado do catálogo</span>
-                            <?php endif; ?>
+                            <div class="d-flex align-items-center gap-2">
+                                <?php if (! empty($presente['imagem'])): ?>
+                                    <img src="<?= base_url($presente['imagem']) ?>" alt=""
+                                         class="rounded-2 border flex-shrink-0" style="width:44px;height:44px;object-fit:cover;">
+                                <?php endif; ?>
+                                <div>
+                                    <div class="fw-semibold"><?= esc($presente['nome']) ?></div>
+                                    <?php if (! empty($presente['descricao'])): ?>
+                                        <div class="text-muted fs-8"><?= esc($presente['descricao']) ?></div>
+                                    <?php endif; ?>
+                                    <?php if (! empty($presente['catalogo_id'])): ?>
+                                        <span class="badge text-bg-light border fs-8">clonado do catálogo</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </td>
                         <td class="small"><?= esc(rotulo_tipo_presente((string) $presente['tipo'])) ?></td>
                         <td class="text-end"><?= esc(moeda_brl($presente['valor'])) ?></td>

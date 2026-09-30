@@ -5,6 +5,7 @@
         'titulo'        => 'Pedido ' . $pedido->protocolo . ' · ' . $evento->titulo,
         'corPrimaria'   => $evento->cor_primaria,
         'corSecundaria' => $evento->cor_secundaria,
+        'tema'          => $evento->tema ?? 'classico',
     ]) ?>
 </head>
 <body class="bg-body-tertiary">
