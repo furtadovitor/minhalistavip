@@ -107,8 +107,8 @@ app.appTimezone = 'America/Sao_Paulo'
 app.forceGlobalSecureRequests = false   # mude para true após emitir o SSL
 
 database.default.hostname = localhost
-database.default.database = u000000000_minhalistavip
-database.default.username = u000000000_mlvuser
+database.default.database = u776139543_minhalistav
+database.default.username = u776139543_SEU_USUARIO
 database.default.password = 'SUA-SENHA'
 database.default.DBDriver = MySQLi
 database.default.DBPrefix =
@@ -123,11 +123,13 @@ Gere a chave de criptografia (SSH): `php spark key:generate`.
 
 ## Passo 5 — Banco de dados
 
-1. hPanel → **Databases → MySQL Databases** → crie o banco e o usuário (anote o prefixo `uXXXXXX_`).
+1. hPanel → **Databases → MySQL Databases** → crie o banco e o usuário (anote o prefixo `u776139543_`).
+   O banco de produção deste projeto é **`u776139543_minhalistav`**.
 2. Suba o esquema e os dados:
-   - **Levar os dados locais (recomendado):** gere o dump com
-     `tools/exportar-banco.ps1` (saída em UTF-8 **sem BOM**, pronta para importar) e, no hPanel →
-     **phpMyAdmin** → selecione o banco → **Importar** → envie `tools/db/minhalistavip-local.sql`.
+   - **Levar os dados locais (recomendado):** o dump já está em `tools/db/minhalistavip-local.sql`
+     (UTF-8 **sem BOM**, **sem `CREATE DATABASE`/`USE`** — importa no banco que você selecionar).
+     No hPanel → **phpMyAdmin** → selecione `u776139543_minhalistav` → **Importar** → envie o arquivo.
+     Para regerar: `tools/exportar-banco.ps1` (WAMP) ou `mysqldump ... minhalistavip`.
    - **Começar limpo (SSH):**
      ```bash
      php spark migrate
@@ -138,8 +140,9 @@ Gere a chave de criptografia (SSH): `php spark key:generate`.
 
 > **Atualizações de esquema:** sempre que houver uma migration nova, rode `php spark migrate`
 > (por SSH) ou reimporte o dump atualizado em `tools/db/minhalistavip-local.sql`.
-> Exemplos: `2026-09-30-000016` adiciona `eventos.limite_convidados`; `2026-09-30-000017` cria
-> a tabela `rsvp_acompanhantes`.
+> Exemplos: `000016` adiciona `eventos.limite_convidados`; `000017` cria `rsvp_acompanhantes`;
+> `000018` adiciona `eventos.arquivado`; `000019` cria `evento_galeria`; `000020` adiciona
+> `rsvp_acompanhantes.categoria`.
 
 ---
 
