@@ -32,7 +32,7 @@ class Dashboard extends BaseController
         $publicados = array_filter($eventos, static fn ($evento): bool => $evento->status === 'publicado');
 
         return $this->render('host/dashboard', [
-            'titulo'     => 'Meus eventos',
+            'titulo'     => 'Dashboard',
             'eventos'    => $eventos,
             'total'      => count($eventos),
             'publicados' => count($publicados),

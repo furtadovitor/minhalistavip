@@ -3,60 +3,72 @@
 <?= $this->section('conteudo') ?>
 <div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Saques pendentes</h2>
-                <p class="display-6 mb-0"><?= (int) $resumo['pendentes_qtd'] ?></p>
-                <p class="text-muted small mb-0"><?= esc(moeda_brl($resumo['pendentes_valor'])) ?> aguardando pagamento</p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Saques pendentes</h2>
+                    <i class="bi bi-hourglass-split text-warning"></i>
+                </div>
+                <p class="display-6 fw-bold mb-0"><?= (int) $resumo['pendentes_qtd'] ?></p>
+                <p class="text-muted fs-8 mb-0"><?= esc(moeda_brl($resumo['pendentes_valor'])) ?> aguardando pagamento</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Saques pagos</h2>
-                <p class="display-6 mb-0"><?= (int) $resumo['pagos_qtd'] ?></p>
-                <p class="text-muted small mb-0"><?= esc(moeda_brl($resumo['pagos_valor'])) ?> transferidos</p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Saques pagos</h2>
+                    <i class="bi bi-check2-circle text-success"></i>
+                </div>
+                <p class="display-6 fw-bold mb-0"><?= (int) $resumo['pagos_qtd'] ?></p>
+                <p class="text-muted fs-8 mb-0"><?= esc(moeda_brl($resumo['pagos_valor'])) ?> transferidos</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Acesso</h2>
-                <p class="text-muted small mb-2">Pague pelo seu internet banking/PIX e marque o saque como pago.</p>
+                <h2 class="h6 text-muted text-uppercase mb-2 fs-8">Como pagar</h2>
+                <p class="text-muted fs-8 mb-3">
+                    Faça a transferência pelo seu banco (chave PIX abaixo) e marque o saque como pago.
+                </p>
                 <a class="btn btn-outline-secondary btn-sm" href="<?= site_url('admin') ?>">Painel do SuperAdmin</a>
             </div>
         </div>
     </div>
 </div>
 
-<form class="row g-2 align-items-end mb-3" method="get" action="<?= site_url('admin/saques') ?>">
-    <div class="col-md-3">
-        <label class="form-label small mb-1" for="filtro-status">Status</label>
-        <select class="form-select" id="filtro-status" name="status">
-            <option value="">Todos</option>
-            <?php foreach (['solicitado', 'processando', 'pago', 'recusado', 'cancelado'] as $opcao): ?>
-                <option value="<?= esc($opcao) ?>" <?= (string) ($filtros['status'] ?? '') === $opcao ? 'selected' : '' ?>>
-                    <?= esc(rotulo_status_saque($opcao)) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button class="btn btn-outline-secondary w-100">Filtrar</button>
+<form class="card border-0 shadow-sm rounded-4 mb-3" method="get" action="<?= site_url('admin/saques') ?>">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold fs-7 mb-1" for="filtro-status">Status</label>
+                <select class="form-select" id="filtro-status" name="status">
+                    <option value="">Todos</option>
+                    <?php foreach (['solicitado', 'processando', 'pago', 'recusado', 'cancelado'] as $opcao): ?>
+                        <option value="<?= esc($opcao) ?>" <?= (string) ($filtros['status'] ?? '') === $opcao ? 'selected' : '' ?>>
+                            <?= esc(rotulo_status_saque($opcao)) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-brand w-100"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+            </div>
+        </div>
     </div>
 </form>
 
 <?php if (empty($saques)): ?>
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body text-center py-5">
             <p class="mb-1 fw-semibold">Nenhum saque encontrado.</p>
             <p class="text-muted mb-0">Os pedidos dos organizadores aparecem aqui assim que forem solicitados.</p>
         </div>
     </div>
 <?php else: ?>
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm rounded-4">
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
                 <thead class="table-light">
@@ -77,7 +89,7 @@
                         <td class="small text-muted"><?= (int) $saque['id'] ?></td>
                         <td class="small">
                             <div><?= esc($saque['organizador_nome']) ?></div>
-                            <div class="text-muted"><?= esc($saque['organizador_email']) ?></div>
+                            <div class="text-muted fs-8"><?= esc($saque['organizador_email']) ?></div>
                         </td>
                         <td class="text-end fw-semibold"><?= esc(moeda_brl($saque['valor'])) ?></td>
                         <td class="small"><?= esc((string) $saque['chave_pix']) ?></td>

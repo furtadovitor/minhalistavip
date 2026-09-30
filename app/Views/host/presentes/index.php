@@ -9,33 +9,35 @@
                 <?= esc(rotulo_status_evento($evento->status)) ?>
             </span>
         </p>
-        <p class="text-muted small mb-0">
+        <p class="text-muted fs-8 mb-0">
             Página pública: <a href="<?= site_url($evento->slug) ?>" target="_blank"><?= esc($evento->slug) ?></a>
         </p>
     </div>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-outline-secondary" href="<?= site_url('painel/eventos') ?>">Voltar</a>
-        <a class="btn btn-outline-primary" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/catalogo') ?>">
-            Clonar do catálogo
+        <a class="btn btn-outline-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/catalogo') ?>">
+            <i class="bi bi-collection me-1"></i>Clonar do catálogo
         </a>
-        <a class="btn btn-primary" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/novo') ?>">
-            Novo presente
+        <a class="btn btn-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/novo') ?>">
+            <i class="bi bi-plus-lg me-1"></i>Novo presente
         </a>
     </div>
 </div>
 
 <?php if (empty($presentes)): ?>
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body text-center py-5">
+            <div class="bg-indigo-100 text-indigo-700 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width:64px;height:64px;"><i class="bi bi-gift fs-3"></i></div>
             <p class="mb-1 fw-semibold">A lista de presentes está vazia.</p>
             <p class="text-muted">Adicione itens manualmente ou clone do catálogo global da plataforma.</p>
-            <a class="btn btn-primary" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/catalogo') ?>">
+            <a class="btn btn-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/presentes/catalogo') ?>">
                 Clonar do catálogo
             </a>
         </div>
     </div>
 <?php else: ?>
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm rounded-4">
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
                 <thead class="table-light">
@@ -56,10 +58,10 @@
                         <td>
                             <div class="fw-semibold"><?= esc($presente['nome']) ?></div>
                             <?php if (! empty($presente['descricao'])): ?>
-                                <div class="text-muted small"><?= esc($presente['descricao']) ?></div>
+                                <div class="text-muted fs-8"><?= esc($presente['descricao']) ?></div>
                             <?php endif; ?>
                             <?php if (! empty($presente['catalogo_id'])): ?>
-                                <span class="badge text-bg-light border">clonado do catálogo</span>
+                                <span class="badge text-bg-light border fs-8">clonado do catálogo</span>
                             <?php endif; ?>
                         </td>
                         <td class="small"><?= esc(rotulo_tipo_presente((string) $presente['tipo'])) ?></td>
@@ -93,7 +95,7 @@
                                       action="<?= site_url('painel/eventos/' . $evento->id . '/presentes/' . $presente['id'] . '/excluir') ?>"
                                       onsubmit="return confirm('Remover este presente da lista?');">
                                     <?= csrf_field() ?>
-                                    <button class="btn btn-sm btn-outline-danger">Excluir</button>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </td>

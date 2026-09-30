@@ -258,6 +258,17 @@ Conforme `FRONTEND_SPEC.md`:
 * **Hotsite** (`public/evento.php`) e **listas de exemplo** (`demo/lista.php`) passaram a usar o
   partial temático (`design_evento`), garantindo consistência de tipografia e componentes.
 
+### Etapa 10 — Redesign do painel do organizador/SuperAdmin (concluída)
+* **Layout do painel** (`templates/layouts/app.php`): sidebar responsiva (vira *offcanvas* no mobile),
+  navegação com estado ativo, bloco do usuário, atalhos "Ver site"/"Sair" e o mesmo design system
+  da plataforma.
+* **Dashboard** do organizador com KPIs (eventos, publicados, arrecadado, saldo) e lista de eventos
+  recentes; **Dashboard do SuperAdmin** com organizadores, eventos, pedidos pagos e saques pendentes.
+* **Listas padronizadas**: eventos, presentes, catálogo, pedidos, carteira e saques com cards
+  `rounded-4`, botões `btn-brand`/`btn-outline-brand` e estados vazios ilustrados.
+* **Formulários** (evento e presente) e **catálogo** ajustados ao novo padrão.
+* Correção: o formulário de evento mostrava o antigo prefixo `/e/` no slug; agora exibe o domínio raiz.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

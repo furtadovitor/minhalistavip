@@ -2,47 +2,61 @@
 
 <?= $this->section('conteudo') ?>
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Saldo disponível</h2>
-                <p class="display-6 mb-0"><?= esc(moeda_brl($saldo)) ?></p>
-                <a class="btn btn-primary btn-sm mt-2" href="<?= site_url('painel/carteira/saque') ?>">Solicitar saque</a>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Saldo disponível</h2>
+                    <i class="bi bi-wallet2 text-brand"></i>
+                </div>
+                <p class="h3 fw-bold mb-3"><?= esc(moeda_brl($saldo)) ?></p>
+                <a class="btn btn-brand btn-sm" href="<?= site_url('painel/carteira/saque') ?>">
+                    <i class="bi bi-cash-coin me-1"></i>Solicitar saque
+                </a>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Arrecadado</h2>
-                <p class="display-6 mb-0"><?= esc(moeda_brl($arrecadado)) ?></p>
-                <p class="text-muted small mb-0">Soma dos presentes pagos.</p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Arrecadado</h2>
+                    <i class="bi bi-graph-up-arrow text-success"></i>
+                </div>
+                <p class="h3 fw-bold mb-0"><?= esc(moeda_brl($arrecadado)) ?></p>
+                <p class="text-muted fs-8 mb-0">Soma dos presentes pagos.</p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Taxas</h2>
-                <p class="display-6 mb-0"><?= esc(moeda_brl($taxas)) ?></p>
-                <p class="text-muted small mb-0">Comissão retida pela plataforma.</p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Taxas</h2>
+                    <i class="bi bi-percent text-muted"></i>
+                </div>
+                <p class="h3 fw-bold mb-0"><?= esc(moeda_brl($taxas)) ?></p>
+                <p class="text-muted fs-8 mb-0">Comissão da plataforma.</p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Sacado</h2>
-                <p class="display-6 mb-0"><?= esc(moeda_brl($sacado)) ?></p>
-                <p class="text-muted small mb-0">Saques solicitados.</p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Sacado</h2>
+                    <i class="bi bi-bank text-muted"></i>
+                </div>
+                <p class="h3 fw-bold mb-0"><?= esc(moeda_brl($sacado)) ?></p>
+                <p class="text-muted fs-8 mb-0">Saques solicitados.</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h2 class="h6 mb-0 text-muted text-uppercase">Extrato</h2>
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0 text-muted text-uppercase fs-8">Extrato</h2>
         <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('painel/pedidos') ?>">Ver pedidos</a>
     </div>
     <?php if (empty($extrato)): ?>
@@ -79,9 +93,9 @@
     <?php endif; ?>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white">
-        <h2 class="h6 mb-0 text-muted text-uppercase">Saques</h2>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white border-0 pt-3">
+        <h2 class="h6 mb-0 text-muted text-uppercase fs-8">Saques</h2>
     </div>
     <?php if (empty($saques)): ?>
         <div class="card-body text-center py-4">

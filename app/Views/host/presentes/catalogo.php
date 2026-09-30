@@ -12,7 +12,7 @@
 </div>
 
 <form method="get" action="<?= site_url('painel/eventos/' . $evento->id . '/presentes/catalogo') ?>"
-      class="card border-0 shadow-sm mb-3">
+      class="card border-0 shadow-sm rounded-4 mb-3">
     <div class="card-body">
         <div class="row g-2 align-items-end">
             <div class="col-md-5">
@@ -33,7 +33,7 @@
                        value="<?= esc($filtros['busca'] ?? '') ?>">
             </div>
             <div class="col-md-2 d-grid">
-                <button class="btn btn-outline-primary">Filtrar</button>
+                <button class="btn btn-outline-brand">Filtrar</button>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
     <form method="post" action="<?= site_url('painel/eventos/' . $evento->id . '/presentes/clonar') ?>">
         <?= csrf_field() ?>
 
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm rounded-4">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
                     <thead class="table-light">
@@ -103,7 +103,7 @@
         <div class="d-flex justify-content-end gap-2 mt-3">
             <a class="btn btn-outline-secondary"
                href="<?= site_url('painel/eventos/' . $evento->id . '/presentes') ?>">Cancelar</a>
-            <button class="btn btn-primary">Adicionar selecionados</button>
+            <button class="btn btn-brand">Adicionar selecionados</button>
         </div>
     </form>
 <?php endif; ?>

@@ -35,7 +35,7 @@ $temas = [
 
     <div class="row g-3">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-3">
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
                 <div class="card-body">
                     <h2 class="h6 text-uppercase text-muted mb-3">Informações principais</h2>
 
@@ -99,7 +99,7 @@ $temas = [
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mb-3">
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
                 <div class="card-body">
                     <h2 class="h6 text-uppercase text-muted mb-3">Financeiro e PIX</h2>
 
@@ -156,14 +156,14 @@ $temas = [
         </div>
 
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm mb-3">
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
                 <div class="card-body">
                     <h2 class="h6 text-uppercase text-muted mb-3">Aparência</h2>
 
                     <div class="mb-3">
                         <label class="form-label" for="slug">Endereço público (slug)</label>
                         <div class="input-group">
-                            <span class="input-group-text">/e/</span>
+                            <span class="input-group-text"><?= esc(parse_url(base_url(), PHP_URL_HOST) ?: 'minhalistavip.com.br') ?>/</span>
                             <input type="text" class="form-control" id="slug" name="slug"
                                    value="<?= esc($valor('slug')) ?>" placeholder="gerado automaticamente">
                         </div>
@@ -212,7 +212,7 @@ $temas = [
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mb-3">
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
                 <div class="card-body">
                     <h2 class="h6 text-uppercase text-muted mb-3">Funcionalidades</h2>
 
@@ -235,7 +235,7 @@ $temas = [
             </div>
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-brand">
                     <?= $edicao ? 'Salvar alterações' : 'Criar evento' ?>
                 </button>
                 <a class="btn btn-outline-secondary" href="<?= site_url('painel/eventos') ?>">Cancelar</a>

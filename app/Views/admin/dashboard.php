@@ -2,48 +2,65 @@
 
 <?= $this->section('conteudo') ?>
 <div class="row g-3">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Organizadores</h2>
-                <p class="display-6 mb-0"><?= (int) $organizadores ?></p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Organizadores</h2>
+                    <i class="bi bi-people text-brand"></i>
+                </div>
+                <p class="display-6 fw-bold mb-0"><?= (int) $organizadores ?></p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Eventos publicados</h2>
-                <p class="display-6 mb-0"><?= (int) $eventosPublicados ?></p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Eventos publicados</h2>
+                    <i class="bi bi-broadcast text-success"></i>
+                </div>
+                <p class="display-6 fw-bold mb-0"><?= (int) $eventosPublicados ?></p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Pedidos pagos</h2>
-                <p class="display-6 mb-0"><?= (int) $pedidosPagos ?></p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Pedidos pagos</h2>
+                    <i class="bi bi-bag-check text-success"></i>
+                </div>
+                <p class="display-6 fw-bold mb-0"><?= (int) $pedidosPagos ?></p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase">Saques pendentes</h2>
-                <p class="display-6 mb-0"><?= (int) $resumoSaques['pendentes_qtd'] ?></p>
-                <p class="text-muted small mb-0"><?= esc(moeda_brl($resumoSaques['pendentes_valor'])) ?></p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-muted text-uppercase mb-0 fs-8">Saques pendentes</h2>
+                    <i class="bi bi-cash-coin text-warning"></i>
+                </div>
+                <p class="display-6 fw-bold mb-0"><?= (int) $resumoSaques['pendentes_qtd'] ?></p>
+                <p class="text-muted fs-8 mb-0"><?= esc(moeda_brl($resumoSaques['pendentes_valor'])) ?></p>
             </div>
         </div>
     </div>
 </div>
 
 <div class="d-flex flex-wrap gap-2 mt-4">
-    <a class="btn btn-primary" href="<?= site_url('admin/saques') ?>">Gerenciar saques</a>
-    <a class="btn btn-outline-secondary" href="<?= site_url('admin/saques?status=solicitado') ?>">Saques a pagar</a>
+    <a class="btn btn-brand" href="<?= site_url('admin/saques') ?>">
+        <i class="bi bi-cash-coin me-1"></i>Gerenciar saques
+    </a>
+    <a class="btn btn-outline-brand" href="<?= site_url('admin/saques?status=solicitado') ?>">
+        <i class="bi bi-hourglass-split me-1"></i>Saques a pagar
+    </a>
 </div>
 
-<div class="alert alert-info mt-4 mb-0">
-    Área do SuperAdmin: a gestão de saques está disponível. Os módulos de taxas, catálogo global,
-    usuários, planos e conciliação financeira entram nas próximas etapas.
+<div class="alert alert-info rounded-4 mt-4 mb-0">
+    <i class="bi bi-info-circle me-1"></i>
+    A gestão de saques está disponível. Os módulos de taxas, catálogo global, usuários, planos e
+    conciliação financeira entram nas próximas etapas.
 </div>
 <?= $this->endSection() ?>

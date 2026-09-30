@@ -19,7 +19,7 @@ $campo = static fn (string $chave, $padrao = '') => old($chave, $edicao ? ($pres
 
     <div class="row g-3">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label" for="nome">Nome do presente *</label>
@@ -66,7 +66,7 @@ $campo = static fn (string $chave, $padrao = '') => old($chave, $edicao ? ($pres
         </div>
 
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm mb-3">
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label" for="ordem">Ordem de exibição</label>
@@ -83,7 +83,7 @@ $campo = static fn (string $chave, $padrao = '') => old($chave, $edicao ? ($pres
             </div>
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-brand">
                     <?= $edicao ? 'Salvar alterações' : 'Adicionar presente' ?>
                 </button>
                 <a class="btn btn-outline-secondary"
