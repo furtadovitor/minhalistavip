@@ -17,13 +17,52 @@ class Evento extends BaseController
 {
     public function show($slug = null)
     {
-        $evento = $this->buscarPublicado($slug);
+        $evento    = $this->buscarPublicado($slug);
+        $presentes = (new PresenteEventoModel())->ativosDoEvento((int) $evento->id);
+        $recados   = (new MuralRecadoModel())->publicadosDoEvento((int) $evento->id);
 
-        return $this->render('public/evento', [
+        $db = db_connect();
+
+        $arrecadado = (float) $db->table('pedidos')
+            ->selectSum('valor_total', 'total')
+            ->where('evento_id', $evento->id)
+            ->where('status', 'pago')
+            ->get()->getRow()->total;
+
+        $confirmados = (int) $db->table('rsvp_confirmacoes')
+            ->where('evento_id', $evento->id)
+            ->where('status', 'confirmado')
+            ->countAllResults();
+
+        $cotasTotal = 0;
+        $cotasVendidas = 0;
+
+        foreach ($presentes as $presente) {
+            $cotasTotal    += (int) $presente['quantidade_meta'];
+            $cotasVendidas += (int) $presente['quantidade_vendida'];
+        }
+
+        $horario = ! empty($evento->horario) ? substr((string) $evento->horario, 0, 5) : null;
+
+        return view('hotsite/lista', [
             'titulo'    => $evento->titulo,
             'evento'    => $evento,
-            'presentes' => (new PresenteEventoModel())->ativosDoEvento((int) $evento->id),
-            'recados'   => (new MuralRecadoModel())->publicadosDoEvento((int) $evento->id),
+            'presentes' => $presentes,
+            'recados'   => $recados,
+            'modo'      => 'real',
+            'escuro'    => false,
+            'dataTexto' => $evento->data_evento !== null
+                ? $evento->data_evento->format('d/m/Y') . ($horario !== null ? ' às ' . $horario : '')
+                : null,
+            'dataIso'   => $evento->data_evento !== null
+                ? $evento->data_evento->format('Y-m-d') . ' ' . (! empty($evento->horario) ? (string) $evento->horario : '00:00:00')
+                : null,
+            'stats'     => [
+                'cotas_total'    => $cotasTotal,
+                'cotas_vendidas' => $cotasVendidas,
+                'arrecadado'     => $arrecadado,
+                'confirmados'    => $confirmados,
+            ],
         ]);
     }
 

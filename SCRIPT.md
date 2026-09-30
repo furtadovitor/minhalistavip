@@ -119,7 +119,10 @@ Seeds: `PlataformaSeeder` (configurações, categorias, planos e usuários) e
 * **Entidades/Models:** `Usuario`, `Evento` e models correspondentes + presentes, recados e RSVP.
 
 ### Credenciais de teste
-| Perfil | E-mail | Senha |
+⚠️ **Login sem senha ativo** (`AuthService::EXIGIR_SENHA = false`): basta informar o e-mail.
+Para voltar a exigir senha, mude a constante para `true` em `app/Services/AuthService.php`.
+
+| Perfil | E-mail | Senha (quando exigida) |
 | --- | --- | --- |
 | SuperAdmin | `admin@minhalistavip.com.br` | `Admin@123` |
 | Organizador | `organizador@minhalistavip.com.br` | `Demo@123` |
@@ -298,6 +301,22 @@ Rotas novas (grupo `/admin`):
 `/admin/categorias[/{id}|/{id}/alternar|/{id}/excluir]`,
 `/admin/planos[/novo|/{id}/editar|/{id}/alternar|/{id}/excluir]`,
 `/admin/usuarios[/{id}|/{id}/alternar]`.
+
+### Etapa 13 — Login sem senha e hotsite redesenhado (concluída)
+* **Login sem senha** (`AuthService::EXIGIR_SENHA = false`): o login pede apenas o e-mail. A
+  constante é o interruptor para voltar a exigir senha. O formulário esconde o campo de senha
+  quando ativo e mostra um aviso.
+* **Hotsite redesenhado** — view única `Views/hotsite/lista.php`, usada por eventos reais e pelas
+  listas de exemplo (substitui `public/evento.php` e `demo/lista.php`):
+  * **Hero** com imagem de capa + overlay, badge do tipo, data/local, **contador regressivo**,
+    indicadores (cotas presenteadas, confirmações, % da meta) e CTA de compartilhar/copiar link.
+  * **Barra de progresso da meta** do evento.
+  * **Navegação sticky** (Presentes / Presença / Recados) com destaque da seção ativa.
+  * **Grade de presentes** com busca, filtro (cotas/presentes reais) e ordenação (menor/maior
+    valor, mais presenteados), cards com imagem, barra de cotas e botão "Presentear".
+  * **Animações de entrada** (IntersectionObserver), hover nos cards, tema escuro nos exemplos.
+  * RSVP e mural de recados reorganizados, com avatares nos recados.
+  * No modo demonstração, as ações abrem um modal explicando que é exemplo.
 
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.

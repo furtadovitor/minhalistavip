@@ -11,6 +11,17 @@ use App\Models\UsuarioModel;
  */
 class AuthService
 {
+    /**
+     * ⚠️ LOGIN SEM SENHA.
+     *
+     * Quando `false`, o login aceita apenas o e-mail (a senha não é conferida).
+     * Para voltar a exigir senha, mude para `true`.
+     *
+     * ATENÇÃO: com `false`, qualquer pessoa que saiba um e-mail cadastrado
+     * consegue entrar (inclusive o SuperAdmin). Use com cautela.
+     */
+    public const EXIGIR_SENHA = false;
+
     protected UsuarioModel $usuarios;
 
     public function __construct(?UsuarioModel $usuarios = null)
@@ -18,7 +29,7 @@ class AuthService
         $this->usuarios = $usuarios ?? new UsuarioModel();
     }
 
-    public function tentarLogin(string $email, string $senha): bool
+    public function tentarLogin(string $email, ?string $senha = null): bool
     {
         $usuario = $this->usuarios->buscarPorEmail($email);
 
@@ -26,7 +37,7 @@ class AuthService
             return false;
         }
 
-        if (! password_verify($senha, (string) $usuario->senha)) {
+        if (self::EXIGIR_SENHA && ! password_verify((string) $senha, (string) $usuario->senha)) {
             return false;
         }
 

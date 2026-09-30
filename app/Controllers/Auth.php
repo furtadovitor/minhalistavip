@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Entities\Usuario;
 use App\Models\UsuarioModel;
+use App\Services\AuthService;
 
 /**
  * Autenticação: login, logout e auto-cadastro de organizadores.
@@ -19,12 +20,15 @@ class Auth extends BaseController
     {
         $regras = [
             'email' => 'required|valid_email',
-            'senha' => 'required|min_length[6]',
         ];
+
+        if (AuthService::EXIGIR_SENHA) {
+            $regras['senha'] = 'required|min_length[6]';
+        }
 
         if (! $this->validate($regras)) {
             return redirect()->back()->withInput()
-                ->with('erro', 'Informe um e-mail e uma senha válidos (mínimo 6 caracteres).');
+                ->with('erro', 'Informe um e-mail válido.');
         }
 
         $email = (string) $this->request->getPost('email');
@@ -32,7 +36,7 @@ class Auth extends BaseController
 
         if (! $this->auth->tentarLogin($email, $senha)) {
             return redirect()->back()->withInput()
-                ->with('erro', 'Credenciais inválidas ou usuário inativo.');
+                ->with('erro', 'Não encontramos um usuário ativo com esse e-mail.');
         }
 
         $destino = session()->get('redirect_url') ?: site_url($this->auth->rotaInicial());

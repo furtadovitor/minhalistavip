@@ -6,6 +6,13 @@
         <h1 class="h4 fw-bold mb-1">Entrar na sua conta</h1>
         <p class="text-muted fs-7 mb-4">Acesse o painel para gerenciar seus eventos e recebimentos.</p>
 
+        <?php if (! \App\Services\AuthService::EXIGIR_SENHA): ?>
+            <div class="alert alert-warning rounded-4 fs-7">
+                <i class="bi bi-unlock me-1"></i>
+                <strong>Login sem senha ativo:</strong> informe apenas o seu e-mail cadastrado.
+            </div>
+        <?php endif; ?>
+
         <form method="post" action="<?= site_url('login') ?>">
             <?= csrf_field() ?>
 
@@ -19,14 +26,16 @@
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label fw-semibold fs-7" for="senha">Senha</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-white"><i class="bi bi-lock text-muted"></i></span>
-                    <input type="password" class="form-control" id="senha" name="senha"
-                           placeholder="Sua senha" autocomplete="current-password" required>
+            <?php if (\App\Services\AuthService::EXIGIR_SENHA): ?>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold fs-7" for="senha">Senha</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-lock text-muted"></i></span>
+                        <input type="password" class="form-control" id="senha" name="senha"
+                               placeholder="Sua senha" autocomplete="current-password" required>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
             <button type="submit" class="btn btn-brand w-100 py-2">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Entrar

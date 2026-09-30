@@ -130,10 +130,66 @@ class Demo extends BaseController
 
         $demo = self::EXEMPLOS[$slug];
 
-        return view('demo/lista', [
-            'titulo' => $demo['titulo'] . ' (exemplo)',
-            'demo'   => $demo,
-            'usuario' => $this->usuario,
+        $presentes = [];
+        foreach ($demo['itens'] as $indice => $item) {
+            $presentes[] = [
+                'id'                 => $indice + 1,
+                'nome'               => $item['nome'],
+                'descricao'          => $item['descricao'] ?? null,
+                'imagem'             => null,
+                'tipo'               => 'ficticio',
+                'valor'              => $item['valor'],
+                'quantidade_meta'    => $item['meta'],
+                'quantidade_vendida' => $item['vendida'],
+                'link_afiliado'      => null,
+            ];
+        }
+
+        $recados = [];
+        foreach ($demo['recados'] as $recado) {
+            $recados[] = ['nome_autor' => $recado['autor'], 'mensagem' => $recado['mensagem']];
+        }
+
+        $cotasTotal = 0;
+        $cotasVendidas = 0;
+        foreach ($presentes as $presente) {
+            $cotasTotal    += (int) $presente['quantidade_meta'];
+            $cotasVendidas += (int) $presente['quantidade_vendida'];
+        }
+
+        $evento = (object) [
+            'titulo'           => $demo['titulo'],
+            'subtitulo'        => $demo['resumo'],
+            'tipo_evento'      => $demo['tipo'],
+            'slug'             => 'demo/' . $demo['slug'],
+            'descricao'        => $demo['descricao'] ?? null,
+            'mensagem_convite' => $demo['mensagem_convite'] ?? null,
+            'local_nome'       => $demo['local'] ?? null,
+            'imagem_capa'      => $demo['capa'] ?? null,
+            'cor_primaria'     => $demo['cor_primaria'],
+            'cor_secundaria'   => $demo['cor_secundaria'],
+            'permite_rsvp'     => true,
+            'permite_recados'  => true,
+            'exibir_valores'   => true,
+            'meta_valor'       => null,
+            'status'           => 'publicado',
+        ];
+
+        return view('hotsite/lista', [
+            'titulo'    => $demo['titulo'] . ' (exemplo)',
+            'evento'    => $evento,
+            'presentes' => $presentes,
+            'recados'   => $recados,
+            'modo'      => 'demo',
+            'escuro'    => ! empty($demo['escuro']),
+            'dataTexto' => $demo['data'],
+            'dataIso'   => null,
+            'stats'     => [
+                'cotas_total'    => $cotasTotal,
+                'cotas_vendidas' => $cotasVendidas,
+                'arrecadado'     => 0.0,
+                'confirmados'    => count($recados),
+            ],
         ]);
     }
 }
