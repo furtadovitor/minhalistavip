@@ -29,6 +29,9 @@ $rotuloStatus = [
         <a class="btn btn-outline-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/convidados/exportar') ?>">
             <i class="bi bi-filetype-csv me-1"></i>Exportar CSV
         </a>
+        <a class="btn btn-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/checkin') ?>">
+            <i class="bi bi-clipboard-check me-1"></i>Fazer check-in
+        </a>
         <?php if ($evento->status === 'publicado'): ?>
             <a class="btn btn-outline-success" target="_blank" href="<?= site_url($evento->slug) ?>#presenca">
                 <i class="bi bi-box-arrow-up-right me-1"></i>Ver página
@@ -201,6 +204,12 @@ $rotuloStatus = [
                             <span class="badge text-bg-<?= $badgeStatus[$status] ?? 'secondary' ?>">
                                 <?= esc($rotuloStatus[$status] ?? ucfirst($status)) ?>
                             </span>
+                            <?php if (! empty($c['check_in_em'])): ?>
+                                <div class="fs-8 text-success mt-1">
+                                    <i class="bi bi-check2-circle me-1"></i>Check-in
+                                    <?= esc(date('d/m H:i', strtotime((string) $c['check_in_em']))) ?>
+                                </div>
+                            <?php endif; ?>
                         </td>
                         <td class="small text-muted">
                             <?= $c['criado_em'] !== null ? esc(date('d/m/Y H:i', strtotime((string) $c['criado_em']))) : '—' ?>

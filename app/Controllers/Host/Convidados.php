@@ -124,7 +124,7 @@ class Convidados extends BaseController
         $evento = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
         $lista  = $this->convidados->listar((int) $evento->id);
 
-        $linhas = ['Nome;E-mail;Telefone;Acompanhantes;Pessoas;Menores;Maiores;Nome dos acompanhantes (categoria);Status;Observacao;Enviado em'];
+        $linhas = ['Nome;E-mail;Telefone;Acompanhantes;Pessoas;Menores;Maiores;Nome dos acompanhantes (categoria);Status;Observacao;Check-in em;Enviado em'];
 
         foreach ($lista as $c) {
             $acompanhantes = $this->convidados->acompanhantes((int) $c['id']);
@@ -159,6 +159,7 @@ class Convidados extends BaseController
                 $this->csv(implode(', ', $nomes)),
                 $c['status'],
                 $this->csv((string) $c['observacao']),
+                $c['check_in_em'] !== null ? date('d/m/Y H:i', strtotime((string) $c['check_in_em'])) : '',
                 (string) $c['criado_em'],
             ]);
         }

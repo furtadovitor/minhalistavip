@@ -38,6 +38,11 @@
                     <?= (int) $convidados['pessoas_pendentes'] ?> aguardando
                     <?= $convidados['limite'] !== null ? '· limite ' . (int) $convidados['limite'] : '' ?>
                 </span>
+                <?php if ((int) ($convidados['pessoas_presentes'] ?? 0) > 0): ?>
+                    <span class="text-success fs-8 d-block">
+                        <i class="bi bi-check2-circle me-1"></i><?= (int) $convidados['pessoas_presentes'] ?> presente(s)
+                    </span>
+                <?php endif; ?>
             </div>
         </div>
     </div>

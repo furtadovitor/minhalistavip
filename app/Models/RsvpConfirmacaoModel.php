@@ -24,6 +24,8 @@ class RsvpConfirmacaoModel extends Model
         'quantidade_acompanhantes',
         'status',
         'observacao',
+        'check_in_em',
+        'check_in_por',
     ];
 
     /**
@@ -65,9 +67,38 @@ class RsvpConfirmacaoModel extends Model
     }
 
     /**
+     * Convidados confirmados para a tela de check-in.
+     *
+     * Ordena primeiro quem ainda NÃO chegou, para facilitar o uso na portaria.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function paraCheckin(int $eventoId, ?string $busca = null, bool $somenteAusentes = false): array
+    {
+        $builder = $this->where('evento_id', $eventoId)->where('status', 'confirmado');
+
+        if ($busca !== null && trim($busca) !== '') {
+            $termo = trim($busca);
+            $builder->groupStart()
+                ->like('nome', $termo)
+                ->orLike('email', $termo)
+                ->orLike('telefone', $termo)
+                ->groupEnd();
+        }
+
+        if ($somenteAusentes) {
+            $builder->where('check_in_em', null);
+        }
+
+        return $builder->orderBy('check_in_em IS NULL', 'DESC', false)
+            ->orderBy('nome', 'ASC')
+            ->findAll();
+    }
+
+    /**
      * Contagem de registros e de pessoas (registro + acompanhantes) por status.
      *
-     * @return array{pendentes:int,confirmados:int,recusados:int,pessoas_pendentes:int,pessoas_confirmadas:int}
+     * @return array{pendentes:int,confirmados:int,recusados:int,pessoas_pendentes:int,pessoas_confirmadas:int,presentes:int,pessoas_presentes:int}
      */
     public function contagem(int $eventoId): array
     {
@@ -77,7 +108,9 @@ class RsvpConfirmacaoModel extends Model
                 SUM(status = 'confirmado') AS confirmados,
                 SUM(status = 'recusado') AS recusados,
                 SUM(CASE WHEN status = 'pendente' THEN quantidade_acompanhantes + 1 ELSE 0 END) AS pessoas_pendentes,
-                SUM(CASE WHEN status = 'confirmado' THEN quantidade_acompanhantes + 1 ELSE 0 END) AS pessoas_confirmadas
+                SUM(CASE WHEN status = 'confirmado' THEN quantidade_acompanhantes + 1 ELSE 0 END) AS pessoas_confirmadas,
+                SUM(status = 'confirmado' AND check_in_em IS NOT NULL) AS presentes,
+                SUM(CASE WHEN status = 'confirmado' AND check_in_em IS NOT NULL THEN quantidade_acompanhantes + 1 ELSE 0 END) AS pessoas_presentes
             ", false)
             ->where('evento_id', $eventoId)
             ->get()->getRow();
@@ -88,6 +121,8 @@ class RsvpConfirmacaoModel extends Model
             'recusados'          => (int) ($linha->recusados ?? 0),
             'pessoas_pendentes'  => (int) ($linha->pessoas_pendentes ?? 0),
             'pessoas_confirmadas' => (int) ($linha->pessoas_confirmadas ?? 0),
+            'presentes'          => (int) ($linha->presentes ?? 0),
+            'pessoas_presentes'  => (int) ($linha->pessoas_presentes ?? 0),
         ];
     }
 }

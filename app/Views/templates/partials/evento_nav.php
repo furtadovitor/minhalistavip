@@ -18,6 +18,7 @@ $grupos = [
         ['sub' => 'galeria', 'icone' => 'bi-images', 'rotulo' => 'Galeria'],
         ['sub' => 'recadinhos', 'icone' => 'bi-chat-heart', 'rotulo' => 'Recadinhos'],
         ['sub' => 'convidados', 'icone' => 'bi-people', 'rotulo' => 'Convidados'],
+        ['sub' => 'checkin', 'icone' => 'bi-clipboard-check', 'rotulo' => 'Check-in'],
         ['sub' => 'compartilhar', 'icone' => 'bi-share', 'rotulo' => 'Compartilhar'],
     ],
     'Dinheiro' => [

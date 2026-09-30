@@ -427,6 +427,18 @@ Inspirada na listaideal.com.br:
   lista, a seção "Ações rápidas" foi removida e o "Resumo da lista" ocupa a largura total (com
   Local/Endereço/Horário e o botão de publicar no cabeçalho).
 
+### Etapa 21 — Check-in presencial do evento (concluída)
+Controle de chegada no dia, a partir da lista de confirmados:
+* **Migration** `2026-09-30-000022_AddCheckinRsvp`: colunas `rsvp_confirmacoes.check_in_em`
+  (DATETIME) e `check_in_por` (usuário), com índice `(evento_id, check_in_em)`.
+* **Regras** (`ConvidadoService`): só convidado `confirmado` pode ter check-in; a presença conta
+  PESSOAS (titular + acompanhantes); recusar limpa o check-in; dá para desfazer.
+* **Tela** `GET /painel/eventos/{id}/checkin` (`Host\Checkin`): cartões grandes (uso no celular),
+  busca por nome/e-mail/telefone (com filtro "só quem ainda não chegou"), contadores de presentes
+  e barra de progresso. Ações `POST .../checkin/{id}` e `.../checkin/{id}/desfazer`.
+* **Integrações**: aba "Check-in" no menu do workspace; badge de check-in na lista de convidados;
+  coluna "Check-in em" no CSV; card "Presentes" no resumo do evento.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

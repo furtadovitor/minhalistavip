@@ -261,6 +261,69 @@ class ConvidadoService
     }
 
     /**
+     * Convidados confirmados para a tela de check-in presencial.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function listarParaCheckin(int $eventoId, ?string $busca = null, bool $somenteAusentes = false): array
+    {
+        return $this->convidados->paraCheckin($eventoId, $busca, $somenteAusentes);
+    }
+
+    /**
+     * Registra a chegada do convidado (e acompanhantes).
+     *
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function checkIn(int $eventoId, int $convidadoId, int $usuarioId): array
+    {
+        $convidado = $this->um($eventoId, $convidadoId);
+
+        if ($convidado['status'] !== 'confirmado') {
+            return ['ok' => false, 'mensagem' => 'Só é possível fazer check-in de convidados confirmados.'];
+        }
+
+        if (! empty($convidado['check_in_em'])) {
+            return ['ok' => true, 'mensagem' => $convidado['nome'] . ' já havia feito check-in.'];
+        }
+
+        $this->convidados->update($convidadoId, [
+            'check_in_em'  => date('Y-m-d H:i:s'),
+            'check_in_por' => $usuarioId,
+        ]);
+
+        return [
+            'ok'       => true,
+            'mensagem' => 'Check-in de ' . $convidado['nome']
+                . ' — ' . $this->pessoasDo($convidado) . ' pessoa(s).',
+        ];
+    }
+
+    /**
+     * Desfaz o check-in (marcação por engano).
+     *
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function desfazerCheckIn(int $eventoId, int $convidadoId): array
+    {
+        $convidado = $this->um($eventoId, $convidadoId);
+
+        $this->convidados->update($convidadoId, ['check_in_em' => null, 'check_in_por' => null]);
+
+        return ['ok' => true, 'mensagem' => 'Check-in de ' . $convidado['nome'] . ' desfeito.'];
+    }
+
+    /**
+     * Quantas pessoas a confirmação representa (titular + acompanhantes).
+     *
+     * @param array<string, mixed> $convidado
+     */
+    private function pessoasDo(array $convidado): int
+    {
+        return (int) ($convidado['quantidade_acompanhantes'] ?? 0) + 1;
+    }
+
+    /**
      * @return array{ok: bool, mensagem: string}
      */
     public function aprovar(int $eventoId, int $convidadoId, Evento $evento): array
@@ -294,7 +357,11 @@ class ConvidadoService
     {
         $convidado = $this->um($eventoId, $convidadoId);
 
-        $this->convidados->update($convidadoId, ['status' => 'recusado']);
+        $this->convidados->update($convidadoId, [
+            'status'       => 'recusado',
+            'check_in_em'  => null,
+            'check_in_por' => null,
+        ]);
 
         return ['ok' => true, 'mensagem' => $convidado['nome'] . ' marcado(a) como recusado(a).'];
     }

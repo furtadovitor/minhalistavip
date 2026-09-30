@@ -87,6 +87,11 @@ $routes->group('painel', ['filter' => 'auth'], static function (RouteCollection 
     $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes', 'Host\Convidados::adicionarAcompanhante/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes/(:num)/remover', 'Host\Convidados::removerAcompanhante/$1/$2/$3');
 
+    // --- Check-in presencial ---
+    $routes->get('eventos/(:num)/checkin', 'Host\Checkin::index/$1');
+    $routes->post('eventos/(:num)/checkin/(:num)/desfazer', 'Host\Checkin::desfazer/$1/$2');
+    $routes->post('eventos/(:num)/checkin/(:num)', 'Host\Checkin::marcar/$1/$2');
+
     // --- Pedidos e carteira ---
     $routes->get('pedidos', 'Host\Pedidos::index');
     $routes->get('carteira', 'Host\Carteira::index');
