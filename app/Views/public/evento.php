@@ -1,23 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= esc($evento->titulo) ?></title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <style>
-        :root {
-            --cor-primaria: <?= esc($evento->cor_primaria, 'raw') ?>;
-            --cor-secundaria: <?= esc($evento->cor_secundaria, 'raw') ?>;
-        }
-        .hero {
-            background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
-            color: #fff;
-        }
-        .btn-evento { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: #fff; }
-        .btn-evento:hover { filter: brightness(0.92); color: #fff; }
-        .titulo-evento { color: var(--cor-primaria); }
-    </style>
+    <?= view('templates/partials/design_evento', [
+        'titulo'        => $evento->titulo,
+        'corPrimaria'   => $evento->cor_primaria,
+        'corSecundaria' => $evento->cor_secundaria,
+    ]) ?>
 </head>
 <body class="bg-body-tertiary">
 <header class="hero py-5">

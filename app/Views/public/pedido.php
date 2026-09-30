@@ -1,21 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pedido <?= esc($pedido->protocolo) ?> · <?= esc($evento->titulo) ?></title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <style>
-        :root {
-            --cor-primaria: <?= esc($evento->cor_primaria, 'raw') ?>;
-            --cor-secundaria: <?= esc($evento->cor_secundaria, 'raw') ?>;
-        }
-        .hero { background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria)); color: #fff; }
-        .btn-evento { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: #fff; }
-        .btn-evento:hover { filter: brightness(0.92); color: #fff; }
-        .titulo-evento { color: var(--cor-primaria); }
-        #qrcode img, #qrcode canvas { max-width: 100%; height: auto; }
-    </style>
+    <?= view('templates/partials/design_evento', [
+        'titulo'        => 'Pedido ' . $pedido->protocolo . ' · ' . $evento->titulo,
+        'corPrimaria'   => $evento->cor_primaria,
+        'corSecundaria' => $evento->cor_secundaria,
+    ]) ?>
 </head>
 <body class="bg-body-tertiary">
 <header class="hero py-4">
@@ -29,14 +19,14 @@
     <?= view('templates/partials/flash') ?>
 
     <div class="text-center mb-4">
-        <span class="badge text-bg-<?= cor_status_pedido($pedido->status) ?> fs-6">
+        <span class="badge text-bg-<?= cor_status_pedido($pedido->status) ?> fs-6 px-3 py-2">
             <?= esc(rotulo_status_pedido($pedido->status)) ?>
         </span>
     </div>
 
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="h6 text-muted text-uppercase mb-3">Resumo do pedido</h2>
+        <div class="card-body p-4">
+            <h2 class="h6 text-uppercase text-muted fw-semibold mb-3">Resumo do pedido</h2>
             <dl class="row mb-0">
                 <dt class="col-7 fw-normal">Convidado</dt>
                 <dd class="col-5 text-end"><?= esc($pedido->nome_convidado) ?></dd>
@@ -54,66 +44,72 @@
 
                 <dt class="col-7 fw-normal">
                     Taxa de serviço
-                    <span class="text-muted small">(<?= esc(number_format((float) $pedido->percentual_taxa, 2, ',', '.')) ?>%)</span>
+                    <span class="text-muted fs-8">(<?= esc(number_format((float) $pedido->percentual_taxa, 2, ',', '.')) ?>%)</span>
                 </dt>
                 <dd class="col-5 text-end"><?= esc(moeda_brl($pedido->valor_taxa)) ?></dd>
 
-                <dt class="col-7 fw-semibold border-top pt-2 mt-2">Total</dt>
-                <dd class="col-5 text-end fw-bold border-top pt-2 mt-2"><?= esc(moeda_brl($pedido->valor_total)) ?></dd>
+                <dt class="col-7 fw-semibold border-top pt-3 mt-3">Total</dt>
+                <dd class="col-5 text-end fw-bold border-top pt-3 mt-3"><?= esc(moeda_brl($pedido->valor_total)) ?></dd>
             </dl>
         </div>
     </div>
 
     <?php if ($pedido->estaPago()): ?>
-        <div class="alert alert-success">
-            <strong>Pagamento confirmado!</strong> Muito obrigado pelo carinho.
+        <div class="alert alert-success rounded-4">
+            <strong><i class="bi bi-check-circle-fill me-1"></i>Pagamento confirmado!</strong>
+            Muito obrigado pelo carinho.
             <?php if (! empty($pedido->mensagem)): ?> Sua mensagem já está no mural do evento.<?php endif; ?>
         </div>
-        <a class="btn btn-evento w-100" href="<?= site_url($evento->slug) ?>">Voltar para o evento</a>
+        <a class="btn btn-evento w-100 py-2" href="<?= site_url($evento->slug) ?>">Voltar para o evento</a>
 
     <?php elseif ($pedido->foiCancelado()): ?>
-        <div class="alert alert-warning mb-0">Este pedido não está mais ativo. Se precisar, faça um novo pedido.</div>
+        <div class="alert alert-warning rounded-4 mb-0">
+            Este pedido não está mais ativo. Se precisar, faça um novo pedido.
+        </div>
 
     <?php elseif (! empty($cobranca['copia_e_cola'])): ?>
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body text-center">
-                <h2 class="h6 text-muted text-uppercase mb-3">Pague com PIX</h2>
+            <div class="card-body p-4 text-center">
+                <h2 class="h6 text-uppercase text-muted fw-semibold mb-3">Pague com PIX</h2>
 
                 <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
 
-                <p class="text-muted small mb-2">Ou copie o código PIX abaixo:</p>
+                <p class="text-muted fs-7 mb-2">Ou copie o código PIX abaixo:</p>
                 <div class="input-group mb-2">
                     <input type="text" class="form-control" id="pix-codigo" readonly
                            value="<?= esc($cobranca['copia_e_cola']) ?>">
-                    <button class="btn btn-evento" type="button" id="btn-copiar">Copiar</button>
+                    <button class="btn btn-evento" type="button" id="btn-copiar">
+                        <i class="bi bi-clipboard me-1"></i>Copiar
+                    </button>
                 </div>
 
                 <?php if (! empty($cobranca['expira_em'])): ?>
-                    <p class="text-muted small mb-0">
+                    <p class="text-muted fs-8 mb-0">
                         Este código expira em <?= esc(date('d/m/Y H:i', strtotime((string) $cobranca['expira_em']))) ?>.
                     </p>
                 <?php endif; ?>
             </div>
         </div>
 
-        <p class="text-muted small">
+        <p class="text-muted fs-8">
             Recebedor: <?= esc($cobranca['recebedor'] ?? 'Minha Lista VIP') ?> ·
             Chave: <?= esc($cobranca['chave'] ?? '') ?>
         </p>
 
-        <div class="alert alert-info">
-            Após o pagamento, a confirmação é automática. Atualize esta página em alguns instantes.
+        <div class="alert alert-info rounded-4">
+            <i class="bi bi-info-circle me-1"></i>Após o pagamento, a confirmação é automática.
+            Atualize esta página em alguns instantes.
         </div>
 
-        <a class="btn btn-outline-secondary w-100 mb-3" href="<?= site_url($evento->slug . '/pedido/' . $pedido->protocolo) ?>">
-            Já paguei, atualizar status
+        <a class="btn btn-outline-evento w-100 mb-3" href="<?= site_url($evento->slug . '/pedido/' . $pedido->protocolo) ?>">
+            <i class="bi bi-arrow-clockwise me-1"></i>Já paguei, atualizar status
         </a>
 
         <?php if ($simulacao): ?>
             <div class="card border-warning mb-4">
-                <div class="card-body">
-                    <p class="fw-semibold mb-1">Modo de teste (sandbox)</p>
-                    <p class="text-muted small">
+                <div class="card-body p-4">
+                    <p class="fw-semibold mb-1"><i class="bi bi-bug me-1"></i>Modo de teste (sandbox)</p>
+                    <p class="text-muted fs-7">
                         Ambiente de desenvolvimento: simule a confirmação do PIX para validar o crédito
                         na carteira e a publicação no mural.
                     </p>
@@ -125,12 +121,12 @@
             </div>
         <?php endif; ?>
     <?php else: ?>
-        <div class="alert alert-warning mb-0">
+        <div class="alert alert-warning rounded-4 mb-0">
             Não encontramos os dados do PIX deste pedido. Entre em contato com o organizador.
         </div>
     <?php endif; ?>
 
-    <p class="text-center text-muted small mt-4 mb-0">
+    <p class="text-center text-muted fs-8 mt-4 mb-0">
         Guarde o número do pedido: <strong><?= esc($pedido->protocolo) ?></strong>
     </p>
 </main>
@@ -158,8 +154,8 @@
                 codigo.select();
                 document.execCommand('copy');
             }
-            botao.textContent = 'Copiado!';
-            setTimeout(() => { botao.textContent = 'Copiar'; }, 2000);
+            botao.innerHTML = '<i class="bi bi-check2 me-1"></i>Copiado!';
+            setTimeout(() => { botao.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copiar'; }, 2000);
         });
     }
 })();

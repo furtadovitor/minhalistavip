@@ -246,6 +246,18 @@ Conforme `FRONTEND_SPEC.md`:
   (protocolo) e redireciona para o local certo.
 * Slugs `demo`, `exemplos` e `buscar` adicionados a `EventoService::SLUGS_RESERVADOS`.
 
+### Etapa 9 — Redesign de login, registro e checkout (concluída)
+* **Partials de design compartilhados**: `templates/partials/design_system.php` (marca/plataforma:
+  Home e autenticação) e `design_evento.php` (temático por evento, com suporte a tema escuro),
+  evitando CSS duplicado.
+* **Login e registro** (`layouts/auth.php` + `auth/login.php` + `auth/registro.php`): tela centralizada
+  com gradiente, fontes do design system, ícones nos campos e `btn-brand`.
+* **Checkout** (`public/checkout.php`): layout em duas colunas, resumo fixo (sticky) e cálculo
+  dinâmico preservado; botão "Gerar PIX".
+* **Pedido** (`public/pedido.php`): status, QR Code e Copia e Cola no mesmo padrão.
+* **Hotsite** (`public/evento.php`) e **listas de exemplo** (`demo/lista.php`) passaram a usar o
+  partial temático (`design_evento`), garantindo consistência de tipografia e componentes.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

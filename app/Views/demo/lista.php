@@ -1,29 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= esc($demo['titulo']) ?> · Lista de exemplo · Minha Lista VIP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        :root {
-            --cor-primaria: <?= esc($demo['cor_primaria'], 'raw') ?>;
-            --cor-secundaria: <?= esc($demo['cor_secundaria'], 'raw') ?>;
-        }
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .hero { background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria)); color: #fff; }
-        .btn-evento { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: #fff; font-weight: 600; }
-        .btn-evento:hover { filter: brightness(0.92); color: #fff; }
-        .titulo-evento { color: var(--cor-primaria); }
-        .tema-escuro { background-color: #0B0B12; color: #E5E7EB; }
-        .tema-escuro .card { background-color: #15151F; color: #E5E7EB; border: 1px solid rgba(255, 255, 255, .08) !important; }
-        .tema-escuro .text-muted { color: #9CA3AF !important; }
-        .faixa-demo { background: #111827; color: #fff; }
-    </style>
+    <?= view('templates/partials/design_evento', [
+        'titulo'        => $demo['titulo'] . ' · Lista de exemplo · Minha Lista VIP',
+        'corPrimaria'   => $demo['cor_primaria'],
+        'corSecundaria' => $demo['cor_secundaria'],
+        'escuro'        => ! empty($demo['escuro']),
+    ]) ?>
 </head>
 <body class="bg-body-tertiary <?= ! empty($demo['escuro']) ? 'tema-escuro' : '' ?>">
 
