@@ -1,0 +1,39 @@
+# Retomada do projeto — próximos passos
+
+> Atualizado ao final da sessão de 30/09/2026. O histórico completo das etapas está no `SCRIPT.md`.
+
+## Onde paramos
+- **Etapas 1 a 16 concluídas** (ver `SCRIPT.md`).
+- **Local:** `http://localhost/minhalistavip/public/`
+- **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
+  `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
+- **Repositório:** `github.com/furtadovitor/minhalistavip` (branch `master`).
+- **ZIP para upload:** `tools/deploy/minhalistavip-hostinger.zip`
+- **Dump do banco:** `tools/db/minhalistavip-local.sql`
+
+## O que já está pronto
+Eventos, presentes (com imagem), catálogo global, checkout + PIX sandbox + webhook + carteira,
+saques (com processamento pelo SuperAdmin), **lista de convidados com homologação/limite**, e
+**acompanhantes com nome/idade (menor-ou-maior automático, exigido no front)**, Home + listas de
+exemplo, painel do organizador e do SuperAdmin redesenhados, erros 404/500 personalizados.
+
+## Pendências no servidor (Hostinger)
+1. Rodar as **migrations novas** (ou reimportar o dump):
+   `eventos.limite_convidados` e a tabela `rsvp_acompanhantes`.
+2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas).
+3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), trocar o
+   `pix_webhook_token` e a chave PIX da plataforma.
+
+## Próximos módulos sugeridos
+1. **Check-in do evento** (marcar quem já chegou, no dia).
+2. **Convite nominal / link por convidado** (pré-cadastro + confirmação sem duplicados).
+3. **E-mails/WhatsApp transacionais** (recibo, confirmação aprovada, saque pago, lembrete).
+4. **Gateway PIX real** (trocar o sandbox do `PixService`).
+5. **Relatórios** (financeiro por evento, ocupação, lista consolidada).
+6. Melhorias de UX no painel (edição inline de acompanhantes, busca avançada, etc.).
+
+## Como retomar amanhã
+Envie algo como:
+> “Continuar de onde paramos (ver `PROXIMOS-PASSOS.md`). Quero implementar o módulo **X**.”
+
+e substitua **X** por um dos itens acima (ou descreva o que precisa).
