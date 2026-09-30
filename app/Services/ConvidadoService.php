@@ -126,6 +126,69 @@ class ConvidadoService
     }
 
     /**
+     * Valida e normaliza as linhas de acompanhantes do formulário público.
+     *
+     * @param list<mixed> $nomes
+     * @param list<mixed> $idades
+     * @return array{linhas: list<array{nome: string, idade: int}>, erros: list<string>}
+     */
+    public function validarAcompanhantes(array $nomes, array $idades): array
+    {
+        $linhas = [];
+        $erros  = [];
+        $total  = max(count($nomes), count($idades));
+
+        for ($i = 0; $i < $total; $i++) {
+            $nome       = trim((string) ($nomes[$i] ?? ''));
+            $idadeBruta = $idades[$i] ?? null;
+            $idade      = ($idadeBruta === null || $idadeBruta === '') ? null : (int) $idadeBruta;
+
+            // Linha totalmente vazia é ignorada (o convidado reduziu a quantidade).
+            if ($nome === '' && $idade === null) {
+                continue;
+            }
+
+            $numero = $i + 1;
+
+            if (mb_strlen($nome) < 3) {
+                $erros[] = "Informe o nome completo do acompanhante {$numero}.";
+                continue;
+            }
+
+            if ($idade === null) {
+                $erros[] = "Informe a idade do acompanhante {$numero}.";
+                continue;
+            }
+
+            if ($idade < 0 || $idade > 120) {
+                $erros[] = "Idade inválida para o acompanhante {$numero}.";
+                continue;
+            }
+
+            $linhas[] = ['nome' => $nome, 'idade' => $idade];
+        }
+
+        return ['linhas' => $linhas, 'erros' => $erros];
+    }
+
+    /**
+     * Grava (já validados) os acompanhantes de uma confirmação.
+     *
+     * @param list<array{nome: string, idade: int}> $linhas
+     */
+    public function gravarAcompanhantes(int $convidadoId, array $linhas): void
+    {
+        foreach ($linhas as $linha) {
+            $this->acompanhantes->insert([
+                'rsvp_confirmacao_id' => $convidadoId,
+                'nome'                => $linha['nome'],
+                'idade'               => (int) $linha['idade'],
+                'menor'               => $this->classificarMenor((int) $linha['idade']),
+            ]);
+        }
+    }
+
+    /**
      * Deriva menor/maior a partir da idade: menor = idade < 18.
      */
     private function classificarMenor(?int $idade): ?int

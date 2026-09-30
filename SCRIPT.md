@@ -351,8 +351,11 @@ Rotas novas (grupo `/admin`):
 * **Tela de detalhe do convidado** (`/painel/eventos/{id}/convidados/{id}`): dados do convidado,
   resumo de **menores/maiores**, formulário para registrar acompanhantes (nome completo + idade) e
   remoção. Mostra badges “Menor de idade”, “Maior de idade” e “Idade não informada”.
-* **Sem perguntar ao convidado**: o formulário público continua pedindo apenas a *quantidade* de
-  acompanhantes; os nomes e idades são registrados pelo organizador no painel.
+* **Obrigatório no front**: o formulário público pede a quantidade de acompanhantes e, para cada um,
+  **nome completo + idade** (campos obrigatórios, gerados dinamicamente). O titular é criado como
+  pendente e os acompanhantes são gravados junto. Quem marca "não vou" não precisa preencher.
+* A classificação **menor/maior** continua **automática** (idade < 18 ⇒ menor) — o convidado não
+  escolhe; o sistema decide.
 * Botão **Acompanhantes** na listagem e resumo de menores/maiores nos KPIs; o **CSV** passou a
   incluir colunas de menores/maiores e os nomes dos acompanhantes.
 

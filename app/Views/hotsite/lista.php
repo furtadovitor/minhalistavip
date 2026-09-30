@@ -15,6 +15,10 @@ $modo    = $modo ?? 'real';
 $escuro  = $escuro ?? false;
 $stats   = $stats ?? ['cotas_total' => 0, 'cotas_vendidas' => 0, 'arrecadado' => 0.0, 'confirmados' => 0];
 $rsvpEncerrado = $rsvpEncerrado ?? false;
+$maxAcompanhantes = $maxAcompanhantes ?? 20;
+$oldNomes  = array_values((array) (old('acompanhantes_nome') ?? []));
+$oldIdades = array_values((array) (old('acompanhantes_idade') ?? []));
+$oldQtd    = max(count($oldNomes), (int) (old('qtd_acompanhantes') ?? 0));
 $exibirValores = isset($evento->exibir_valores) ? (bool) $evento->exibir_valores : true;
 
 $imgUrl = static function (?string $caminho): ?string {
@@ -463,27 +467,54 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
                             As confirmações estão <strong>encerradas</strong>: o limite de convidados foi atingido.
                         </div>
                     <?php else: ?>
-                        <form method="post" action="<?= site_url($evento->slug . '/rsvp') ?>" class="row g-3 justify-content-center">
+                        <form method="post" action="<?= site_url($evento->slug . '/rsvp') ?>" id="form-rsvp"
+                              class="row g-3 justify-content-center"
+                              data-max="<?= (int) $maxAcompanhantes ?>"
+                              data-old-nomes="<?= esc(json_encode($oldNomes), 'attr') ?>"
+                              data-old-idades="<?= esc(json_encode($oldIdades), 'attr') ?>">
                             <?= csrf_field() ?>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold fs-7" for="rsvp-nome">Nome</label>
-                                <input type="text" class="form-control" id="rsvp-nome" name="nome" required>
+                                <label class="form-label fw-semibold fs-7" for="rsvp-nome">Seu nome</label>
+                                <input type="text" class="form-control" id="rsvp-nome" name="nome"
+                                       value="<?= esc(old('nome')) ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold fs-7" for="rsvp-telefone">Telefone <span class="text-muted fw-normal">(opcional)</span></label>
-                                <input type="text" class="form-control" id="rsvp-telefone" name="telefone">
+                                <label class="form-label fw-semibold fs-7" for="rsvp-telefone">
+                                    Telefone <span class="text-muted fw-normal">(opcional)</span>
+                                </label>
+                                <input type="text" class="form-control" id="rsvp-telefone" name="telefone"
+                                       value="<?= esc(old('telefone')) ?>">
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold fs-7" for="rsvp-acompanhantes">Acompanhantes</label>
-                                <input type="number" min="0" value="0" class="form-control" id="rsvp-acompanhantes" name="quantidade_acompanhantes">
-                            </div>
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold fs-7" for="rsvp-status">Você vai?</label>
                                 <select class="form-select" id="rsvp-status" name="status">
-                                    <option value="confirmado">Sim, estarei presente</option>
-                                    <option value="recusado">Não poderei ir</option>
+                                    <option value="confirmado" <?= old('status') === 'recusado' ? '' : 'selected' ?>>Sim, estarei presente</option>
+                                    <option value="recusado" <?= old('status') === 'recusado' ? 'selected' : '' ?>>Não poderei ir</option>
                                 </select>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold fs-7" for="rsvp-qtd">Quantos acompanhantes?</label>
+                                <select class="form-select" id="rsvp-qtd" name="qtd_acompanhantes">
+                                    <?php for ($i = 0; $i <= (int) $maxAcompanhantes; $i++): ?>
+                                        <option value="<?= $i ?>" <?= $i === $oldQtd ? 'selected' : '' ?>>
+                                            <?= $i === 0 ? 'Nenhum' : $i ?>
+                                        </option>
+                                    <?php endfor; ?>
+                                </select>
+                            </div>
+
+                            <div class="col-12" id="rsvp-bloco-acompanhantes">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                                    <span class="form-label fw-semibold fs-7 mb-0">Dados dos acompanhantes</span>
+                                    <span class="text-muted fs-8">Nome completo e idade são obrigatórios</span>
+                                </div>
+                                <div id="rsvp-acompanhantes-rows" class="d-flex flex-column gap-2"></div>
+                                <p class="text-muted fs-8 mb-0 mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    A classificação <strong>menor/maior de idade</strong> é feita automaticamente pela idade.
+                                </p>
+                            </div>
+
                             <div class="col-12 text-center mt-4">
                                 <button class="btn btn-presentear px-4"><i class="bi bi-check2-circle me-1"></i>Confirmar</button>
                             </div>
@@ -705,6 +736,61 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
             aviso('Link copiado!');
         });
     }
+})();
+</script>
+
+<script>
+(function () {
+    const form = document.getElementById('form-rsvp');
+    if (!form) { return; }
+
+    const qtd    = document.getElementById('rsvp-qtd');
+    const status = document.getElementById('rsvp-status');
+    const bloco  = document.getElementById('rsvp-bloco-acompanhantes');
+    const rows   = document.getElementById('rsvp-acompanhantes-rows');
+    const max    = parseInt(form.dataset.max, 10) || 20;
+    const oldNomes  = JSON.parse(form.dataset.oldNomes || '[]');
+    const oldIdades = JSON.parse(form.dataset.oldIdades || '[]');
+
+    const escapar = (v) => String(v)
+        .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    function construir() {
+        const n = Math.min(max, Math.max(0, parseInt(qtd.value || '0', 10)));
+        const vaiComparecer = status.value !== 'recusado';
+
+        const nomesAtuais  = [];
+        const idadesAtuais = [];
+        rows.querySelectorAll('[name="acompanhantes_nome[]"]').forEach(function (el, i) { nomesAtuais[i] = el.value; });
+        rows.querySelectorAll('[name="acompanhantes_idade[]"]').forEach(function (el, i) { idadesAtuais[i] = el.value; });
+
+        rows.innerHTML = '';
+        bloco.classList.toggle('d-none', !vaiComparecer);
+
+        for (let i = 0; i < n; i++) {
+            const nome  = nomesAtuais[i] || oldNomes[i] || '';
+            const idade = idadesAtuais[i] || oldIdades[i] || '';
+            const wrap = document.createElement('div');
+            wrap.className = 'row g-2 align-items-center';
+            wrap.innerHTML =
+                '<div class="col-8">' +
+                    '<input type="text" class="form-control" name="acompanhantes_nome[]" ' +
+                    'placeholder="Nome completo do acompanhante ' + (i + 1) + '" ' +
+                    'value="' + escapar(nome) + '" ' + (vaiComparecer ? 'required' : 'disabled') + '>' +
+                '</div>' +
+                '<div class="col-4">' +
+                    '<input type="number" min="0" max="120" class="form-control" name="acompanhantes_idade[]" ' +
+                    'placeholder="Idade" value="' + escapar(idade) + '" ' +
+                    (vaiComparecer ? 'required' : 'disabled') + '>' +
+                '</div>';
+            rows.appendChild(wrap);
+        }
+    }
+
+    qtd.addEventListener('change', construir);
+    status.addEventListener('change', construir);
+    construir();
 })();
 </script>
 </body>
