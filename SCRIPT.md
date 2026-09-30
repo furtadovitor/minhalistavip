@@ -277,6 +277,28 @@ Conforme `FRONTEND_SPEC.md`:
 * Observação: o CodeIgniter responde **JSON** quando o cliente não aceita `text/html` (APIs/AJAX);
   o navegador recebe a página personalizada.
 
+### Etapa 12 — Painel do SuperAdmin completo (concluída)
+Menu lateral do SuperAdmin ampliado: **Painel, Financeiro, Catálogo, Categorias, Planos, Usuários,
+Saques e Configurações**.
+
+* **Financeiro** (`Admin\Financeiro`): conciliação global — arrecadado, taxas retidas, saques
+  pagos/pendentes, pedidos pagos, ticket médio, resultado da plataforma e últimos pagamentos.
+* **Configurações** (`Admin\Configuracoes`): edição de `configuracoes` (taxa padrão, valor mínimo de
+  saque, dados da plataforma e chaves PIX). `ConfiguracaoService` ganhou `todas()` e `definir()`.
+* **Catálogo global** (`Admin\Catalogo`): CRUD completo (inclui ativo/destaque, valor sugerido,
+  link de afiliado) e **Categorias** (`Admin\Categorias`) com edição inline, contagem de itens e
+  slug automático.
+* **Planos** (`Admin\Planos` + `PlanoModel`): CRUD com preço, período, taxa, limite de eventos e
+  recursos em JSON (RSVP, recados, destaque).
+* **Usuários** (`Admin\Usuarios`): lista com filtros (nível/status/busca), detalhe com métricas
+  (arrecadado, saldo, taxas), eventos e saques; ativar/suspender (bloqueia suspender a própria conta).
+
+Rotas novas (grupo `/admin`):
+`/admin/financeiro`, `/admin/configuracoes`, `/admin/catalogo[/novo|/{id}/editar|/{id}/alternar|/{id}/excluir]`,
+`/admin/categorias[/{id}|/{id}/alternar|/{id}/excluir]`,
+`/admin/planos[/novo|/{id}/editar|/{id}/alternar|/{id}/excluir]`,
+`/admin/usuarios[/{id}|/{id}/alternar]`.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

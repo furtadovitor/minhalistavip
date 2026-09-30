@@ -65,6 +65,43 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
     $routes->post('saques/(:num)/processar', 'Admin\Saques::processar/$1');
     $routes->post('saques/(:num)/pagar', 'Admin\Saques::pagar/$1');
     $routes->post('saques/(:num)/recusar', 'Admin\Saques::recusar/$1');
+
+    // --- Financeiro / conciliação ---
+    $routes->get('financeiro', 'Admin\Financeiro::index');
+
+    // --- Configurações da plataforma ---
+    $routes->get('configuracoes', 'Admin\Configuracoes::index');
+    $routes->post('configuracoes', 'Admin\Configuracoes::salvar');
+
+    // --- Catálogo global ---
+    $routes->get('catalogo', 'Admin\Catalogo::index');
+    $routes->get('catalogo/novo', 'Admin\Catalogo::novo');
+    $routes->post('catalogo', 'Admin\Catalogo::criar');
+    $routes->get('catalogo/(:num)/editar', 'Admin\Catalogo::editar/$1');
+    $routes->post('catalogo/(:num)/alternar', 'Admin\Catalogo::alternar/$1');
+    $routes->post('catalogo/(:num)/excluir', 'Admin\Catalogo::excluir/$1');
+    $routes->post('catalogo/(:num)', 'Admin\Catalogo::atualizar/$1');
+
+    // --- Categorias ---
+    $routes->get('categorias', 'Admin\Categorias::index');
+    $routes->post('categorias', 'Admin\Categorias::criar');
+    $routes->post('categorias/(:num)/alternar', 'Admin\Categorias::alternar/$1');
+    $routes->post('categorias/(:num)/excluir', 'Admin\Categorias::excluir/$1');
+    $routes->post('categorias/(:num)', 'Admin\Categorias::atualizar/$1');
+
+    // --- Planos ---
+    $routes->get('planos', 'Admin\Planos::index');
+    $routes->get('planos/novo', 'Admin\Planos::novo');
+    $routes->post('planos', 'Admin\Planos::criar');
+    $routes->get('planos/(:num)/editar', 'Admin\Planos::editar/$1');
+    $routes->post('planos/(:num)/alternar', 'Admin\Planos::alternar/$1');
+    $routes->post('planos/(:num)/excluir', 'Admin\Planos::excluir/$1');
+    $routes->post('planos/(:num)', 'Admin\Planos::atualizar/$1');
+
+    // --- Usuários ---
+    $routes->get('usuarios', 'Admin\Usuarios::index');
+    $routes->get('usuarios/(:num)', 'Admin\Usuarios::ver/$1');
+    $routes->post('usuarios/(:num)/alternar', 'Admin\Usuarios::alternar/$1');
 });
 
 // ---------------------------------------------------------------------------

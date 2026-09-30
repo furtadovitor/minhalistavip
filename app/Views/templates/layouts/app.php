@@ -5,8 +5,14 @@ $superadmin = isset($usuario) && $usuario !== null && $usuario->isSuperAdmin();
 
 $menu = $superadmin
     ? [
-        ['rota' => 'admin', 'icone' => 'bi-shield-lock', 'rotulo' => 'Painel SuperAdmin', 'ativo' => $atual === 'admin'],
+        ['rota' => 'admin', 'icone' => 'bi-speedometer2', 'rotulo' => 'Painel', 'ativo' => $atual === 'admin'],
+        ['rota' => 'admin/financeiro', 'icone' => 'bi-graph-up-arrow', 'rotulo' => 'Financeiro', 'ativo' => str_starts_with($atual, 'admin/financeiro')],
+        ['rota' => 'admin/catalogo', 'icone' => 'bi-collection', 'rotulo' => 'Catálogo', 'ativo' => str_starts_with($atual, 'admin/catalogo')],
+        ['rota' => 'admin/categorias', 'icone' => 'bi-tags', 'rotulo' => 'Categorias', 'ativo' => str_starts_with($atual, 'admin/categorias')],
+        ['rota' => 'admin/planos', 'icone' => 'bi-award', 'rotulo' => 'Planos', 'ativo' => str_starts_with($atual, 'admin/planos')],
+        ['rota' => 'admin/usuarios', 'icone' => 'bi-people', 'rotulo' => 'Usuários', 'ativo' => str_starts_with($atual, 'admin/usuarios')],
         ['rota' => 'admin/saques', 'icone' => 'bi-cash-coin', 'rotulo' => 'Saques', 'ativo' => str_starts_with($atual, 'admin/saques')],
+        ['rota' => 'admin/configuracoes', 'icone' => 'bi-gear', 'rotulo' => 'Configurações', 'ativo' => str_starts_with($atual, 'admin/configuracoes')],
     ]
     : [
         ['rota' => 'painel', 'icone' => 'bi-speedometer2', 'rotulo' => 'Dashboard', 'ativo' => $atual === 'painel'],

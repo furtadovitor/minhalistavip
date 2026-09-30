@@ -57,4 +57,53 @@ class ConfiguracaoService
 
         return $valor !== null && is_numeric($valor) ? (int) $valor : $default;
     }
+
+    /**
+     * Todas as configurações, agrupadas por `grupo`.
+     *
+     * @return array<string, list<array<string, mixed>>>
+     */
+    public function todas(): array
+    {
+        $linhas = $this->db->table('configuracoes')
+            ->orderBy('grupo', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $grupos = [];
+
+        foreach ($linhas as $linha) {
+            $grupos[$linha['grupo']][] = $linha;
+        }
+
+        return $grupos;
+    }
+
+    /**
+     * Cria ou atualiza uma configuração (upsert).
+     */
+    public function definir(string $chave, ?string $valor, string $grupo = 'geral', ?string $descricao = null): void
+    {
+        $agora = date('Y-m-d H:i:s');
+        $builder = $this->db->table('configuracoes');
+
+        if ($builder->where('chave', $chave)->countAllResults() > 0) {
+            $this->db->table('configuracoes')->where('chave', $chave)->update([
+                'valor'         => $valor,
+                'atualizado_em' => $agora,
+            ]);
+        } else {
+            $this->db->table('configuracoes')->insert([
+                'chave'         => $chave,
+                'valor'         => $valor,
+                'grupo'         => $grupo,
+                'descricao'     => $descricao,
+                'criado_em'     => $agora,
+                'atualizado_em' => $agora,
+            ]);
+        }
+
+        $this->cache[$chave] = $valor;
+    }
 }

@@ -53,4 +53,33 @@ class UsuarioModel extends Model
     {
         return $this->where('email', mb_strtolower(trim($email)))->first();
     }
+
+    /**
+     * Listagem para o SuperAdmin, com filtros.
+     *
+     * @param array{nivel?: string|null, status?: string|null, busca?: string|null} $filtros
+     * @return list<Usuario>
+     */
+    public function listar(array $filtros = []): array
+    {
+        $builder = $this->orderBy('nome', 'ASC');
+
+        if (! empty($filtros['nivel'])) {
+            $builder->where('nivel', $filtros['nivel']);
+        }
+
+        if (! empty($filtros['status'])) {
+            $builder->where('status', $filtros['status']);
+        }
+
+        if (! empty($filtros['busca'])) {
+            $busca = (string) $filtros['busca'];
+            $builder->groupStart()
+                ->like('nome', $busca)
+                ->orLike('email', $busca)
+                ->groupEnd();
+        }
+
+        return $builder->findAll();
+    }
 }
