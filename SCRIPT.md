@@ -230,6 +230,22 @@ Rotas novas:
 | POST | `/admin/saques/{id}/pagar` | Confirma o pagamento (registra data) |
 | POST | `/admin/saques/{id}/recusar` | Recusa e devolve o valor à carteira |
 
+### Etapa 8 — Front-end da Home + listas de exemplo (concluída)
+Conforme `FRONTEND_SPEC.md`:
+
+* **Layout público de marketing** (`Views/templates/layouts/public.php`): Bootstrap 5.3 +
+  Bootstrap Icons + Google Fonts (Plus Jakarta Sans / Inter) e um CSS próprio com os tokens da
+  paleta (Primary `#4F46E5`, Secondary `#10B981`, accents por tema) e utilitários
+  (`fs-7`, `fs-8`, `bg-indigo-100`, `text-indigo-700`, `transition-hover`).
+* **Home reformulada** (`Views/home.php`): Hero com CTA, **busca do convidado**
+  (`POST /buscar`), seção de **3 listas de exemplo**, "Como funciona / vantagens" e CTA final.
+* **Listas de exemplo** (`Public\Demo`, rotas `/demo/{slug}`): Casamento *Marina & Gabriel*,
+  Aniversário *30 Anos do Lucas* (tema dark) e Chá de Bebê *Chá da Sofia* — dados **estáticos**,
+  com faixa de aviso e modal (nunca expõem eventos reais, conforme diretriz de privacidade).
+* **Busca do convidado** (`Public\Busca`): aceita link/slug do evento **ou** o código do pedido
+  (protocolo) e redireciona para o local certo.
+* Slugs `demo`, `exemplos` e `buscar` adicionados a `EventoService::SLUGS_RESERVADOS`.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e
