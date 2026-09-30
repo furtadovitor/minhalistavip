@@ -56,29 +56,40 @@ e faça upload da pasta `vendor/` por FTP/File Manager.
 
 ---
 
-## Passo 3 — Document root na pasta `public/`
+## Passo 3 — Ajustar a estrutura (a Hostinger não muda o document root)
 
-hPanel → **Domains** → seu domínio → **Document root** → aponte para a pasta `public` do projeto:
+Na **Web Hosting** da Hostinger o document root é **fixo em `public_html`** — não existe opção
+para apontá-lo para a pasta `public/` do CI4. O layout correto é:
 
 ```
-domains/SEU-DOMINIO.com.br/minhalistavip/public
+/home/uXXXXXX/domains/SEU-DOMINIO.com.br/
+├── public_html/            <- conteúdo de public/ (index.php, .htaccess, uploads/)
+└── minhalistavip/          <- app/, vendor/, writable/, .env, spark  (FORA do site)
 ```
 
-Isso deixa a URL limpa (`https://SEU-DOMINIO.com.br/login`) e mantém `app/`, `vendor/`,
-`.env` etc. **fora** do acesso público — mais seguro.
+**No File Manager:**
+1. Mova a pasta `minhalistavip/` de **dentro** de `public_html/` para o diretório que **contém**
+   o `public_html` (ela passa a ser pasta irmã do `public_html`).
+2. Abra `minhalistavip/public/`, selecione tudo e **Mova** para dentro de `public_html/`.
+3. Edite `public_html/index.php` e ajuste o require (linha ~51):
+   ```php
+   require FCPATH . '../minhalistavip/app/Config/Paths.php';
+   ```
+4. Edite `public_html/.htaccess` (Passo 6) e crie o `.env` em `minhalistavip/` (Passo 4).
 
-<details>
-<summary>Não consigo alterar o document root? (alternativa)</summary>
+Assim o site serve a partir de `public_html` e o app/`vendor`/`.env` ficam **inacessíveis** pela web.
 
-Mova o conteúdo de `public/` para `public_html/` e o restante do projeto para uma pasta fora
-do web root (ex.: `~/minhalistavip-app/`). Depois, em `public_html/index.php`, ajuste:
+> **Se não conseguir mover pastas para fora do `public_html`:** mantenha o projeto em
+> `public_html/minhalistavip/`, mova apenas os arquivos de `minhalistavip/public/*` para
+> `public_html/`, use `require FCPATH . 'minhalistavip/app/Config/Paths.php';` e crie
+> `public_html/minhalistavip/.htaccess` com `Require all denied` (bloqueia app, vendor e `.env`).
 
-```php
-$pathsPath = realpath(FCPATH . '../minhalistavip-app/app/Config/Paths.php');
-```
-
-Nesse caso o `app.baseURL` continua sendo a raiz do domínio.
-</details>
+> **Com SSH (atalho):**
+> ```bash
+> cd ~/domains/SEU-DOMINIO.com.br
+> mv public_html/minhalistavip ./minhalistavip
+> mv minhalistavip/public/* public_html/
+> ```
 
 ---
 
@@ -180,16 +191,16 @@ Pelo File Manager, as pastas costumam ficar em `755`.
 ## Estrutura esperada no servidor
 
 ```
-domains/SEU-DOMINIO.com.br/
-└── minhalistavip/
+/home/uXXXXXX/domains/SEU-DOMINIO.com.br/
+├── public_html/              <- DOCUMENT ROOT (fixo na Hostinger)
+│   ├── index.php             <- require FCPATH . '../minhalistavip/app/Config/Paths.php';
+│   ├── .htaccess             <- RewriteBase /
+│   └── uploads/
+└── minhalistavip/            <- fora do acesso público
     ├── app/
-    ├── vendor/            <- Passo 2
-    ├── writable/          <- gravável
-    ├── public/            <- DOCUMENT ROOT
-    │   ├── index.php
-    │   ├── .htaccess      <- RewriteBase /
-    │   └── uploads/
-    ├── .env               <- Passo 4
+    ├── vendor/               <- Passo 2
+    ├── writable/             <- gravável
+    ├── .env                  <- Passo 4
     ├── env.producao
     └── spark
 ```
