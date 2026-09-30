@@ -187,6 +187,27 @@ capas dos eventos e as imagens dos presentes.
 - [ ] Gerar um **novo** `pix_webhook_token` (não deixar `sandbox-token`) e usá-lo no gateway.
 - [ ] Configurar `percentual_taxa_padrao` e `saque_valor_minimo` conforme o negócio.
 
+### Mercado Pago (gateway PIX real)
+O sistema tem gateway PIX plugável. Para usar o Mercado Pago em produção:
+
+1. No Mercado Pago, em **Suas integrações → Credenciais de produção**, copie o **Access Token**.
+2. No painel do SuperAdmin → **Configurações → PIX**, defina:
+   - `pix_gateway` = **Mercado Pago**;
+   - `mercadopago_access_token` = seu access token de produção;
+   - `mercadopago_webhook_secret` = segredo de assinatura (Suas integrações → Webhooks);
+   - `mercadopago_notification_url` = `https://SEU-DOMINIO.com.br/webhooks/pix` (opcional; se vazio, o sistema usa a URL do site).
+3. Em **Webhooks** no Mercado Pago, cadastre a URL
+   `https://SEU-DOMINIO.com.br/webhooks/pix` para o evento **Pagamentos (payment)**.
+4. Faça um pedido real de valor baixo e confirme que o pagamento muda para **Pago**
+   (o webhook consulta o status no MP antes de creditar a carteira).
+
+> O valor do PIX cai no **saldo da conta Mercado Pago dona do access token** (a da plataforma).
+> Os organizadores recebem pelo fluxo de **saques** do painel — não é split automático por evento.
+
+> Dica: `sandbox` (padrão) gera um BR Code interno e não movimenta dinheiro real — use só para testes.
+> Para testar com o MP no seu computador, exponha o local com um túnel (ex.: `cloudflared tunnel
+> --url http://localhost`) e preencha `mercadopago_notification_url` com a URL HTTPS do túnel.
+
 ---
 
 ## Problemas comuns

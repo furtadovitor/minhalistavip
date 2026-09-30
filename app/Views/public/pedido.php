@@ -73,7 +73,12 @@
             <div class="card-body p-4 text-center">
                 <h2 class="h6 text-uppercase text-muted fw-semibold mb-3">Pague com PIX</h2>
 
-                <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
+                <?php if (! empty($cobranca['qr_code_base64'])): ?>
+                    <img src="data:image/png;base64,<?= esc($cobranca['qr_code_base64'], 'attr') ?>"
+                         alt="QR Code PIX" width="220" height="220" class="mb-3 rounded">
+                <?php else: ?>
+                    <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
+                <?php endif; ?>
 
                 <p class="text-muted fs-7 mb-2">Ou copie o código PIX abaixo:</p>
                 <div class="input-group mb-2">
@@ -83,6 +88,13 @@
                         <i class="bi bi-clipboard me-1"></i>Copiar
                     </button>
                 </div>
+
+                <?php if (! empty($cobranca['ticket_url'])): ?>
+                    <a class="btn btn-outline-evento btn-sm mb-2" target="_blank" rel="noopener"
+                       href="<?= esc($cobranca['ticket_url'], 'attr') ?>">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Abrir no Mercado Pago
+                    </a>
+                <?php endif; ?>
 
                 <?php if (! empty($cobranca['expira_em'])): ?>
                     <p class="text-muted fs-8 mb-0">

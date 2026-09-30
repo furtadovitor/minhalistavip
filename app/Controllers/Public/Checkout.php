@@ -124,7 +124,7 @@ class Checkout extends BaseController
         $evento = $this->eventos->publicadoPorSlug((string) $slug);
         $pedido = $this->buscarPedido($evento, (string) $protocolo);
 
-        $gateway     = (string) ($pedido->gateway ?: PixService::GATEWAY);
+        $gateway     = (string) ($pedido->gateway ?: (new PixService())->nomeGateway());
         $transacaoId = (string) ($pedido->gateway_transacao_id ?: (new PixService())->transacaoId($pedido));
 
         $resultado = (new PagamentoService())->confirmar(

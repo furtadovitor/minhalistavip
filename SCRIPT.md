@@ -439,6 +439,19 @@ Controle de chegada no dia, a partir da lista de confirmados:
 * **Integrações**: aba "Check-in" no menu do workspace; badge de check-in na lista de convidados;
   coluna "Check-in em" no CSV; card "Presentes" no resumo do evento.
 
+### Etapa 22 — Gateway PIX real (Mercado Pago) com arquitetura plugável (concluída)
+* **Abstração** `App\Services\Pix\GatewayPixInterface` + `SandboxGateway` (BR Code EMV interno)
+  e `MercadoPagoGateway` (API `/v1/payments`, QR/Copia e Cola, consulta e assinatura).
+* **Fachada** `PixService` escolhe o gateway pela configuração `pix_gateway`
+  (`sandbox` | `mercadopago`), mantendo o mesmo contrato para `CheckoutService`.
+* **Webhook** `/webhooks/pix` agora valida a origem conforme o gateway (token no sandbox;
+  `x-signature` no Mercado Pago), extrai a transação e, no MP, consulta o status antes de
+  confirmar (idempotente pelo `PagamentoService`).
+* **Configurações** novas (`pix`, migrations `...000023`/`...000024`): `pix_gateway`,
+  `mercadopago_access_token`, `mercadopago_webhook_secret` e `mercadopago_notification_url`
+  — com select/segredos no painel.
+* **Pedido público**: exibe o QR do MP (`qr_code_base64`) quando disponível e o link da fatura.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e
