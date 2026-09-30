@@ -125,8 +125,9 @@ Gere a chave de criptografia (SSH): `php spark key:generate`.
 
 1. hPanel → **Databases → MySQL Databases** → crie o banco e o usuário (anote o prefixo `uXXXXXX_`).
 2. Suba o esquema e os dados:
-   - **Levar os dados locais (recomendado):** hPanel → **phpMyAdmin** → selecione o banco →
-     **Importar** → envie `tools/db/minhalistavip-local.sql` (dump gerado do seu MySQL local).
+   - **Levar os dados locais (recomendado):** gere o dump com
+     `tools/exportar-banco.ps1` (saída em UTF-8 **sem BOM**, pronta para importar) e, no hPanel →
+     **phpMyAdmin** → selecione o banco → **Importar** → envie `tools/db/minhalistavip-local.sql`.
    - **Começar limpo (SSH):**
      ```bash
      php spark migrate
