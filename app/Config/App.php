@@ -11,12 +11,43 @@ class App extends BaseConfig
      * Base Site URL
      * --------------------------------------------------------------------------
      *
-     * URL to your CodeIgniter root. Typically, this will be your base URL,
-     * WITH a trailing slash:
+     * URL raiz do sistema, COM barra no final.
      *
-     * E.g., http://example.com/
+     * O valor vem da variável `app.baseURL` do arquivo `.env`
+     * (recomendado em produção: `app.baseURL = 'https://seudominio.com.br/'`).
+     *
+     * Se o `.env` NÃO definir `app.baseURL`, o valor é detectado a partir do
+     * domínio da requisição (considerando o app na raiz do domínio). Assim os
+     * botões/links nunca caem no `http://localhost:8080` padrão do framework.
      */
-    public string $baseURL = 'http://localhost:8080/';
+    public string $baseURL = '';
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        if ($this->baseURL === '') {
+            $this->baseURL = self::detectarBaseURL();
+        }
+    }
+
+    /**
+     * Deduz a URL base a partir do domínio atual (fallback quando o `.env`
+     * não define `app.baseURL`).
+     */
+    private static function detectarBaseURL(): string
+    {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+
+        if ($host !== '') {
+            $https = (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+
+            return ($https ? 'https' : 'http') . '://' . $host . '/';
+        }
+
+        return 'http://localhost/';
+    }
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.

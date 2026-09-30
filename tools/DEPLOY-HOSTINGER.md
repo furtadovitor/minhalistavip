@@ -100,7 +100,8 @@ Na raiz do projeto no servidor, crie o arquivo `.env` (o `env.producao` deste re
 
 ```dotenv
 CI_ENVIRONMENT = production
-app.baseURL = 'https://SEU-DOMINIO.com.br/'
+# app.baseURL comentado = detecta o domínio automaticamente.
+# Para fixar o endereço, use: app.baseURL = 'https://SEU-DOMINIO.com.br/'
 app.indexPage = ''
 app.appTimezone = 'America/Sao_Paulo'
 app.forceGlobalSecureRequests = false   # mude para true após emitir o SSL
