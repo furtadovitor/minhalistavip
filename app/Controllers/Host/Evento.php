@@ -8,6 +8,7 @@ use App\Models\PedidoModel;
 use App\Services\ConvidadoService;
 use App\Services\EventoService;
 use App\Services\PresenteEventoService;
+use App\Services\TipoEventoService;
 use App\Services\UploadService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -61,7 +62,10 @@ class Evento extends BaseController
         return $this->render('host/eventos/informacoes', [
             'titulo' => 'Informações do evento',
             'evento' => $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId()),
-            'tipos'  => self::TIPOS,
+            'tipos'  => array_map(
+                static fn (array $tipo): string => $tipo['rotulo'],
+                TipoEventoService::todos()
+            ),
         ]);
     }
 
@@ -242,20 +246,6 @@ class Evento extends BaseController
     // -----------------------------------------------------------------
     // Apoio
     // -----------------------------------------------------------------
-
-    /**
-     * @var array<string, string>
-     */
-    private const TIPOS = [
-        'casamento'   => 'Casamento',
-        'cha_bebe'    => 'Chá de Bebê',
-        'cha_fraldas' => 'Chá de Fraldas',
-        'cha_panela'  => 'Chá de Panela',
-        'aniversario' => 'Aniversário',
-        'formatura'   => 'Formatura',
-        'corporativo' => 'Corporativo',
-        'outro'       => 'Outro',
-    ];
 
     /**
      * @var array<string, string>

@@ -81,12 +81,12 @@ $renderCard = static function ($evento, bool $arquivado): void {
                         · <?= esc($evento->data_evento->format('d/m/Y')) ?>
                     <?php endif; ?>
                 </p>
-                <div class="mt-auto d-flex flex-wrap gap-1">
+                <div class="mt-auto d-flex flex-wrap align-items-center gap-2">
                     <a class="btn btn-sm btn-brand" href="<?= esc($base) ?>">
                         <i class="bi bi-sliders me-1"></i>Gerenciar
                     </a>
                     <?php if ($evento->status === 'publicado'): ?>
-                        <a class="btn btn-sm btn-outline-success" href="<?= site_url($evento->slug) ?>" target="_blank" title="Ver página">
+                        <a class="btn btn-sm btn-outline-success btn-icon" href="<?= site_url($evento->slug) ?>" target="_blank" title="Ver página">
                             <i class="bi bi-box-arrow-up-right"></i>
                         </a>
                     <?php endif; ?>
@@ -94,7 +94,7 @@ $renderCard = static function ($evento, bool $arquivado): void {
                           action="<?= site_url('painel/eventos/' . $evento->id . '/arquivar') ?>">
                         <?= csrf_field() ?>
                         <input type="hidden" name="arquivar" value="<?= $arquivado ? '0' : '1' ?>">
-                        <button class="btn btn-sm btn-outline-secondary" title="<?= $arquivado ? 'Reativar' : 'Arquivar' ?>">
+                        <button class="btn btn-sm btn-outline-secondary btn-icon" title="<?= $arquivado ? 'Reativar' : 'Arquivar' ?>">
                             <i class="bi <?= $arquivado ? 'bi-arrow-counterclockwise' : 'bi-archive' ?>"></i>
                         </button>
                     </form>

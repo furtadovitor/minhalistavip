@@ -33,19 +33,22 @@ if (! function_exists('cor_status_evento')) {
     }
 }
 
+if (! function_exists('tipos_evento')) {
+    /**
+     * Catálogo central dos tipos de evento (ver TipoEventoService).
+     *
+     * @return array<string, array{slug: string, rotulo: string, icone: string, tema: string, cor_primaria: string, cor_secundaria: string}>
+     */
+    function tipos_evento(): array
+    {
+        return \App\Services\TipoEventoService::todos();
+    }
+}
+
 if (! function_exists('rotulo_tipo_evento')) {
     function rotulo_tipo_evento(string $tipo): string
     {
-        return [
-            'casamento'   => 'Casamento',
-            'cha_bebe'    => 'Chá de Bebê',
-            'cha_fraldas' => 'Chá de Fraldas',
-            'cha_panela'  => 'Chá de Panela',
-            'aniversario' => 'Aniversário',
-            'formatura'   => 'Formatura',
-            'corporativo' => 'Corporativo',
-            'outro'       => 'Outro',
-        ][$tipo] ?? ucfirst($tipo);
+        return \App\Services\TipoEventoService::rotulo($tipo);
     }
 }
 

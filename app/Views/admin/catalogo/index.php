@@ -107,7 +107,7 @@
                                       action="<?= site_url('admin/catalogo/' . $item['id'] . '/excluir') ?>"
                                       onsubmit="return confirm('Remover este item do catálogo global?');">
                                     <?= csrf_field() ?>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </td>

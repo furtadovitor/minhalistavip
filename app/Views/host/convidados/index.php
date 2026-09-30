@@ -229,7 +229,7 @@ $rotuloStatus = [
                                       action="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id'] . '/remover') ?>"
                                       onsubmit="return confirm('Remover este convidado da lista?');">
                                     <?= csrf_field() ?>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </td>

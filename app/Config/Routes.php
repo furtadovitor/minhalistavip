@@ -145,12 +145,18 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
 });
 
 // ---------------------------------------------------------------------------
-// PÁGINAS PÚBLICAS DE APOIO (exemplos, busca do convidado).
+// PÁGINAS PÚBLICAS DE APOIO (exemplos, busca do convidado, criação rápida).
 // ---------------------------------------------------------------------------
 $routes->get('exemplos', 'Public\Demo::index');
 $routes->get('demo', 'Public\Demo::index');
 $routes->get('demo/(:segment)', 'Public\Demo::show/$1');
 $routes->match(['get', 'post'], 'buscar', 'Public\Busca::buscar');
+
+// Atalhos de criação de lista por tipo de evento (chá de bebê, pet, natal...).
+$routes->get('criar-lista-de-presente', 'Public\CriarLista::index');
+$routes->get('criar-lista-de-presente/continuar', 'Public\CriarLista::continuar');
+$routes->get('criar-lista-de-presente/(:segment)', 'Public\CriarLista::form/$1');
+$routes->post('criar-lista-de-presente/(:segment)', 'Public\CriarLista::criar/$1');
 
 // ---------------------------------------------------------------------------
 // WEBHOOKS dos gateways de pagamento (isentos de CSRF — ver Config\Filters).

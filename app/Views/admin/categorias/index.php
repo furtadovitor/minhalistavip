@@ -73,7 +73,7 @@
                                                     formaction="<?= site_url('admin/categorias/' . $categoria['id'] . '/alternar') ?>">
                                                 <?= ! empty($categoria['ativo']) ? 'Desativar' : 'Ativar' ?>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger"
+                                            <button class="btn btn-sm btn-outline-danger btn-icon"
                                                     formaction="<?= site_url('admin/categorias/' . $categoria['id'] . '/excluir') ?>"
                                                     onclick="return confirm('Remover esta categoria? Itens ficarão sem categoria.');">
                                                 <i class="bi bi-trash"></i>

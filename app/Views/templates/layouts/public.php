@@ -15,6 +15,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navPublica">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="<?= site_url('criar-lista-de-presente') ?>">Criar lista</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#como-funciona">Como funciona</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#exemplos">Exemplos</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#buscar">Buscar lista</a></li>
@@ -25,7 +26,7 @@
                     <a class="btn btn-brand btn-sm px-3" href="<?= site_url('logout') ?>">Sair</a>
                 <?php else: ?>
                     <a class="btn btn-outline-brand btn-sm px-3" href="<?= site_url('login') ?>">Entrar</a>
-                    <a class="btn btn-brand btn-sm px-3" href="<?= site_url('registro') ?>">Criar conta grátis</a>
+                    <a class="btn btn-brand btn-sm px-3" href="<?= site_url('criar-lista-de-presente') ?>">Criar minha lista</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -49,7 +50,7 @@
             <div class="col-6 col-md-3">
                 <p class="text-white fw-semibold mb-2 fs-7 text-uppercase">Plataforma</p>
                 <ul class="list-unstyled fs-7">
-                    <li class="mb-1"><a href="<?= site_url('registro') ?>">Criar lista</a></li>
+                    <li class="mb-1"><a href="<?= site_url('criar-lista-de-presente') ?>">Criar lista</a></li>
                     <li class="mb-1"><a href="<?= site_url('login') ?>">Entrar</a></li>
                     <li class="mb-1"><a href="<?= site_url('/') ?>#exemplos">Exemplos</a></li>
                 </ul>

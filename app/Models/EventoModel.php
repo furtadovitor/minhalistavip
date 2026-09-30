@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Entities\Evento;
+use App\Services\TipoEventoService;
+use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Model;
+use CodeIgniter\Validation\ValidationInterface;
 
 class EventoModel extends Model
 {
@@ -63,6 +66,17 @@ class EventoModel extends Model
         'quem_paga_taxa' => 'required|in_list[convidado,organizador]',
         'status'         => 'required|in_list[rascunho,publicado,encerrado]',
     ];
+
+    /**
+     * Mantém a lista de tipos válidos sincronizada com o catálogo central.
+     */
+    public function __construct(?ConnectionInterface $db = null, ?ValidationInterface $validation = null)
+    {
+        parent::__construct($db, $validation);
+
+        $this->validationRules['tipo_evento'] =
+            'required|in_list[' . implode(',', TipoEventoService::chaves()) . ']';
+    }
 
     public function buscarPorSlug(string $slug): ?Evento
     {

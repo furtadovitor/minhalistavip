@@ -3,7 +3,7 @@
 > Atualizado ao final da sessão de 30/09/2026. O histórico completo das etapas está no `SCRIPT.md`.
 
 ## Onde paramos
-- **Etapas 1 a 19 concluídas e commitadas** (ver `SCRIPT.md`; commit `eb7d637`).
+- **Etapas 1 a 20 concluídas e commitadas** (ver `SCRIPT.md`; última: `eb7d637`).
 - **Local:** `http://localhost/minhalistavip/public/`
 - **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
   `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
@@ -19,11 +19,15 @@ Home + listas de exemplo (com galeria), erros 404/500 personalizados, **painel d
 "Minhas listas"** (menu colapsável, abas Ativas/Arquivadas, workspace com Galeria, Recadinhos,
 Compartilhar, Pagamentos, Forma de pagamento, Funcionalidades, Aparência, Informações e
 Configurações) e **botões/campos padronizados**.
+- **Novo:** Home com **atalhos por tipo de evento** (24 ocasiões: chá de bebê, lingerie, amigo
+  secreto, natal, pet, igreja, etc.) e **criação rápida** em `/criar-lista-de-presente/{tipo}`
+  (pede nome e descrição; cria na hora se logado, senão pede login e conclui depois).
 
 ## Pendências no servidor (Hostinger)
 1. Rodar as **migrations novas** (ou reimportar o dump):
    `eventos.limite_convidados`, tabela `rsvp_acompanhantes`, `eventos.arquivado`,
-   tabela `evento_galeria` e `rsvp_acompanhantes.categoria`.
+   tabela `evento_galeria`, `rsvp_acompanhantes.categoria` e o ENUM ampliado de
+   `eventos.tipo_evento` (Etapa 20).
 2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), trocar o
    `pix_webhook_token` e a chave PIX da plataforma.

@@ -8,18 +8,18 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
                 <span class="badge badge-soft rounded-pill px-3 py-2 fs-8 text-uppercase mb-3">
-                    <i class="bi bi-stars me-1"></i> Presentes em dinheiro via PIX
+                    <i class="bi bi-stars me-1"></i> Lista de presentes grátis para qualquer ocasião
                 </span>
                 <h1 class="display-5 fw-bold lh-sm mb-3">
-                    A lista de presentes <span class="text-brand">do seu evento</span>, sem sair de casa
+                    Crie a lista de presentes do seu evento <span class="text-brand">em minutos</span>
                 </h1>
                 <p class="fs-5 text-secondary mb-4">
-                    Crie a lista do seu casamento, chá de bebê ou aniversário em minutos.
-                    O convidado escolhe um presente e o valor cai direto na sua conta via PIX —
-                    com RSVP e mural de recados inclusos.
+                    Casamento, chá de bebê, aniversário, formatura ou festinha do pet: o convidado
+                    escolhe um presente e o valor cai direto na sua conta via PIX — com RSVP e mural
+                    de recados inclusos.
                 </p>
                 <div class="d-flex flex-wrap gap-2 mb-4">
-                    <a class="btn btn-brand btn-lg px-4" href="<?= site_url('registro') ?>">
+                    <a class="btn btn-brand btn-lg px-4" href="<?= site_url('criar-lista-de-presente') ?>">
                         <i class="bi bi-rocket-takeoff me-2"></i>Criar minha lista grátis
                     </a>
                     <a class="btn btn-outline-brand btn-lg px-4" href="#exemplos">Ver exemplos</a>
@@ -28,6 +28,8 @@
                     <i class="bi bi-check-circle-fill text-success me-1"></i> Sem mensalidade para começar
                     <span class="mx-2">·</span>
                     <i class="bi bi-check-circle-fill text-success me-1"></i> Receba por PIX
+                    <span class="mx-2">·</span>
+                    <i class="bi bi-check-circle-fill text-success me-1"></i> Convidado não precisa de conta
                 </p>
             </div>
             <div class="col-lg-6">
@@ -45,7 +47,7 @@
                             </div>
                             <a class="btn btn-brand btn-sm ms-auto px-3" href="<?= site_url('demo/casamento') ?>">Presentear</a>
                         </div>
-                        <div class="d-flex align-items-center gap-3 p-3 rounded-4 border">
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-4 border mb-3">
                             <div class="bg-white border rounded-3 d-flex align-items-center justify-content-center"
                                  style="width:48px;height:48px;">
                                 <i class="bi bi-cash-coin text-success fs-5"></i>
@@ -55,6 +57,16 @@
                                 <p class="fs-7 text-muted mb-0">O valor é creditado na carteira do organizador</p>
                             </div>
                         </div>
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-4 border">
+                            <div class="bg-white border rounded-3 d-flex align-items-center justify-content-center"
+                                 style="width:48px;height:48px;">
+                                <i class="bi bi-people text-primary fs-5"></i>
+                            </div>
+                            <div>
+                                <p class="fw-semibold mb-0">RSVP e recadinhos</p>
+                                <p class="fs-7 text-muted mb-0">Saiba quem vem e receba mensagens carinhosas</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -62,40 +74,25 @@
     </div>
 </section>
 
-<!-- ===================== BUSCA DO CONVIDADO ===================== -->
-<section class="py-5" id="buscar">
-    <div class="container" style="max-width: 820px;">
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4 p-md-5 text-center">
-                <h2 class="h4 fw-bold mb-2">Foi convidado?</h2>
-                <p class="text-muted mb-4">
-                    Cole o link que o organizador enviou, ou digite o código do seu pedido,
-                    para acessar a lista.
-                </p>
+<!-- ===================== ATALHOS POR TIPO DE EVENTO ===================== -->
+<section class="py-5 bg-light" id="atalhos">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge badge-soft px-3 py-2 rounded-pill fw-semibold text-uppercase fs-8">Atalhos</span>
+            <h2 class="fw-bold fs-2 mt-2 text-dark">Crie sua lista de presentes</h2>
+            <p class="text-muted fs-6 mb-0">
+                Selecione o tipo de evento, escolha nome e descrição e comece a montar a lista.
+            </p>
+        </div>
 
-                <?= view('templates/partials/flash') ?>
-
-                <form method="post" action="<?= site_url('buscar') ?>" class="row g-2 justify-content-center">
-                    <?= csrf_field() ?>
-                    <div class="col-md-8">
-                        <input type="text" class="form-control form-control-lg" name="termo"
-                               placeholder="ex.: minhalistavip.com.br/casamento-ana-e-joao ou MLV260929ABCD12"
-                               value="<?= esc(old('termo')) ?>" required>
-                    </div>
-                    <div class="col-md-4 d-grid">
-                        <button class="btn btn-brand btn-lg"><i class="bi bi-search me-2"></i>Buscar lista</button>
-                    </div>
-                </form>
-                <p class="fs-8 text-muted mt-3 mb-0">
-                    Dica: o link costuma vir assim <em>minhalistavip.com.br/<strong>nome-do-evento</strong></em>.
-                </p>
-            </div>
+        <div class="row g-3 justify-content-center">
+            <?= view('templates/partials/tipos_evento_grid') ?>
         </div>
     </div>
 </section>
 
 <!-- ======================= LISTAS DE EXEMPLO ==================== -->
-<section class="py-5 bg-light" id="exemplos">
+<section class="py-5" id="exemplos">
     <div class="container py-4">
         <div class="text-center mb-5">
             <span class="badge badge-soft px-3 py-2 rounded-pill fw-semibold text-uppercase fs-8">Inspire-se</span>
@@ -134,7 +131,7 @@
         </div>
 
         <p class="text-center mt-4 mb-0">
-            <a class="btn btn-outline-secondary px-4" href="<?= site_url('registro') ?>">
+            <a class="btn btn-outline-secondary px-4" href="<?= site_url('criar-lista-de-presente') ?>">
                 Quero uma lista assim para o meu evento
             </a>
         </p>
@@ -142,7 +139,7 @@
 </section>
 
 <!-- ================== COMO FUNCIONA / VANTAGENS ================= -->
-<section class="py-5" id="como-funciona">
+<section class="py-5 bg-light" id="como-funciona">
     <div class="container py-4">
         <div class="text-center mb-5">
             <h2 class="fw-bold fs-2">Como funciona</h2>
@@ -218,6 +215,38 @@
     </div>
 </section>
 
+<!-- ===================== BUSCA DO CONVIDADO ===================== -->
+<section class="py-5" id="buscar">
+    <div class="container" style="max-width: 820px;">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5 text-center">
+                <h2 class="h4 fw-bold mb-2">Foi convidado?</h2>
+                <p class="text-muted mb-4">
+                    Cole o link que o organizador enviou, ou digite o código do seu pedido,
+                    para acessar a lista.
+                </p>
+
+                <?= view('templates/partials/flash') ?>
+
+                <form method="post" action="<?= site_url('buscar') ?>" class="row g-2 justify-content-center">
+                    <?= csrf_field() ?>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control form-control-lg" name="termo"
+                               placeholder="ex.: minhalistavip.com.br/casamento-ana-e-joao ou MLV260929ABCD12"
+                               value="<?= esc(old('termo')) ?>" required>
+                    </div>
+                    <div class="col-md-4 d-grid">
+                        <button class="btn btn-brand btn-lg"><i class="bi bi-search me-2"></i>Buscar lista</button>
+                    </div>
+                </form>
+                <p class="fs-8 text-muted mt-3 mb-0">
+                    Dica: o link costuma vir assim <em>minhalistavip.com.br/<strong>nome-do-evento</strong></em>.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ========================== CTA FINAL ========================= -->
 <section class="py-5">
     <div class="container">
@@ -225,7 +254,7 @@
             <h2 class="fw-bold mb-2">Crie a sua lista agora, é grátis</h2>
             <p class="mb-4 opacity-75">Em poucos minutos o seu evento está no ar para receber presentes via PIX.</p>
             <div class="d-flex flex-wrap gap-2 justify-content-center">
-                <a class="btn btn-light btn-lg px-4 fw-semibold" href="<?= site_url('registro') ?>">Criar conta grátis</a>
+                <a class="btn btn-light btn-lg px-4 fw-semibold" href="<?= site_url('criar-lista-de-presente') ?>">Criar minha lista grátis</a>
                 <a class="btn btn-outline-light btn-lg px-4" href="<?= site_url('login') ?>">Já tenho conta</a>
             </div>
         </div>

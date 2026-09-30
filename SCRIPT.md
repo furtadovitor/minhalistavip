@@ -410,6 +410,23 @@ Unifica o raio de cantos, que antes misturava o default do Bootstrap (6px) com p
 * Removidos os `999px`/`rounded-pill` avulsos (`hotsite/lista.php` e `home.php`) — tudo passa a
   herdar o token. Campos `textarea` usam raio menor para não virar "cápsula".
 
+### Etapa 20 — Home com atalhos + criação rápida de lista por tipo (concluída)
+Inspirada na listaideal.com.br:
+* **Catálogo central** `App\Services\TipoEventoService` com 24 ocasiões (chá de casa nova, chá de
+  bebê, casamento, aniversário, chá de panela/cozinha, noivado, chá de fraldas/revelação, quinze
+  anos, formatura, lingerie, amigo secreto, festa infantil/junina, bodas, pet, igreja, dia dos
+  namorados, natal, compras, material escolar, corporativo, outro) — rótulo, ícone, tema e cores.
+* **Migration** `2026-09-30-000021_AddTiposEventos` amplia o ENUM `eventos.tipo_evento`; a validação
+  do `EventoModel` e o helper `rotulo_tipo_evento()` passam a usar o catálogo (fonte única).
+* **Home redesenhada**: seção "Atalhos" com grade de tipos; hero e CTAs apontando para o novo fluxo.
+* **Fluxo de criação** `GET/POST /criar-lista-de-presente/{slug}` (`Public\CriarLista`): formulário
+  pede nome e descrição. Já logado → cria a lista e vai para os presentes; sem login → guarda a
+  intenção na sessão, pede login/cadastro e conclui em `/criar-lista-de-presente/continuar`.
+* **Painel**: botões somente-ícone viram circulares (`.btn-icon`), abas em pílula usam o raio e a
+  cor da marca, e a aba "Informações" passa a listar todos os tipos do catálogo. No workspace da
+  lista, a seção "Ações rápidas" foi removida e o "Resumo da lista" ocupa a largura total (com
+  Local/Endereço/Horário e o botão de publicar no cabeçalho).
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

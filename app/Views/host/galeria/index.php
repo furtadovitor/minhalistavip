@@ -56,14 +56,14 @@
                         <div class="d-flex gap-1">
                             <form method="post" action="<?= site_url('painel/eventos/' . $evento->id . '/galeria/' . $foto['id'] . '/alternar') ?>">
                                 <?= csrf_field() ?>
-                                <button class="btn btn-sm btn-outline-secondary" title="<?= (int) $foto['ativo'] === 1 ? 'Ocultar' : 'Mostrar' ?>">
+                                <button class="btn btn-sm btn-outline-secondary btn-icon" title="<?= (int) $foto['ativo'] === 1 ? 'Ocultar' : 'Mostrar' ?>">
                                     <i class="bi <?= (int) $foto['ativo'] === 1 ? 'bi-eye-slash' : 'bi-eye' ?>"></i>
                                 </button>
                             </form>
                             <form method="post" action="<?= site_url('painel/eventos/' . $evento->id . '/galeria/' . $foto['id'] . '/excluir') ?>"
                                   onsubmit="return confirm('Remover esta foto?');">
                                 <?= csrf_field() ?>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                             </form>
                         </div>
                     </div>
