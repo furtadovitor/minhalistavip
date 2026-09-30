@@ -269,6 +269,14 @@ Conforme `FRONTEND_SPEC.md`:
 * **Formulários** (evento e presente) e **catálogo** ajustados ao novo padrão.
 * Correção: o formulário de evento mostrava o antigo prefixo `/e/` no slug; agora exibe o domínio raiz.
 
+### Etapa 11 — Páginas de erro personalizadas (concluída)
+* **404** (`errors/html/error_404.php`): página com a identidade (fonts, gradiente, marca), código
+  estilizado, mensagem em PT-BR e **busca do convidado** (link/código do pedido) além dos atalhos
+  para o início e para criar lista.
+* **400** (`error_400.php`) e **erro genérico de produção** (`production.php`): mesmo padrão visual.
+* Observação: o CodeIgniter responde **JSON** quando o cliente não aceita `text/html` (APIs/AJAX);
+  o navegador recebe a página personalizada.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e
