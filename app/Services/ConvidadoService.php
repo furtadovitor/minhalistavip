@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Entities\Evento;
+use App\Models\RsvpAcompanhanteModel;
 use App\Models\RsvpConfirmacaoModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
@@ -18,9 +19,12 @@ class ConvidadoService
 {
     protected RsvpConfirmacaoModel $convidados;
 
-    public function __construct(?RsvpConfirmacaoModel $convidados = null)
+    protected RsvpAcompanhanteModel $acompanhantes;
+
+    public function __construct(?RsvpConfirmacaoModel $convidados = null, ?RsvpAcompanhanteModel $acompanhantes = null)
     {
-        $this->convidados = $convidados ?? new RsvpConfirmacaoModel();
+        $this->convidados    = $convidados ?? new RsvpConfirmacaoModel();
+        $this->acompanhantes = $acompanhantes ?? new RsvpAcompanhanteModel();
     }
 
     /**
@@ -46,6 +50,100 @@ class ConvidadoService
         }
 
         return $convidado;
+    }
+
+    /**
+     * Acompanhantes detalhados de um convidado (nome, idade e menor/maior).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function acompanhantes(int $convidadoId): array
+    {
+        return $this->acompanhantes->daConfirmacao($convidadoId);
+    }
+
+    /**
+     * Totais de menores e maiores do evento.
+     *
+     * @return array{menores:int,maiores:int,total:int}
+     */
+    public function resumoAcompanhantes(int $eventoId): array
+    {
+        return $this->acompanhantes->resumoEvento($eventoId);
+    }
+
+    /**
+     * Registra um acompanhante. O campo `menor` é derivado da idade.
+     *
+     * @param array{nome?: string, idade?: mixed} $dados
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function adicionarAcompanhante(int $eventoId, int $convidadoId, array $dados): array
+    {
+        $this->um($eventoId, $convidadoId);
+
+        $nome = trim((string) ($dados['nome'] ?? ''));
+
+        if (mb_strlen($nome) < 3) {
+            return ['ok' => false, 'mensagem' => 'Informe o nome completo do acompanhante.'];
+        }
+
+        $idadeBruta = $dados['idade'] ?? null;
+        $idade      = ($idadeBruta === null || $idadeBruta === '') ? null : (int) $idadeBruta;
+
+        if ($idade !== null && ($idade < 0 || $idade > 120)) {
+            return ['ok' => false, 'mensagem' => 'Informe uma idade válida (0 a 120).'];
+        }
+
+        $ok = $this->acompanhantes->insert([
+            'rsvp_confirmacao_id' => $convidadoId,
+            'nome'                => $nome,
+            'idade'               => $idade,
+            'menor'               => $this->classificarMenor($idade),
+        ]);
+
+        return $ok === false
+            ? ['ok' => false, 'mensagem' => 'Não foi possível salvar o acompanhante.']
+            : ['ok' => true, 'mensagem' => $nome . ' (' . $this->rotuloIdade($idade) . ') registrado(a).'];
+    }
+
+    /**
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function removerAcompanhante(int $eventoId, int $convidadoId, int $acompanhanteId): array
+    {
+        $this->um($eventoId, $convidadoId);
+
+        $acompanhante = $this->acompanhantes->find($acompanhanteId);
+
+        if ($acompanhante === null || (int) $acompanhante['rsvp_confirmacao_id'] !== $convidadoId) {
+            throw PageNotFoundException::forPageNotFound('Acompanhante não encontrado.');
+        }
+
+        $this->acompanhantes->delete($acompanhanteId);
+
+        return ['ok' => true, 'mensagem' => 'Acompanhante removido.'];
+    }
+
+    /**
+     * Deriva menor/maior a partir da idade: menor = idade < 18.
+     */
+    private function classificarMenor(?int $idade): ?int
+    {
+        if ($idade === null) {
+            return null;
+        }
+
+        return $idade < 18 ? 1 : 0;
+    }
+
+    private function rotuloIdade(?int $idade): string
+    {
+        if ($idade === null) {
+            return 'idade não informada';
+        }
+
+        return $idade . ' ano(s) — ' . ($idade < 18 ? 'menor' : 'maior') . ' de idade';
     }
 
     /**

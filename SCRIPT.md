@@ -345,6 +345,17 @@ Rotas novas (grupo `/admin`):
   * campo no formulário do evento (vazio = ilimitado).
 * Botões "Convidados" na listagem de eventos e no topo da lista de presentes.
 
+### Etapa 16 — Acompanhantes com nome, idade e menor/maior automático (concluída)
+* **Tabela `rsvp_acompanhantes`** (migration `2026-09-30-000017`): nome completo, idade e o campo
+  `menor` **derivado automaticamente** pela regra `idade < 18 ⇒ menor`.
+* **Tela de detalhe do convidado** (`/painel/eventos/{id}/convidados/{id}`): dados do convidado,
+  resumo de **menores/maiores**, formulário para registrar acompanhantes (nome completo + idade) e
+  remoção. Mostra badges “Menor de idade”, “Maior de idade” e “Idade não informada”.
+* **Sem perguntar ao convidado**: o formulário público continua pedindo apenas a *quantidade* de
+  acompanhantes; os nomes e idades são registrados pelo organizador no painel.
+* Botão **Acompanhantes** na listagem e resumo de menores/maiores nos KPIs; o **CSV** passou a
+  incluir colunas de menores/maiores e os nomes dos acompanhantes.
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e

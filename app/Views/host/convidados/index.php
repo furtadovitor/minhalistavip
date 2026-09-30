@@ -43,7 +43,10 @@ $rotuloStatus = [
             <div class="card-body">
                 <h2 class="h6 text-muted text-uppercase mb-1 fs-8">Confirmados</h2>
                 <p class="h3 fw-bold mb-0"><?= (int) $resumo['pessoas_confirmadas'] ?></p>
-                <p class="text-muted fs-8 mb-0"><?= (int) $resumo['confirmados'] ?> confirmação(ões)</p>
+                <p class="text-muted fs-8 mb-0">
+                    <?= (int) $resumo['confirmados'] ?> confirmação(ões) ·
+                    <?= (int) $acompanhantesResumo['menores'] ?> menor(es) / <?= (int) $acompanhantesResumo['maiores'] ?> maior(es)
+                </p>
             </div>
         </div>
     </div>
@@ -204,6 +207,10 @@ $rotuloStatus = [
                         </td>
                         <td class="text-end">
                             <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id']) ?>">
+                                    <i class="bi bi-person-lines-fill me-1"></i>Acompanhantes
+                                </a>
                                 <?php if ($status !== 'confirmado'): ?>
                                     <form method="post" class="d-inline"
                                           action="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id'] . '/aprovar') ?>">
