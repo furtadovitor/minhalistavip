@@ -452,12 +452,32 @@ Controle de chegada no dia, a partir da lista de confirmados:
   — com select/segredos no painel.
 * **Pedido público**: exibe o QR do MP (`qr_code_base64`) quando disponível e o link da fatura.
 
+### Etapa 23 — Busca avançada e edição inline na lista de convidados (concluída)
+* **Filtros** na lista (`GET /painel/eventos/{id}/convidados`): presença no check-in
+  (já chegaram / ainda não chegaram), acompanhantes (com criança / com bebê) e ordenação
+  (mais recentes, mais antigos, nome A–Z, status). A busca por texto agora também encontra
+  pelo **nome dos acompanhantes** (`EXISTS` em `rsvp_acompanhantes`).
+* **Filtros preservados** ao aprovar, recusar ou remover: o formulário envia o campo `retorno`
+  com a query string atual e o controller redireciona de volta para a mesma visão filtrada.
+* **Edição inline do titular** (`POST .../convidados/{id}/editar`): nome, telefone, e-mail,
+  quantidade declarada e observação. A quantidade não pode ficar abaixo dos acompanhantes já
+  detalhados, e o aumento em convidado confirmado respeita o limite do evento.
+* **Edição inline do acompanhante** (`POST .../convidados/{id}/acompanhantes/{id}/editar`):
+  nome e categoria, com `menor` recalculado automaticamente.
+* **Adicionar acompanhante** agora sincroniza a quantidade declarada para cima (para contar no
+  total de pessoas e no limite) e, se o convidado estiver confirmado, desfaz a inserção caso
+  ultrapasse o limite.
+* **Listagem sem N+1**: `RsvpAcompanhanteModel::porConfirmacoes()` carrega os acompanhantes de
+  todos os convidados da página de uma vez e a tabela mostra os nomes com link "detalhar".
+* **Testes**: `tests/unit/ConvidadoServiceTest.php` cobre as regras de edição, limite e
+  sincronização da quantidade (10 testes).
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
-2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e
-   `PagamentoService`.
-3. Notificações por e-mail (recibo do convidado, aviso de presente ao organizador, saque pago).
-4. Retomada do tema visual dos eventos (`Views/templates`) e upload de imagem nos presentes.
+2. Convite nominal / link por convidado (pré-cadastro + confirmação sem duplicados).
+3. Notificações por e-mail/WhatsApp (recibo do convidado, aviso de presente ao organizador,
+   confirmação aprovada, saque pago e lembrete).
+4. Relatórios (financeiro por evento, ocupação e lista consolidada).
 5. Expiração automática de pedidos `pendente` (job/cron) usando `pedidos.expira_em`.
 
 ---

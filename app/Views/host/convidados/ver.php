@@ -56,7 +56,13 @@ foreach ($acompanhantes as $a) {
     <div class="col-lg-5">
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4">
-                <h2 class="h6 text-uppercase text-muted fw-semibold mb-3">Dados do convidado</h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 text-uppercase text-muted fw-semibold mb-0">Dados do convidado</h2>
+                    <button type="button" class="btn btn-sm btn-outline-brand js-toggle" data-alvo="form-convidado">
+                        <i class="bi bi-pencil me-1"></i>Editar
+                    </button>
+                </div>
+
                 <dl class="row mb-0 fs-7">
                     <dt class="col-5 text-muted fw-normal">Nome</dt>
                     <dd class="col-7"><?= esc($convidado['nome']) ?></dd>
@@ -78,6 +84,41 @@ foreach ($acompanhantes as $a) {
                         <dd class="col-7"><?= nl2br(esc($convidado['observacao'])) ?></dd>
                     <?php endif; ?>
                 </dl>
+
+                <form method="post" action="<?= $base ?>/editar" id="form-convidado" class="d-none border-top pt-3 mt-3">
+                    <?= csrf_field() ?>
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold fs-7 mb-1" for="e-nome">Nome completo *</label>
+                            <input type="text" class="form-control" id="e-nome" name="nome" required
+                                   value="<?= esc((string) $convidado['nome'], 'attr') ?>">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold fs-7 mb-1" for="e-telefone">Telefone</label>
+                            <input type="text" class="form-control" id="e-telefone" name="telefone"
+                                   value="<?= esc((string) $convidado['telefone'], 'attr') ?>">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold fs-7 mb-1" for="e-email">E-mail</label>
+                            <input type="email" class="form-control" id="e-email" name="email"
+                                   value="<?= esc((string) $convidado['email'], 'attr') ?>">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold fs-7 mb-1" for="e-acomp">Acompanhantes (declarados)</label>
+                            <input type="number" min="<?= count($acompanhantes) ?>" class="form-control" id="e-acomp"
+                                   name="quantidade_acompanhantes" value="<?= (int) $convidado['quantidade_acompanhantes'] ?>">
+                            <div class="form-text fs-8">Não pode ser menor que os <?= count($acompanhantes) ?> já detalhados.</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold fs-7 mb-1" for="e-observacao">Observação</label>
+                            <textarea class="form-control" id="e-observacao" name="observacao" rows="2"><?= esc((string) $convidado['observacao']) ?></textarea>
+                        </div>
+                        <div class="col-12 d-flex flex-wrap gap-2">
+                            <button class="btn btn-brand"><i class="bi bi-check2 me-1"></i>Salvar alterações</button>
+                            <button type="button" class="btn btn-outline-secondary js-toggle" data-alvo="form-convidado">Cancelar</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -152,11 +193,45 @@ foreach ($acompanhantes as $a) {
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-end">
-                                        <form method="post" class="d-inline"
-                                              action="<?= $base . '/acompanhantes/' . $a['id'] . '/remover' ?>"
-                                              onsubmit="return confirm('Remover este acompanhante?');">
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <button type="button" class="btn btn-sm btn-outline-brand btn-icon js-toggle"
+                                                    data-alvo="editar-acompanhante-<?= (int) $a['id'] ?>" title="Editar acompanhante">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form method="post" class="d-inline"
+                                                  action="<?= $base . '/acompanhantes/' . $a['id'] . '/remover' ?>"
+                                                  onsubmit="return confirm('Remover este acompanhante?');">
+                                                <?= csrf_field() ?>
+                                                <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="d-none" id="editar-acompanhante-<?= (int) $a['id'] ?>">
+                                    <td colspan="4" class="bg-light">
+                                        <form method="post" class="row g-2 align-items-end"
+                                              action="<?= $base . '/acompanhantes/' . $a['id'] . '/editar' ?>">
                                             <?= csrf_field() ?>
-                                            <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
+                                            <div class="col-sm-5">
+                                                <label class="form-label fw-semibold fs-7 mb-1" for="edit-nome-<?= (int) $a['id'] ?>">Nome completo *</label>
+                                                <input type="text" class="form-control form-control-sm" id="edit-nome-<?= (int) $a['id'] ?>"
+                                                       name="nome" required value="<?= esc((string) $a['nome'], 'attr') ?>">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label fw-semibold fs-7 mb-1" for="edit-categoria-<?= (int) $a['id'] ?>">Categoria</label>
+                                                <select class="form-select form-select-sm" id="edit-categoria-<?= (int) $a['id'] ?>" name="categoria">
+                                                    <?php foreach (\App\Services\ConvidadoService::CATEGORIAS as $opcao): ?>
+                                                        <option value="<?= esc($opcao) ?>" <?= $cat === $opcao ? 'selected' : '' ?>>
+                                                            <?= esc(rotulo_categoria_acompanhante($opcao)) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-3 d-flex gap-1">
+                                                <button class="btn btn-sm btn-brand"><i class="bi bi-check2 me-1"></i>Salvar</button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary js-toggle"
+                                                        data-alvo="editar-acompanhante-<?= (int) $a['id'] ?>">Cancelar</button>
+                                            </div>
                                         </form>
                                     </td>
                                 </tr>
@@ -174,4 +249,18 @@ foreach ($acompanhantes as $a) {
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    document.querySelectorAll('.js-toggle').forEach(function (botao) {
+        botao.addEventListener('click', function () {
+            var alvo = document.getElementById(botao.dataset.alvo);
+
+            if (alvo) {
+                alvo.classList.toggle('d-none');
+            }
+        });
+    });
+})();
+</script>
 <?= $this->endSection() ?>

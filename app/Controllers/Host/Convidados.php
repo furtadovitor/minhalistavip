@@ -31,16 +31,23 @@ class Convidados extends BaseController
     {
         $evento  = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
         $filtros = [
-            'status' => $this->request->getGet('status') ?: null,
-            'busca'  => $this->request->getGet('busca') ?: null,
+            'status'    => $this->request->getGet('status') ?: null,
+            'busca'     => $this->request->getGet('busca') ?: null,
+            'presenca'  => $this->request->getGet('presenca') ?: null,
+            'categoria' => $this->request->getGet('categoria') ?: null,
+            'ordem'     => $this->request->getGet('ordem') ?: null,
         ];
+
+        $convidados = $this->convidados->listar((int) $evento->id, $filtros);
+        $ids        = array_map(static fn (array $c): int => (int) $c['id'], $convidados);
 
         return $this->render('host/convidados/index', [
             'titulo'     => 'Lista de convidados',
             'evento'     => $evento,
             'resumo'     => $this->convidados->resumo($evento),
             'acompanhantesResumo' => $this->convidados->resumoAcompanhantes((int) $evento->id),
-            'convidados' => $this->convidados->listar((int) $evento->id, $filtros),
+            'convidados' => $convidados,
+            'acompanhantesPorConvidado' => $this->convidados->acompanhantesPorConvidados($ids),
             'filtros'    => $filtros,
         ]);
     }
@@ -67,6 +74,17 @@ class Convidados extends BaseController
         $resultado = $this->convidados->adicionarAcompanhante((int) $evento->id, (int) $id, [
             'nome'      => $this->request->getPost('nome'),
             'categoria' => $this->request->getPost('categoria'),
+        ], $evento);
+
+        return $this->responderConvidado((int) $evento->id, (int) $id, $resultado);
+    }
+
+    public function editarAcompanhante($eventoId = null, $id = null, $acompanhanteId = null)
+    {
+        $evento    = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
+        $resultado = $this->convidados->atualizarAcompanhante((int) $evento->id, (int) $id, (int) $acompanhanteId, [
+            'nome'      => $this->request->getPost('nome'),
+            'categoria' => $this->request->getPost('categoria'),
         ]);
 
         return $this->responderConvidado((int) $evento->id, (int) $id, $resultado);
@@ -76,6 +94,20 @@ class Convidados extends BaseController
     {
         $evento    = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
         $resultado = $this->convidados->removerAcompanhante((int) $evento->id, (int) $id, (int) $acompanhanteId);
+
+        return $this->responderConvidado((int) $evento->id, (int) $id, $resultado);
+    }
+
+    public function editar($eventoId = null, $id = null)
+    {
+        $evento    = $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId());
+        $resultado = $this->convidados->atualizar((int) $evento->id, (int) $id, [
+            'nome'                     => $this->request->getPost('nome'),
+            'email'                    => $this->request->getPost('email'),
+            'telefone'                 => $this->request->getPost('telefone'),
+            'quantidade_acompanhantes' => $this->request->getPost('quantidade_acompanhantes'),
+            'observacao'               => $this->request->getPost('observacao'),
+        ], $evento);
 
         return $this->responderConvidado((int) $evento->id, (int) $id, $resultado);
     }
@@ -174,7 +206,14 @@ class Convidados extends BaseController
      */
     private function responder(int $eventoId, array $resultado)
     {
-        return redirect()->to(site_url('painel/eventos/' . $eventoId . '/convidados'))
+        $retorno = trim((string) $this->request->getPost('retorno'));
+        $destino = 'painel/eventos/' . $eventoId . '/convidados';
+
+        if ($retorno !== '') {
+            $destino .= '?' . ltrim($retorno, '?');
+        }
+
+        return redirect()->to(site_url($destino))
             ->with($resultado['ok'] ? 'sucesso' : 'erro', $resultado['mensagem']);
     }
 

@@ -38,6 +38,31 @@ class RsvpAcompanhanteModel extends Model
     }
 
     /**
+     * Acompanhantes de vários convidados de uma vez (evita N+1 na listagem).
+     *
+     * @param list<int> $convidadoIds
+     * @return array<int, list<array<string, mixed>>> mapa convidado_id => acompanhantes
+     */
+    public function porConfirmacoes(array $convidadoIds): array
+    {
+        if ($convidadoIds === []) {
+            return [];
+        }
+
+        $linhas = $this->whereIn('rsvp_confirmacao_id', $convidadoIds)
+            ->orderBy('nome', 'ASC')
+            ->findAll();
+
+        $mapa = [];
+
+        foreach ($linhas as $linha) {
+            $mapa[(int) $linha['rsvp_confirmacao_id']][] = $linha;
+        }
+
+        return $mapa;
+    }
+
+    /**
      * Totais de acompanhantes de um evento, por categoria e por menor/maior.
      *
      * @return array{menores:int,maiores:int,total:int,adultos:int,criancas:int,bebes:int,sem_categoria:int}

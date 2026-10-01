@@ -39,9 +39,19 @@ class RsvpConfirmacaoModel extends Model
     ];
 
     /**
+     * Opções de ordenação aceitas (evita SQL arbitrário).
+     *
+     * @var list<string>
+     */
+    public const ORDENS = ['recentes', 'antigos', 'nome', 'status'];
+
+    /**
      * Convidados do evento, com filtros.
      *
-     * @param array{status?: string|null, busca?: string|null} $filtros
+     * Busca avançada: nome/e-mail/telefone do titular, nome dos acompanhantes,
+     * presença no check-in e categoria dos acompanhantes.
+     *
+     * @param array{status?: string|null, busca?: string|null, presenca?: string|null, categoria?: string|null, ordem?: string|null} $filtros
      * @return list<array<string, mixed>>
      */
     public function doEvento(int $eventoId, array $filtros = []): array
@@ -52,18 +62,55 @@ class RsvpConfirmacaoModel extends Model
             $builder->where('status', $filtros['status']);
         }
 
+        if (($filtros['presenca'] ?? '') === 'presentes') {
+            $builder->where('check_in_em IS NOT NULL', null, false);
+        } elseif (($filtros['presenca'] ?? '') === 'ausentes') {
+            $builder->where('check_in_em IS NULL', null, false);
+        }
+
+        if (in_array($filtros['categoria'] ?? '', ['crianca', 'bebe'], true)) {
+            $builder->where(
+                'EXISTS (SELECT 1 FROM rsvp_acompanhantes ac'
+                . ' WHERE ac.rsvp_confirmacao_id = rsvp_confirmacoes.id'
+                . ' AND ac.categoria = ' . $this->db->escape((string) $filtros['categoria']) . ')',
+                null,
+                false
+            );
+        }
+
         if (! empty($filtros['busca'])) {
-            $busca = (string) $filtros['busca'];
+            $busca   = (string) $filtros['busca'];
+            $trecho  = '%' . $this->db->escapeLikeString($busca) . '%';
+
             $builder->groupStart()
                 ->like('nome', $busca)
                 ->orLike('email', $busca)
                 ->orLike('telefone', $busca)
+                ->orWhere(
+                    'EXISTS (SELECT 1 FROM rsvp_acompanhantes ac'
+                    . ' WHERE ac.rsvp_confirmacao_id = rsvp_confirmacoes.id'
+                    . ' AND ac.nome LIKE ' . $this->db->escape($trecho) . ')',
+                    null,
+                    false
+                )
                 ->groupEnd();
         }
 
-        return $builder->orderBy('status', 'ASC')
-            ->orderBy('criado_em', 'DESC')
-            ->findAll();
+        switch ($filtros['ordem'] ?? 'recentes') {
+            case 'antigos':
+                $builder->orderBy('criado_em', 'ASC')->orderBy('nome', 'ASC');
+                break;
+            case 'nome':
+                $builder->orderBy('nome', 'ASC');
+                break;
+            case 'status':
+                $builder->orderBy('status', 'ASC')->orderBy('nome', 'ASC');
+                break;
+            default:
+                $builder->orderBy('status', 'ASC')->orderBy('criado_em', 'DESC');
+        }
+
+        return $builder->findAll();
     }
 
     /**

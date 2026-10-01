@@ -81,10 +81,12 @@ $routes->group('painel', ['filter' => 'auth'], static function (RouteCollection 
     $routes->get('eventos/(:num)/convidados/exportar', 'Host\Convidados::exportar/$1');
     $routes->post('eventos/(:num)/convidados', 'Host\Convidados::adicionar/$1');
     $routes->get('eventos/(:num)/convidados/(:num)', 'Host\Convidados::ver/$1/$2');
+    $routes->post('eventos/(:num)/convidados/(:num)/editar', 'Host\Convidados::editar/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/aprovar', 'Host\Convidados::aprovar/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/recusar', 'Host\Convidados::recusar/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/remover', 'Host\Convidados::remover/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes', 'Host\Convidados::adicionarAcompanhante/$1/$2');
+    $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes/(:num)/editar', 'Host\Convidados::editarAcompanhante/$1/$2/$3');
     $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes/(:num)/remover', 'Host\Convidados::removerAcompanhante/$1/$2/$3');
 
     // --- Check-in presencial ---

@@ -3,7 +3,7 @@
 > Atualizado ao final da sessão de 30/09/2026. O histórico completo das etapas está no `SCRIPT.md`.
 
 ## Onde paramos
-- **Etapas 1 a 22 concluídas e commitadas** (ver `SCRIPT.md`).
+- **Etapas 1 a 23 concluídas e commitadas** (ver `SCRIPT.md`).
 - **Local:** `http://localhost/minhalistavip/public/`
 - **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
   `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
@@ -28,6 +28,10 @@ Configurações) e **botões/campos padronizados**.
 - **Novo:** **Gateway PIX plugável** com **Mercado Pago** (além do sandbox) — escolha em
   Configurações (`pix_gateway`), com access token e segredo do webhook. Webhook único
   `/webhooks/pix` valida a origem e consulta o status no MP antes de confirmar.
+- **Novo:** **Busca avançada e edição inline na lista de convidados** — filtros de presença no
+  check-in, acompanhantes (com criança/bebê) e ordenação, com os filtros preservados ao
+  aprovar/recusar/remover; edição do titular e dos acompanhantes direto na tela de detalhe;
+  a quantidade declarada é sincronizada e o limite do evento conferido ao adicionar acompanhante.
 
 ## Pendências no servidor (Hostinger)
 1. Rodar as **migrations novas** (ou reimportar o dump):
@@ -41,10 +45,11 @@ Configurações) e **botões/campos padronizados**.
    `https://SEU-DOMINIO/webhooks/pix` no painel do Mercado Pago, e trocar o `pix_webhook_token`.
 
 ## Próximos módulos sugeridos
-1. **Convite nominal / link por convidado** (pré-cadastro + confirmação sem duplicados).
-2. **E-mails/WhatsApp transacionais** (recibo, confirmação aprovada, saque pago, lembrete).
-3. **Relatórios** (financeiro por evento, ocupação, lista consolidada).
-4. Melhorias de UX no painel (edição inline de acompanhantes, busca avançada, etc.).
+1. **Mercado Pago também no cartão de crédito** (checkout transparente/bricks) — hoje o MP é
+   usado só para PIX; revisar erros de integração/credenciais.
+2. **Convite nominal / link por convidado** (pré-cadastro + confirmação sem duplicados).
+3. **E-mails/WhatsApp transacionais** (recibo, confirmação aprovada, saque pago, lembrete).
+4. **Relatórios** (financeiro por evento, ocupação, lista consolidada).
 
 ## Como retomar amanhã
 Envie algo como:

@@ -31,7 +31,7 @@ class ConvidadoService
     }
 
     /**
-     * @param array{status?: string|null, busca?: string|null} $filtros
+     * @param array{status?: string|null, busca?: string|null, presenca?: string|null, categoria?: string|null, ordem?: string|null} $filtros
      * @return list<array<string, mixed>>
      */
     public function listar(int $eventoId, array $filtros = []): array
@@ -76,16 +76,30 @@ class ConvidadoService
     }
 
     /**
+     * Acompanhantes de vários convidados, agrupados por id do convidado.
+     *
+     * @param list<int> $convidadoIds
+     * @return array<int, list<array<string, mixed>>>
+     */
+    public function acompanhantesPorConvidados(array $convidadoIds): array
+    {
+        return $this->acompanhantes->porConfirmacoes($convidadoIds);
+    }
+
+    /**
      * Registra um acompanhante. A categoria define menor/maior.
+     *
+     * A quantidade declarada do convidado é sincronizada para cima, para que o
+     * novo acompanhante passe a contar no total de pessoas e no limite.
      *
      * @param array{nome?: string, categoria?: string} $dados
      * @return array{ok: bool, mensagem: string}
      */
-    public function adicionarAcompanhante(int $eventoId, int $convidadoId, array $dados): array
+    public function adicionarAcompanhante(int $eventoId, int $convidadoId, array $dados, ?Evento $evento = null): array
     {
         helper('formato');
 
-        $this->um($eventoId, $convidadoId);
+        $convidado = $this->um($eventoId, $convidadoId);
 
         $nome = trim((string) ($dados['nome'] ?? ''));
 
@@ -107,9 +121,71 @@ class ConvidadoService
             'menor'               => $this->classificarMenorCategoria($categoria),
         ]);
 
-        return $ok === false
-            ? ['ok' => false, 'mensagem' => 'Não foi possível salvar o acompanhante.']
-            : ['ok' => true, 'mensagem' => $nome . ' (' . rotulo_categoria_acompanhante($categoria) . ') registrado(a).'];
+        if ($ok === false) {
+            return ['ok' => false, 'mensagem' => 'Não foi possível salvar o acompanhante.'];
+        }
+
+        $detalhados = count($this->acompanhantes->daConfirmacao($convidadoId));
+
+        if ($detalhados > (int) $convidado['quantidade_acompanhantes']) {
+            if ($evento !== null && $convidado['status'] === 'confirmado') {
+                $resumo = $this->resumo($evento);
+
+                if ($resumo['limite'] !== null && $resumo['pessoas_confirmadas'] + 1 > $resumo['limite']) {
+                    $this->acompanhantes->delete((int) $this->acompanhantes->getInsertID());
+
+                    return [
+                        'ok'       => false,
+                        'mensagem' => 'Isso ultrapassaria o limite de ' . $resumo['limite'] . ' convidados'
+                            . ' (restam ' . $resumo['vagas'] . ' vaga(s)).',
+                    ];
+                }
+            }
+
+            $this->convidados->update($convidadoId, ['quantidade_acompanhantes' => $detalhados]);
+        }
+
+        return ['ok' => true, 'mensagem' => $nome . ' (' . rotulo_categoria_acompanhante($categoria) . ') registrado(a).'];
+    }
+
+    /**
+     * Atualiza nome e categoria de um acompanhante.
+     *
+     * @param array{nome?: string, categoria?: string} $dados
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function atualizarAcompanhante(int $eventoId, int $convidadoId, int $acompanhanteId, array $dados): array
+    {
+        helper('formato');
+
+        $this->um($eventoId, $convidadoId);
+
+        $acompanhante = $this->acompanhantes->find($acompanhanteId);
+
+        if ($acompanhante === null || (int) $acompanhante['rsvp_confirmacao_id'] !== $convidadoId) {
+            throw PageNotFoundException::forPageNotFound('Acompanhante não encontrado.');
+        }
+
+        $nome = trim((string) ($dados['nome'] ?? ''));
+
+        if (mb_strlen($nome) < 3) {
+            return ['ok' => false, 'mensagem' => 'Informe o nome completo do acompanhante.'];
+        }
+
+        $categoria = trim((string) ($dados['categoria'] ?? ''));
+
+        if (! in_array($categoria, self::CATEGORIAS, true)) {
+            return ['ok' => false, 'mensagem' => 'Escolha a categoria do acompanhante.'];
+        }
+
+        $this->acompanhantes->update($acompanhanteId, [
+            'nome'      => $nome,
+            'categoria' => $categoria,
+            'idade'     => null,
+            'menor'     => $this->classificarMenorCategoria($categoria),
+        ]);
+
+        return ['ok' => true, 'mensagem' => 'Acompanhante atualizado(a) para ' . $nome . '.'];
     }
 
     /**
@@ -412,5 +488,66 @@ class ConvidadoService
         return $ok === false
             ? ['ok' => false, 'mensagem' => 'Não foi possível adicionar o convidado.']
             : ['ok' => true, 'mensagem' => $nome . ' adicionado(a) como confirmado(a).'];
+    }
+
+    /**
+     * Atualiza os dados do convidado (titular).
+     *
+     * A quantidade declarada não pode ficar menor que os acompanhantes já
+     * detalhados, e o aumento em convidado confirmado respeita o limite.
+     *
+     * @param array<string, mixed> $dados
+     * @return array{ok: bool, mensagem: string}
+     */
+    public function atualizar(int $eventoId, int $convidadoId, array $dados, Evento $evento): array
+    {
+        $convidado = $this->um($eventoId, $convidadoId);
+
+        $nome = trim((string) ($dados['nome'] ?? ''));
+
+        if (mb_strlen($nome) < 3) {
+            return ['ok' => false, 'mensagem' => 'Informe o nome do convidado.'];
+        }
+
+        $email = trim((string) ($dados['email'] ?? '')) ?: null;
+
+        if ($email !== null && ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['ok' => false, 'mensagem' => 'Informe um e-mail válido.'];
+        }
+
+        $acompanhantes = max(0, (int) ($dados['quantidade_acompanhantes'] ?? 0));
+        $detalhados    = count($this->acompanhantes->daConfirmacao($convidadoId));
+
+        if ($acompanhantes < $detalhados) {
+            return [
+                'ok'       => false,
+                'mensagem' => 'Você já detalhou ' . $detalhados . ' acompanhante(s).'
+                    . ' Remova os excedentes antes de reduzir a quantidade.',
+            ];
+        }
+
+        $atual = (int) $convidado['quantidade_acompanhantes'];
+
+        if ($convidado['status'] === 'confirmado' && $acompanhantes > $atual) {
+            $resumo = $this->resumo($evento);
+
+            if ($resumo['limite'] !== null && $resumo['pessoas_confirmadas'] + ($acompanhantes - $atual) > $resumo['limite']) {
+                return [
+                    'ok'       => false,
+                    'mensagem' => 'Isso ultrapassaria o limite de ' . $resumo['limite'] . ' convidados'
+                        . ' (restam ' . $resumo['vagas'] . ' vaga(s)).',
+                ];
+            }
+        }
+
+        $this->convidados->update($convidadoId, [
+            'nome'                     => $nome,
+            'email'                    => $email,
+            'telefone'                 => trim((string) ($dados['telefone'] ?? '')) ?: null,
+            'quantidade_acompanhantes' => $acompanhantes,
+            'observacao'               => trim((string) ($dados['observacao'] ?? '')) ?: null,
+        ]);
+
+        return ['ok' => true, 'mensagem' => 'Dados de ' . $nome . ' atualizados.'];
     }
 }
