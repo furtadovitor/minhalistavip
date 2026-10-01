@@ -29,6 +29,11 @@ class SandboxGateway implements GatewayPixInterface
         return self::NOME;
     }
 
+    public function cobrarNaCriacao(): bool
+    {
+        return true;
+    }
+
     public function gerarCobranca(Pedido $pedido): array
     {
         $transacaoId = $this->transacaoIdLocal($pedido);

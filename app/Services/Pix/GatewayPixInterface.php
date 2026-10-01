@@ -19,6 +19,14 @@ interface GatewayPixInterface
     public function nome(): string;
 
     /**
+     * O gateway cria a cobrança junto com o pedido?
+     *
+     * Sandbox: sim (gera o BR Code na hora). Mercado Pago via Checkout Bricks:
+     * não — o pagamento só é criado quando o convidado envia o Brick.
+     */
+    public function cobrarNaCriacao(): bool;
+
+    /**
      * Cria a cobrança PIX do pedido e devolve os dados já normalizados.
      *
      * @return array{

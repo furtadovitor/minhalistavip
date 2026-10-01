@@ -472,6 +472,29 @@ Controle de chegada no dia, a partir da lista de confirmados:
 * **Testes**: `tests/unit/ConvidadoServiceTest.php` cobre as regras de edição, limite e
   sincronização da quantidade (10 testes).
 
+### Etapa 24 — Checkout Bricks do Mercado Pago: PIX + cartão de crédito (concluída)
+* **Configuração** `mercadopago_public_key` (migration `2026-10-01-000025`): o par
+  Access Token + Public Key é o que habilita o checkout embutido. Token de **conta de teste**
+  (`test_user_...@testuser.com`) é recusado pelo MP com `401 Unauthorized use of live
+  credentials` — usar as credenciais de teste (`TEST-...`) do aplicativo ou o par de produção
+  de uma conta real (`APP_USR-...`).
+* **Gateway**: `GatewayPixInterface::cobrarNaCriacao()` separa os fluxos — o sandbox gera o BR
+  Code na hora; o Mercado Pago não, pois o pagamento nasce quando o convidado envia o Brick.
+  `MercadoPagoGateway::pagar()` cria o pagamento a partir do `formData` do Brick (PIX ou cartão),
+  com `three_d_secure_mode: optional`, valor **sempre recalculado do pedido** e chave de
+  idempotência por tentativa.
+* **CheckoutService**: com gateway que não cobra na criação, o pedido é registrado sem transação
+  (aguardando o Brick), com expiração configurável (`pix_expiracao_minutos`).
+* **Página do pedido**: Payment Brick embutido (crédito + PIX) via `sdk.mercadopago.com/js/v2`;
+  o envio vai para `POST /{slug}/pedido/{protocolo}/pagar` (CSRF via header) e o resultado é
+  conciliado pelo `PagamentoService`. Pagamento aprovado recarrega a página; PIX pendente e
+  desafio 3DS abrem o Status Screen Brick (com `three_ds_info`); recusas ganham mensagens
+  traduzidas. Se já existe PIX pendente, a página reabre direto o Status Screen (sem duplicar).
+* **Webhook**: continua sendo a fonte de verdade para PIX/atualizações do MP — o `pagar` já grava
+  `gateway_transacao_id` e o `PagamentoService` confirma de forma idempotente.
+* **Testes**: `tests/unit/MercadoPagoGatewayTest.php` cobre cartão com 3DS, PIX, erro de
+  credenciais e a separação `cobrarNaCriacao`/public key (4 testes).
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Convite nominal / link por convidado (pré-cadastro + confirmação sem duplicados).

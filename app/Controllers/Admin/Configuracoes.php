@@ -31,6 +31,7 @@ class Configuracoes extends BaseController
             'pix_expiracao_minutos',
             'pix_webhook_token',
             'mercadopago_access_token',
+            'mercadopago_public_key',
             'mercadopago_webhook_secret',
             'mercadopago_notification_url',
         ],

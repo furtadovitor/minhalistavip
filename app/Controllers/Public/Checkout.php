@@ -88,7 +88,7 @@ class Checkout extends BaseController
         }
 
         return redirect()->to(site_url($evento->slug . '/pedido/' . $resultado['pedido']->protocolo))
-            ->with('sucesso', 'Pedido registrado! Conclua o pagamento via PIX.');
+            ->with('sucesso', 'Pedido registrado! Escolha a forma de pagamento.');
     }
 
     public function pedido($slug = null, $protocolo = null)
@@ -96,8 +96,16 @@ class Checkout extends BaseController
         $evento = $this->eventos->publicadoPorSlug((string) $slug);
         $pedido = $this->buscarPedido($evento, (string) $protocolo);
 
+        // "Já paguei, atualizar status": consulta o gateway antes de renderizar.
+        if ($this->request->getGet('atualizar') !== null) {
+            $pedido = $this->consultarGateway($pedido);
+        }
+
         $pagamento = (new PagamentoModel())->ultimoDoPedido((int) $pedido->id);
         $cobranca  = $pagamento !== null ? json_decode((string) $pagamento['payload'], true) : null;
+
+        $pix       = new PixService();
+        $publicKey = $pix->publicKey();
 
         return view('public/pedido', [
             'evento'       => $evento,
@@ -108,6 +116,78 @@ class Checkout extends BaseController
             'cobranca'     => is_array($cobranca) ? $cobranca : null,
             'simulacao'    => ENVIRONMENT !== 'production',
             'pix_pendente' => ! $pedido->estaPago() && ! $pedido->foiCancelado(),
+            'bricks'       => $publicKey !== '' && $pedido->estaPendente() && ! $pedido->expirado(),
+            'public_key'   => $publicKey,
+        ]);
+    }
+
+    /**
+     * Cria o pagamento no Mercado Pago a partir dos dados do Checkout Bricks
+     * (PIX ou cartão) e concilia o resultado com o pedido.
+     */
+    public function pagar($slug = null, $protocolo = null)
+    {
+        $evento = $this->eventos->publicadoPorSlug((string) $slug);
+        $pedido = $this->buscarPedido($evento, (string) $protocolo);
+
+        if (! $pedido->estaPendente() || $pedido->expirado()) {
+            return $this->response->setStatusCode(409)->setJSON([
+                'ok'       => false,
+                'mensagem' => 'Este pedido não está mais disponível para pagamento.',
+            ]);
+        }
+
+        $dados = $this->request->getJSON(true);
+
+        if (! is_array($dados)) {
+            $dados = [];
+        }
+
+        try {
+            $resultado = (new PixService())->pagar($pedido, $dados);
+        } catch (RuntimeException $e) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok'       => false,
+                'mensagem' => $e->getMessage(),
+            ]);
+        }
+
+        $this->pedidos->update((int) $pedido->id, [
+            'gateway'              => $resultado['gateway'],
+            'gateway_transacao_id' => $resultado['gateway_transacao_id'],
+            'metodo_pagamento'     => $resultado['tipo'],
+            'expira_em'            => $resultado['expira_em'] ?? $pedido->expira_em,
+        ]);
+
+        $pagamentos = new PagamentoService();
+        $pagamentos->registrar($pedido, $resultado);
+
+        if ($resultado['status'] === 'pago') {
+            $confirmacao = $pagamentos->confirmar(
+                $resultado['gateway'],
+                $resultado['gateway_transacao_id'],
+                ['brick' => true],
+                'checkout.brick'
+            );
+
+            return $this->response->setJSON([
+                'ok'            => $confirmacao['ok'],
+                'status'        => 'pago',
+                'status_detail' => $resultado['status_detail'],
+                'payment_id'    => $resultado['gateway_transacao_id'],
+                'mensagem'      => $confirmacao['mensagem'],
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'ok'            => $resultado['status'] !== 'recusado',
+            'status'        => $resultado['status'],
+            'status_detail' => $resultado['status_detail'],
+            'payment_id'    => $resultado['gateway_transacao_id'],
+            'three_ds_info' => $resultado['three_ds_info'],
+            'mensagem'      => $resultado['status'] === 'recusado'
+                ? $this->mensagemRecusado($resultado['status_detail'])
+                : 'Pagamento em processamento.',
         ]);
     }
 
@@ -138,6 +218,27 @@ class Checkout extends BaseController
             ->with($resultado['ok'] ? 'sucesso' : 'erro', $resultado['mensagem']);
     }
 
+    /**
+     * Traduz os principais motivos de recusa do Mercado Pago.
+     */
+    private function mensagemRecusado(string $detalhe): string
+    {
+        $mapa = [
+            'cc_rejected_insufficient_amount'       => 'Saldo insuficiente no cartão.',
+            'cc_rejected_bad_filled_security_code' => 'Código de segurança (CVV) incorreto.',
+            'cc_rejected_bad_filled_date'           => 'Data de validade incorreta.',
+            'cc_rejected_bad_filled_other'          => 'Confira os dados do cartão e tente novamente.',
+            'cc_rejected_call_for_authorize'        => 'Pagamento não autorizado. Ligue para o seu banco.',
+            'cc_rejected_card_disabled'             => 'Cartão desabilitado para compras online. Ligue para o banco.',
+            'cc_rejected_duplicated_payment'        => 'Este pagamento já foi enviado.',
+            'cc_rejected_high_risk'                 => 'Pagamento recusado por segurança. Tente outro cartão.',
+            'cc_rejected_blacklist'                 => 'Pagamento recusado por segurança. Tente outro cartão.',
+            'cc_rejected_max_attempts'              => 'Muitas tentativas. Tente novamente mais tarde.',
+        ];
+
+        return $mapa[$detalhe] ?? 'Pagamento recusado. Confira os dados ou tente outro cartão.';
+    }
+
     private function buscarPedido(EventoEntity $evento, string $protocolo): Pedido
     {
         $pedido = $this->pedidos->porProtocolo($protocolo);
@@ -147,6 +248,33 @@ class Checkout extends BaseController
         }
 
         return $pedido;
+    }
+
+    /**
+     * Consulta o status atual no gateway (quando houver transação) e confirma
+     * o pedido se o pagamento já tiver sido aprovado.
+     */
+    private function consultarGateway(Pedido $pedido): Pedido
+    {
+        if (! $pedido->estaPendente() || empty($pedido->gateway_transacao_id)) {
+            return $pedido;
+        }
+
+        $gateway  = (new PixService())->gateway();
+        $consulta = $gateway->consultar((string) $pedido->gateway_transacao_id);
+
+        if ($consulta === null || ($consulta['status'] ?? '') !== 'pago') {
+            return $pedido;
+        }
+
+        (new PagamentoService())->confirmar(
+            $gateway->nome(),
+            (string) $pedido->gateway_transacao_id,
+            $consulta['payload'] ?? [],
+            'checkout.consulta'
+        );
+
+        return $this->pedidos->porProtocolo((string) $pedido->protocolo) ?? $pedido;
     }
 
     /**

@@ -79,7 +79,7 @@ class CheckoutService
      *
      * @param array<string, mixed> $presente
      * @param array{nome?: string, email?: string, telefone?: string, mensagem?: string} $convidado
-     * @return array{pedido: Pedido, pagamento_id: int, cobranca: array<string, mixed>}
+     * @return array{pedido: Pedido, pagamento_id: int|null, cobranca: array<string, mixed>|null}
      *
      * @throws RuntimeException quando os dados não permitem concluir o checkout
      */
@@ -128,19 +128,36 @@ class CheckoutService
 
             $pedido->id = (int) $this->pedidos->getInsertID();
 
-            $cobranca   = $this->pix->gerarCobranca($pedido);
-            $pagamentoId = $this->pagamentos->registrar($pedido, $cobranca);
+            $cobranca    = null;
+            $pagamentoId = null;
 
-            $this->pedidos->update($pedido->id, [
-                'gateway'              => $cobranca['gateway'],
-                'gateway_transacao_id' => $cobranca['gateway_transacao_id'],
-                'metodo_pagamento'     => 'pix',
-                'expira_em'            => $cobranca['expira_em'],
-            ]);
+            if ($this->pix->cobrarNaCriacao()) {
+                $cobranca    = $this->pix->gerarCobranca($pedido);
+                $pagamentoId = $this->pagamentos->registrar($pedido, $cobranca);
 
-            $pedido->gateway              = $cobranca['gateway'];
-            $pedido->gateway_transacao_id = $cobranca['gateway_transacao_id'];
-            $pedido->expira_em            = $cobranca['expira_em'];
+                $this->pedidos->update($pedido->id, [
+                    'gateway'              => $cobranca['gateway'],
+                    'gateway_transacao_id' => $cobranca['gateway_transacao_id'],
+                    'metodo_pagamento'     => 'pix',
+                    'expira_em'            => $cobranca['expira_em'],
+                ]);
+
+                $pedido->gateway              = $cobranca['gateway'];
+                $pedido->gateway_transacao_id = $cobranca['gateway_transacao_id'];
+                $pedido->expira_em            = $cobranca['expira_em'];
+            } else {
+                // Checkout Bricks: o pagamento (PIX ou cartão) é criado depois,
+                // quando o convidado envia o formulário na página do pedido.
+                $expiracao = $this->pix->expiracaoPedido();
+
+                $this->pedidos->update($pedido->id, [
+                    'gateway'   => $this->pix->nomeGateway(),
+                    'expira_em' => $expiracao,
+                ]);
+
+                $pedido->gateway   = $this->pix->nomeGateway();
+                $pedido->expira_em = $expiracao;
+            }
 
             $this->db->transCommit();
         } catch (RuntimeException $e) {

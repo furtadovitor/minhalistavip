@@ -37,6 +37,100 @@ class MercadoPagoGateway implements GatewayPixInterface
         return self::NOME;
     }
 
+    public function cobrarNaCriacao(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Public Key da aplicação, usada para inicializar o Checkout Bricks.
+     */
+    public function publicKey(): string
+    {
+        return trim($this->config->texto('mercadopago_public_key'));
+    }
+
+    /**
+     * Cria o pagamento a partir dos dados enviados pelo Checkout Bricks
+     * (PIX ou cartão de crédito/débito).
+     *
+     * O valor é sempre recalculado no servidor a partir do pedido — nunca
+     * confiamos no `transaction_amount` devolvido pelo navegador.
+     *
+     * @param array<string, mixed> $dados formData devolvido pelo Brick
+     * @return array<string, mixed>
+     */
+    public function pagar(Pedido $pedido, array $dados): array
+    {
+        $token = $this->accessToken();
+
+        if ($token === '') {
+            throw new RuntimeException('Gateway Mercado Pago sem "access token" configurado.');
+        }
+
+        $methodId = trim((string) ($dados['payment_method_id'] ?? ''));
+
+        if ($methodId === '') {
+            throw new RuntimeException('O Mercado Pago não informou o meio de pagamento.');
+        }
+
+        $pagamento = [
+            'transaction_amount' => round((float) $pedido->valor_total, 2),
+            'description'        => 'Presente - pedido ' . $pedido->protocolo,
+            'external_reference' => (string) $pedido->protocolo,
+            'payment_method_id'  => $methodId,
+            'payer'              => $this->payerDoFormulario($dados, $pedido),
+        ];
+
+        foreach (['token', 'installments', 'issuer_id', 'payment_method_option_id', 'processing_mode'] as $campo) {
+            $valor = $dados[$campo] ?? null;
+
+            if ($valor !== null && $valor !== '') {
+                $pagamento[$campo] = $valor;
+            }
+        }
+
+        // Cartão entra no fluxo 3DS 2.0 (challenge só quando o emissor exigir).
+        if ($methodId !== 'pix') {
+            $pagamento['three_d_secure_mode'] = 'optional';
+        }
+
+        $notificacao = $this->urlWebhook();
+
+        if ($notificacao !== null) {
+            $pagamento['notification_url'] = $notificacao;
+        }
+
+        $idempotencia = $pedido->protocolo . '-' . bin2hex(random_bytes(6));
+
+        $resposta = $this->enviar('POST', '/v1/payments', $token, $pagamento, $idempotencia);
+
+        $id = (string) ($resposta['id'] ?? '');
+
+        if ($id === '') {
+            throw new RuntimeException('Mercado Pago recusou o pagamento: ' . $this->mensagemErro($resposta));
+        }
+
+        $transacao = $resposta['point_of_interaction']['transaction_data'] ?? [];
+
+        return [
+            'gateway'              => self::NOME,
+            'gateway_transacao_id' => $id,
+            'tipo'                 => (string) ($resposta['payment_type_id'] ?? $methodId),
+            'status'               => $this->normalizarStatus((string) ($resposta['status'] ?? 'pending')),
+            'status_detail'        => (string) ($resposta['status_detail'] ?? ''),
+            'valor'                => (float) ($resposta['transaction_amount'] ?? $pedido->valor_total),
+            'expira_em'            => $this->dataExpiracao($resposta),
+            'copia_e_cola'         => (string) ($transacao['qr_code'] ?? ''),
+            'chave'                => $methodId === 'pix' ? 'Mercado Pago' : null,
+            'recebedor'            => $methodId === 'pix' ? 'Mercado Pago' : null,
+            'qr_code_base64'       => (string) ($transacao['qr_code_base64'] ?? ''),
+            'ticket_url'           => (string) ($transacao['ticket_url'] ?? ''),
+            'three_ds_info'        => $resposta['three_ds_info'] ?? null,
+            'payload_bruto'        => $resposta,
+        ];
+    }
+
     public function gerarCobranca(Pedido $pedido): array
     {
         $token = $this->accessToken();
@@ -188,6 +282,44 @@ class MercadoPagoGateway implements GatewayPixInterface
             'first_name' => $nome,
             'last_name'  => $sobre,
         ], static fn ($valor): bool => $valor !== '');
+    }
+
+    /**
+     * Monta o `payer` a partir do formData do Brick, completando com os dados
+     * do pedido. O documento (CPF/CNPJ) é obrigatório para cartão.
+     *
+     * @param array<string, mixed> $dados
+     * @return array<string, mixed>
+     */
+    private function payerDoFormulario(array $dados, Pedido $pedido): array
+    {
+        $enviado = is_array($dados['payer'] ?? null) ? $dados['payer'] : [];
+
+        $email = trim((string) ($enviado['email'] ?? $pedido->email_convidado));
+
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            $email = $this->config->texto('email_suporte', 'pagamentos@minhalistavip.com.br');
+        }
+
+        $payer = ['email' => $email];
+
+        $numero = preg_replace('/\D/', '', (string) ($enviado['identification']['number'] ?? ''));
+
+        if ($numero !== '') {
+            $payer['identification'] = [
+                'type'   => (string) ($enviado['identification']['type'] ?? 'CPF'),
+                'number' => $numero,
+            ];
+        }
+
+        $partes = preg_split('/\s+/', trim((string) $pedido->nome_convidado), 2) ?: [];
+        $payer['first_name'] = $partes[0] ?? 'Convidado';
+
+        if (! empty($partes[1])) {
+            $payer['last_name'] = $partes[1];
+        }
+
+        return $payer;
     }
 
     private function accessToken(): string

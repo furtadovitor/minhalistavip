@@ -1,9 +1,9 @@
 # Retomada do projeto — próximos passos
 
-> Atualizado ao final da sessão de 30/09/2026. O histórico completo das etapas está no `SCRIPT.md`.
+> Atualizado ao final da sessão de 01/10/2026. O histórico completo das etapas está no `SCRIPT.md`.
 
 ## Onde paramos
-- **Etapas 1 a 23 concluídas e commitadas** (ver `SCRIPT.md`).
+- **Etapas 1 a 24 concluídas e commitadas** (ver `SCRIPT.md`).
 - **Local:** `http://localhost/minhalistavip/public/`
 - **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
   `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
@@ -32,24 +32,28 @@ Configurações) e **botões/campos padronizados**.
   check-in, acompanhantes (com criança/bebê) e ordenação, com os filtros preservados ao
   aprovar/recusar/remover; edição do titular e dos acompanhantes direto na tela de detalhe;
   a quantidade declarada é sincronizada e o limite do evento conferido ao adicionar acompanhante.
+- **Novo:** **Checkout Bricks do Mercado Pago (PIX + cartão de crédito)** — formulário embutido
+  na página do pedido (`sdk.mercadopago.com/js/v2`), com 3DS 2.0 e Status Screen para PIX/desafio.
+  Requer **Access Token + Public Key** coerentes (teste `TEST-...` ou produção `APP_USR-...`):
+  token de conta de teste isolado dá `401 Unauthorized use of live credentials`.
 
 ## Pendências no servidor (Hostinger)
 1. Rodar as **migrations novas** (ou reimportar o dump):
    `eventos.limite_convidados`, tabela `rsvp_acompanhantes`, `eventos.arquivado`,
    tabela `evento_galeria`, `rsvp_acompanhantes.categoria`, o ENUM ampliado de
    `eventos.tipo_evento`, o check-in (`rsvp_confirmacoes.check_in_em/check_in_por`) e as
-   configurações do gateway PIX (`pix_gateway`/Mercado Pago).
+   configurações do gateway PIX (`pix_gateway`, Mercado Pago e `mercadopago_public_key`).
 2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), definir
-   `pix_gateway = mercadopago` com **access token** e **segredo do webhook**, cadastrar a URL
+   `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente** (teste
+   `TEST-...` ou produção `APP_USR-...` de conta real), **segredo do webhook**, cadastrar a URL
    `https://SEU-DOMINIO/webhooks/pix` no painel do Mercado Pago, e trocar o `pix_webhook_token`.
 
 ## Próximos módulos sugeridos
-1. **Mercado Pago também no cartão de crédito** (checkout transparente/bricks) — hoje o MP é
-   usado só para PIX; revisar erros de integração/credenciais.
-2. **Convite nominal / link por convidado** (pré-cadastro + confirmação sem duplicados).
-3. **E-mails/WhatsApp transacionais** (recibo, confirmação aprovada, saque pago, lembrete).
-4. **Relatórios** (financeiro por evento, ocupação, lista consolidada).
+1. **Convite nominal / link por convidado** (pré-cadastro + confirmação sem duplicados).
+2. **E-mails/WhatsApp transacionais** (recibo, confirmação aprovada, saque pago, lembrete).
+3. **Relatórios** (financeiro por evento, ocupação, lista consolidada).
+4. **Expiração automática de pedidos `pendente`** (job/cron) e conciliação de transações.
 
 ## Como retomar amanhã
 Envie algo como:

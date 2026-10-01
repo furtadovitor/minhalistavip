@@ -6,6 +6,7 @@ use App\Entities\Pedido;
 use App\Services\Pix\GatewayPixInterface;
 use App\Services\Pix\MercadoPagoGateway;
 use App\Services\Pix\SandboxGateway;
+use RuntimeException;
 
 /**
  * Fachada de cobrança PIX.
@@ -46,6 +47,49 @@ class PixService
     public function nomeGateway(): string
     {
         return $this->gateway()->nome();
+    }
+
+    /**
+     * O gateway ativo cria a cobrança junto com o pedido?
+     */
+    public function cobrarNaCriacao(): bool
+    {
+        return $this->gateway()->cobrarNaCriacao();
+    }
+
+    /**
+     * Public Key do Mercado Pago (Checkout Bricks), quando for o gateway ativo.
+     */
+    public function publicKey(): string
+    {
+        $gateway = $this->gateway();
+
+        return $gateway instanceof MercadoPagoGateway ? $gateway->publicKey() : '';
+    }
+
+    /**
+     * Cria o pagamento do Checkout Bricks (PIX ou cartão) no gateway ativo.
+     *
+     * @param array<string, mixed> $dados formData devolvido pelo Brick
+     * @return array<string, mixed>
+     */
+    public function pagar(Pedido $pedido, array $dados): array
+    {
+        $gateway = $this->gateway();
+
+        if (! $gateway instanceof MercadoPagoGateway) {
+            throw new RuntimeException('O gateway ativo não aceita pagamento pelo Checkout Bricks.');
+        }
+
+        return $gateway->pagar($pedido, $dados);
+    }
+
+    /**
+     * Expiração padrão de um pedido aguardando pagamento.
+     */
+    public function expiracaoPedido(): string
+    {
+        return date('Y-m-d H:i:s', time() + ($this->config->inteiro('pix_expiracao_minutos', 30) * 60));
     }
 
     /**
