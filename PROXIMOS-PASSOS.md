@@ -44,6 +44,10 @@ Configurações) e **botões/campos padronizados**.
   na página do pedido (`sdk.mercadopago.com/js/v2`), com 3DS 2.0 e Status Screen para PIX/desafio.
   Requer **Access Token + Public Key** coerentes (teste `TEST-...` ou produção `APP_USR-...`):
   token de conta de teste isolado dá `401 Unauthorized use of live credentials`.
+- **Novo:** **Expiração automática + conciliação + agradecimento** — comando `pedidos:conciliar`
+  (`ConciliacaoService`) consulta o gateway, confirma pagamentos pendentes e expira pedidos
+  vencidos; o PIX pendente faz **polling** em `/{slug}/pedido/{protocolo}/status` e redireciona
+  sozinho para a **página de agradecimento** `/{slug}/obrigado/{protocolo}` quando confirmado.
 - **Novo (front-end):** **Home reformulada** (`app/Views/home.php`) como landing completa, no
   estilo do temfestinha, evoluindo a identidade indigo atual. Reforça **grátis** e **rapidez**,
   e apresenta três pilares: **site personalizado**, **convite online** e **lista de presentes**.
@@ -118,12 +122,14 @@ Configurações) e **botões/campos padronizados**.
    `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente** (teste
    `TEST-...` ou produção `APP_USR-...` de conta real), **segredo do webhook**, cadastrar a URL
    `https://SEU-DOMINIO/webhooks/pix` no painel do Mercado Pago, e trocar o `pix_webhook_token`.
+4. **Cron da conciliação** — agendar `php spark pedidos:conciliar` a cada 5 minutos (expira
+   pedidos vencidos e confirma pagamentos com webhook perdido). Passo a passo no
+   `tools/DEPLOY-HOSTINGER.md`.
 
 ## Próximos módulos sugeridos
 1. **Convite nominal / link por convidado** (pré-cadastro + confirmação sem duplicados).
 2. **E-mails/WhatsApp transacionais** (recibo, confirmação aprovada, saque pago, lembrete).
 3. **Relatórios** (financeiro por evento, ocupação, lista consolidada).
-4. **Expiração automática de pedidos `pendente`** (job/cron) e conciliação de transações.
 
 ## Como retomar amanhã
 Envie algo como:

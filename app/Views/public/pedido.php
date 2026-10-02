@@ -226,6 +226,7 @@ if (filter_var((string) $pedido->email_convidado, FILTER_VALIDATE_EMAIL)) {
     (function () {
         var publicKey = <?= json_encode($public_key) ?>;
         var endpoint  = <?= json_encode(site_url($evento->slug . '/pedido/' . $pedido->protocolo . '/pagar')) ?>;
+        var obrigadoUrl = <?= json_encode(site_url($evento->slug . '/obrigado/' . $pedido->protocolo)) ?>;
         var csrf      = <?= json_encode(csrf_hash()) ?>;
         var existente = <?= $pagamentoPendente ? json_encode((string) $cobranca['gateway_transacao_id']) : 'null' ?>;
         var threeDs   = <?= $pagamentoPendente ? json_encode($cobranca['three_ds_info'] ?? null) : 'null' ?>;
@@ -309,7 +310,7 @@ if (filter_var((string) $pedido->email_convidado, FILTER_VALIDATE_EMAIL)) {
                     })
                     .then(function (resultado) {
                         if (resultado.status === 'pago') {
-                            window.location.reload();
+                            window.location.replace(obrigadoUrl);
                             return;
                         }
 
@@ -352,6 +353,39 @@ if (filter_var((string) $pedido->email_convidado, FILTER_VALIDATE_EMAIL)) {
                 setTimeout(() => { botao.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copiar'; }, 2000);
             });
         }
+    })();
+    </script>
+<?php endif; ?>
+
+<?php if ($pedido->estaPendente() && ! $pedido->expirado()): ?>
+    <script>
+    (function () {
+        var statusUrl = <?= json_encode(site_url($evento->slug . '/pedido/' . $pedido->protocolo . '/status')) ?>;
+        var tentativas = 0;
+        var maxTentativas = 360; // ~30 min a 5s
+
+        function checar() {
+            if (tentativas++ >= maxTentativas) {
+                return;
+            }
+
+            // Consulta o gateway a cada 4 checagens (~20s); nas demais, só o banco.
+            var url = (tentativas % 4 === 0) ? statusUrl + '?consultar=1' : statusUrl;
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (resposta) { return resposta.json(); })
+                .then(function (dados) {
+                    if (dados && dados.pago && dados.redirect) {
+                        window.location.replace(dados.redirect);
+                        return;
+                    }
+
+                    setTimeout(checar, 5000);
+                })
+                .catch(function () { setTimeout(checar, 5000); });
+        }
+
+        setTimeout(checar, 5000);
     })();
     </script>
 <?php endif; ?>

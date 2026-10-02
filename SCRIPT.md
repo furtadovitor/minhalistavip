@@ -495,13 +495,31 @@ Controle de chegada no dia, a partir da lista de confirmados:
 * **Testes**: `tests/unit/MercadoPagoGatewayTest.php` cobre cartão com 3DS, PIX, erro de
   credenciais e a separação `cobrarNaCriacao`/public key (4 testes).
 
+### Etapa 25 — Expiração automática, conciliação e página de agradecimento (concluída)
+* **Conciliação** (`ConciliacaoService`): percorre os pedidos `pendente` que já têm
+  `gateway_transacao_id`, consulta o gateway e confirma os que já estão pagos — recupera
+  pagamentos cujo **webhook se perdeu**. Só depois expira os pedidos vencidos
+  (`PedidoModel::expirarVencidos()`), evitando marcar como `expirado` algo que foi pago.
+* **Comando/cron** (`pedidos:conciliar`, grupo *Pagamentos*): roda a conciliação completa e
+  imprime o resumo (consultados, confirmados, expirados). Ideal a cada 5 minutos:
+  `php spark pedidos:conciliar`.
+* **Auto-redirecionamento do PIX**: novo endpoint leve `GET /{slug}/pedido/{protocolo}/status`
+  (JSON com `pago`/`encerrado`/`redirect`) e polling na página do pedido a cada 5s (consulta ao
+  gateway a cada 4 checagens, para não sobrecarregar o provedor). Quando confirma, redireciona
+  automaticamente para a **página de agradecimento**.
+* **Página de agradecimento dedicada** (`/{slug}/obrigado/{protocolo}`, view
+  `public/obrigado.php`): mostra o resumo do presente, o valor pago e a mensagem do convidado.
+  Pedido não pago volta para a página do pedido. O Brick também passa a levar direto para ela
+  quando o cartão é aprovado.
+* **Testes**: `tests/unit/ConciliacaoServiceTest.php` cobre confirmação apenas dos pagos,
+  delegação da expiração e o resumo de `executar()` (3 testes).
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
 2. Convite nominal / link por convidado (pré-cadastro + confirmação sem duplicados).
 3. Notificações por e-mail/WhatsApp (recibo do convidado, aviso de presente ao organizador,
    confirmação aprovada, saque pago e lembrete).
 4. Relatórios (financeiro por evento, ocupação e lista consolidada).
-5. Expiração automática de pedidos `pendente` (job/cron) usando `pedidos.expira_em`.
 
 ---
 

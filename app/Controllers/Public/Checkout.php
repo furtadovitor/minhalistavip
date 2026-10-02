@@ -122,6 +122,53 @@ class Checkout extends BaseController
     }
 
     /**
+     * Página de agradecimento após o pagamento confirmado.
+     */
+    public function obrigado($slug = null, $protocolo = null)
+    {
+        $evento = $this->eventos->publicadoPorSlug((string) $slug);
+        $pedido = $this->buscarPedido($evento, (string) $protocolo);
+
+        if (! $pedido->estaPago()) {
+            return redirect()->to(site_url($evento->slug . '/pedido/' . $pedido->protocolo));
+        }
+
+        return view('public/obrigado', [
+            'evento'   => $evento,
+            'pedido'   => $pedido,
+            'presente' => $pedido->presente_evento_id !== null
+                ? (new PresenteEventoModel())->find((int) $pedido->presente_evento_id)
+                : null,
+        ]);
+    }
+
+    /**
+     * Status leve do pedido para o polling da página (auto-redirecionamento).
+     *
+     * O parâmetro `consultar` faz uma checagem no gateway — usado com menos
+     * frequência que o polling local, para não sobrecarregar o provedor.
+     */
+    public function status($slug = null, $protocolo = null)
+    {
+        $evento = $this->eventos->publicadoPorSlug((string) $slug);
+        $pedido = $this->buscarPedido($evento, (string) $protocolo);
+
+        if ($this->request->getGet('consultar') !== null) {
+            $pedido = $this->consultarGateway($pedido);
+        }
+
+        return $this->response->setJSON([
+            'ok'        => true,
+            'status'    => $pedido->status,
+            'pago'      => $pedido->estaPago(),
+            'encerrado' => $pedido->foiCancelado(),
+            'redirect'  => $pedido->estaPago()
+                ? site_url($evento->slug . '/obrigado/' . $pedido->protocolo)
+                : null,
+        ]);
+    }
+
+    /**
      * Cria o pagamento no Mercado Pago a partir dos dados do Checkout Bricks
      * (PIX ou cartão) e concilia o resultado com o pedido.
      */

@@ -228,6 +228,22 @@ O sistema tem gateway plugável. Para usar o Mercado Pago em produção:
 > --url http://localhost`), preencha `mercadopago_notification_url` com a URL HTTPS do túnel e
 > use o par de credenciais de **teste** (`TEST-...`) no access token e na public key.
 
+### Cron da conciliação (recomendado)
+
+O comando `pedidos:conciliar` consulta o gateway, confirma pagamentos com **webhook perdido** e
+expira pedidos vencidos. Agende a cada 5 minutos em **hPanel → Advanced → Cron Jobs**:
+
+```bash
+/usr/bin/php /home/uXXXXXX/domains/SEU-DOMINIO.com.br/minhalistavip/spark pedidos:conciliar
+```
+
+Ajuste o caminho do PHP (`/usr/bin/php` ou `/usr/bin/php8.2`) e o caminho do `spark` conforme a
+**Estrutura esperada no servidor**. Em produção o comando é silencioso quando não há nada a fazer;
+para conferir manualmente, rode pelo SSH.
+
+> Sem o cron o sistema continua funcionando: o webhook confirma os pagamentos e a expiração só
+> atrasa. Mas o cron é o que garante a limpeza dos pedidos vencidos e a recuperação de webhooks.
+
 ---
 
 ## Login com Google (opcional)

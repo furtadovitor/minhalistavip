@@ -85,6 +85,38 @@ class PedidoModel extends Model
     }
 
     /**
+     * Pedidos pendentes que já têm transação criada no gateway (candidatos à
+     * conciliação, pois permitem consultar o status real).
+     *
+     * @return list<Pedido>
+     */
+    public function pendentesComTransacao(): array
+    {
+        return $this->where('status', 'pendente')
+            ->where('gateway_transacao_id !=', null)
+            ->findAll();
+    }
+
+    /**
+     * Marca como 'expirado' os pedidos pendentes cuja validade já passou.
+     *
+     * @return int quantidade de pedidos expirados
+     */
+    public function expirarVencidos(string $agora): int
+    {
+        $this->db->table('pedidos')
+            ->where('status', 'pendente')
+            ->where('expira_em !=', null)
+            ->where('expira_em <', $agora)
+            ->update([
+                'status'        => 'expirado',
+                'atualizado_em' => $agora,
+            ]);
+
+        return (int) $this->db->affectedRows();
+    }
+
+    /**
      * @return list<Pedido>
      */
     public function doEvento(int $eventoId): array

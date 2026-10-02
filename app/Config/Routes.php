@@ -199,5 +199,7 @@ $routes->post('(:segment)/recado', 'Public\Evento::recado/$1');
 $routes->get('(:segment)/presentear/(:num)', 'Public\Checkout::form/$1/$2');
 $routes->post('(:segment)/presentear/(:num)', 'Public\Checkout::criar/$1/$2');
 $routes->get('(:segment)/pedido/(:segment)', 'Public\Checkout::pedido/$1/$2');
+$routes->get('(:segment)/pedido/(:segment)/status', 'Public\Checkout::status/$1/$2');
 $routes->post('(:segment)/pedido/(:segment)/pagar', 'Public\Checkout::pagar/$1/$2');
 $routes->post('(:segment)/pedido/(:segment)/simular', 'Public\Checkout::simular/$1/$2');
+$routes->get('(:segment)/obrigado/(:segment)', 'Public\Checkout::obrigado/$1/$2');
