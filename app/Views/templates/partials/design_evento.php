@@ -42,10 +42,27 @@ $fonte = $temas[$tema] ?? $temas['classico'];
         --cor-primaria: <?= $corPrimaria ?>;
         --cor-secundaria: <?= $corSecundaria ?>;
         --raio: <?= $fonte['raio'] ?>;
+        --raio-btn: 999px;
         --fonte-titulo: '<?= $fonte['titulo'] ?>';
     }
     body { font-family: '<?= $fonte['corpo'] ?>', system-ui, sans-serif; }
     h1, h2, h3, h4, h5, .font-display { font-family: var(--fonte-titulo), 'Inter', sans-serif; }
+
+    /* Botões e campos padronizados (pill) nas páginas públicas do evento */
+    .btn,
+    .form-control,
+    .form-select {
+        border-radius: var(--raio-btn);
+    }
+    textarea.form-control { border-radius: 1.25rem; }
+    .input-group > :first-child {
+        border-top-left-radius: var(--raio-btn);
+        border-bottom-left-radius: var(--raio-btn);
+    }
+    .input-group > :last-child {
+        border-top-right-radius: var(--raio-btn);
+        border-bottom-right-radius: var(--raio-btn);
+    }
 
     .hero { background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria)); color: #fff; }
     .btn-evento { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: #fff; font-weight: 600; }

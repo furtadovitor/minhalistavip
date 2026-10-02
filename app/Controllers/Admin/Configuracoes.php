@@ -24,11 +24,16 @@ class Configuracoes extends BaseController
         'geral'      => ['nome_plataforma', 'email_suporte', 'moeda'],
         'financeiro' => ['percentual_taxa_padrao', 'saque_valor_minimo'],
         'pix'        => [
+            'pix_gateway',
             'pix_chave_plataforma',
             'pix_nome_plataforma',
             'pix_cidade_plataforma',
             'pix_expiracao_minutos',
             'pix_webhook_token',
+            'mercadopago_access_token',
+            'mercadopago_public_key',
+            'mercadopago_webhook_secret',
+            'mercadopago_notification_url',
         ],
     ];
 

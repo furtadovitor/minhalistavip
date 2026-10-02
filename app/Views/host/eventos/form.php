@@ -9,16 +9,10 @@ $valor  = static fn (string $campo, $padrao = '') => old($campo, $edicao ? ($eve
 $dataEvento = old('data_evento', $edicao && $evento->data_evento !== null ? $evento->data_evento->format('Y-m-d') : '');
 $horario    = old('horario', $edicao ? substr((string) $evento->horario, 0, 5) : '');
 
-$tipos = [
-    'casamento'   => 'Casamento',
-    'cha_bebe'    => 'Chá de Bebê',
-    'cha_fraldas' => 'Chá de Fraldas',
-    'cha_panela'  => 'Chá de Panela',
-    'aniversario' => 'Aniversário',
-    'formatura'   => 'Formatura',
-    'corporativo' => 'Corporativo',
-    'outro'       => 'Outro',
-];
+$tipos = [];
+foreach (tipos_evento() as $chave => $tipoCatalogo) {
+    $tipos[$chave] = $tipoCatalogo['rotulo'];
+}
 
 $temas = [
     'classico'  => 'Clássico',

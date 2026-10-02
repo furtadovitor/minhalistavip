@@ -50,6 +50,30 @@ class PedidoModel extends Model
         'status'         => 'required|in_list[pendente,pago,cancelado,expirado,reembolsado]',
     ];
 
+    /**
+     * Resumo financeiro de um evento (para o painel da lista).
+     *
+     * @return array{pagos:int,pendentes:int,arrecadado:float,taxas:float}
+     */
+    public function resumoEvento(int $eventoId): array
+    {
+        $linhas = $this->db->table('pedidos')
+            ->select("SUM(CASE WHEN status = 'pago' THEN 1 ELSE 0 END) AS pagos", false)
+            ->select("SUM(CASE WHEN status = 'pendente' THEN 1 ELSE 0 END) AS pendentes", false)
+            ->select("COALESCE(SUM(CASE WHEN status = 'pago' THEN valor_total ELSE 0 END), 0) AS arrecadado", false)
+            ->select("COALESCE(SUM(CASE WHEN status = 'pago' THEN valor_taxa ELSE 0 END), 0) AS taxas", false)
+            ->where('evento_id', $eventoId)
+            ->get()
+            ->getRowArray();
+
+        return [
+            'pagos'      => (int) ($linhas['pagos'] ?? 0),
+            'pendentes'  => (int) ($linhas['pendentes'] ?? 0),
+            'arrecadado' => (float) ($linhas['arrecadado'] ?? 0),
+            'taxas'      => (float) ($linhas['taxas'] ?? 0),
+        ];
+    }
+
     public function porProtocolo(string $protocolo): ?Pedido
     {
         return $this->where('protocolo', $protocolo)->first();

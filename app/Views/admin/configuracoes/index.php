@@ -3,7 +3,13 @@
 <?= $this->section('conteudo') ?>
 <?php
     $rotulos = ['geral' => 'Geral', 'financeiro' => 'Financeiro e taxas', 'pix' => 'PIX e recebimento'];
+    $opcoesSelect = [
+        'pix_gateway' => ['sandbox' => 'Sandbox (interno)', 'mercadopago' => 'Mercado Pago'],
+    ];
     $tipoCampo = static function (string $chave): array {
+        if (str_contains($chave, 'token') || str_contains($chave, 'secret') || str_contains($chave, 'access_token')) {
+            return ['password', null];
+        }
         if (str_contains($chave, 'percentual') || str_contains($chave, 'valor_minimo')) {
             return ['number', '0.01'];
         }
@@ -32,10 +38,22 @@
                                 <label class="form-label fw-semibold fs-7" for="<?= esc($item['chave'], 'attr') ?>">
                                     <?= esc($item['descricao'] ?: $item['chave']) ?>
                                 </label>
-                                <input type="<?= $tipo ?>" <?= $passo !== null ? 'step="' . $passo . '"' : '' ?>
-                                       class="form-control" id="<?= esc($item['chave'], 'attr') ?>"
-                                       name="<?= esc($item['chave'], 'attr') ?>"
-                                       value="<?= esc((string) $item['valor']) ?>">
+                                <?php if (isset($opcoesSelect[$item['chave']])): ?>
+                                    <select class="form-select" id="<?= esc($item['chave'], 'attr') ?>"
+                                            name="<?= esc($item['chave'], 'attr') ?>">
+                                        <?php foreach ($opcoesSelect[$item['chave']] as $opcaoValor => $opcaoTexto): ?>
+                                            <option value="<?= esc($opcaoValor, 'attr') ?>"
+                                                <?= (string) $item['valor'] === $opcaoValor ? 'selected' : '' ?>>
+                                                <?= esc($opcaoTexto) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php else: ?>
+                                    <input type="<?= $tipo ?>" <?= $passo !== null ? 'step="' . $passo . '"' : '' ?>
+                                           class="form-control" id="<?= esc($item['chave'], 'attr') ?>"
+                                           name="<?= esc($item['chave'], 'attr') ?>"
+                                           value="<?= esc((string) $item['valor']) ?>">
+                                <?php endif; ?>
                                 <div class="form-text"><code><?= esc($item['chave']) ?></code></div>
                             </div>
                         <?php endforeach; ?>

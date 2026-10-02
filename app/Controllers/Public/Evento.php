@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Entities\Evento as EventoEntity;
+use App\Models\GaleriaModel;
 use App\Models\MuralRecadoModel;
 use App\Models\PresenteEventoModel;
 use App\Models\RsvpConfirmacaoModel;
@@ -21,6 +22,7 @@ class Evento extends BaseController
         $evento    = $this->buscarPublicado($slug);
         $presentes = (new PresenteEventoModel())->ativosDoEvento((int) $evento->id);
         $recados   = (new MuralRecadoModel())->publicadosDoEvento((int) $evento->id);
+        $galeria   = (new GaleriaModel())->ativosDoEvento((int) $evento->id);
 
         $db = db_connect();
 
@@ -59,6 +61,7 @@ class Evento extends BaseController
             'evento'    => $evento,
             'presentes' => $presentes,
             'recados'   => $recados,
+            'galeria'   => $galeria,
             'modo'      => 'real',
             'escuro'    => false,
             'dataTexto' => $evento->data_evento !== null
@@ -95,11 +98,12 @@ class Evento extends BaseController
                 ->with('erro', 'As confirmações estão encerradas: o limite de convidados foi atingido.');
         }
 
-        // Acompanhantes: nome completo e idade são obrigatórios (apenas para quem vai comparecer).
+        // Acompanhantes: nome completo e categoria (adulto/criança/bebê) —
+        // obrigatórios apenas para quem vai comparecer.
         $validacao = $querIr
             ? $convidados->validarAcompanhantes(
                 (array) $this->request->getPost('acompanhantes_nome'),
-                (array) $this->request->getPost('acompanhantes_idade')
+                (array) $this->request->getPost('acompanhantes_categoria')
             )
             : ['linhas' => [], 'erros' => []];
 

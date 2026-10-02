@@ -47,16 +47,52 @@ $routes->group('painel', ['filter' => 'auth'], static function (RouteCollection 
     $routes->post('eventos/(:num)/presentes/(:num)/excluir', 'Host\Presentes::excluir/$1/$2');
     $routes->post('eventos/(:num)/presentes/(:num)', 'Host\Presentes::atualizar/$1/$2');
 
+    // --- Workspace da lista (evento) ---
+    $routes->get('eventos/(:num)', 'Host\Evento::index/$1');
+    $routes->get('eventos/(:num)/informacoes', 'Host\Evento::informacoes/$1');
+    $routes->post('eventos/(:num)/informacoes', 'Host\Evento::salvarInformacoes/$1');
+    $routes->get('eventos/(:num)/aparencia', 'Host\Evento::aparencia/$1');
+    $routes->post('eventos/(:num)/aparencia', 'Host\Evento::salvarAparencia/$1');
+    $routes->get('eventos/(:num)/funcionalidades', 'Host\Evento::funcionalidades/$1');
+    $routes->post('eventos/(:num)/funcionalidades', 'Host\Evento::salvarFuncionalidades/$1');
+    $routes->get('eventos/(:num)/configuracoes', 'Host\Evento::configuracoes/$1');
+    $routes->post('eventos/(:num)/configuracoes', 'Host\Evento::salvarConfiguracoes/$1');
+    $routes->get('eventos/(:num)/forma-pagamento', 'Host\Evento::formaPagamento/$1');
+    $routes->post('eventos/(:num)/forma-pagamento', 'Host\Evento::salvarFormaPagamento/$1');
+    $routes->get('eventos/(:num)/pagamentos', 'Host\Evento::pagamentos/$1');
+    $routes->get('eventos/(:num)/compartilhar', 'Host\Evento::compartilhar/$1');
+    $routes->post('eventos/(:num)/arquivar', 'Host\Eventos::arquivar/$1');
+
+    // --- Galeria de fotos ---
+    $routes->get('eventos/(:num)/galeria', 'Host\Galeria::index/$1');
+    $routes->post('eventos/(:num)/galeria', 'Host\Galeria::upload/$1');
+    $routes->post('eventos/(:num)/galeria/(:num)/alternar', 'Host\Galeria::alternar/$1/$2');
+    $routes->post('eventos/(:num)/galeria/(:num)/excluir', 'Host\Galeria::excluir/$1/$2');
+    $routes->post('eventos/(:num)/galeria/(:num)', 'Host\Galeria::atualizar/$1/$2');
+
+    // --- Recadinhos (mural) ---
+    $routes->get('eventos/(:num)/recadinhos', 'Host\Recados::index/$1');
+    $routes->post('eventos/(:num)/recadinhos/(:num)/publicar', 'Host\Recados::publicar/$1/$2');
+    $routes->post('eventos/(:num)/recadinhos/(:num)/ocultar', 'Host\Recados::ocultar/$1/$2');
+    $routes->post('eventos/(:num)/recadinhos/(:num)/excluir', 'Host\Recados::excluir/$1/$2');
+
     // --- Lista de convidados (RSVP) ---
     $routes->get('eventos/(:num)/convidados', 'Host\Convidados::index/$1');
     $routes->get('eventos/(:num)/convidados/exportar', 'Host\Convidados::exportar/$1');
     $routes->post('eventos/(:num)/convidados', 'Host\Convidados::adicionar/$1');
     $routes->get('eventos/(:num)/convidados/(:num)', 'Host\Convidados::ver/$1/$2');
+    $routes->post('eventos/(:num)/convidados/(:num)/editar', 'Host\Convidados::editar/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/aprovar', 'Host\Convidados::aprovar/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/recusar', 'Host\Convidados::recusar/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/remover', 'Host\Convidados::remover/$1/$2');
     $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes', 'Host\Convidados::adicionarAcompanhante/$1/$2');
+    $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes/(:num)/editar', 'Host\Convidados::editarAcompanhante/$1/$2/$3');
     $routes->post('eventos/(:num)/convidados/(:num)/acompanhantes/(:num)/remover', 'Host\Convidados::removerAcompanhante/$1/$2/$3');
+
+    // --- Check-in presencial ---
+    $routes->get('eventos/(:num)/checkin', 'Host\Checkin::index/$1');
+    $routes->post('eventos/(:num)/checkin/(:num)/desfazer', 'Host\Checkin::desfazer/$1/$2');
+    $routes->post('eventos/(:num)/checkin/(:num)', 'Host\Checkin::marcar/$1/$2');
 
     // --- Pedidos e carteira ---
     $routes->get('pedidos', 'Host\Pedidos::index');
@@ -116,12 +152,18 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
 });
 
 // ---------------------------------------------------------------------------
-// PÁGINAS PÚBLICAS DE APOIO (exemplos, busca do convidado).
+// PÁGINAS PÚBLICAS DE APOIO (exemplos, busca do convidado, criação rápida).
 // ---------------------------------------------------------------------------
 $routes->get('exemplos', 'Public\Demo::index');
 $routes->get('demo', 'Public\Demo::index');
 $routes->get('demo/(:segment)', 'Public\Demo::show/$1');
 $routes->match(['get', 'post'], 'buscar', 'Public\Busca::buscar');
+
+// Atalhos de criação de lista por tipo de evento (chá de bebê, pet, natal...).
+$routes->get('criar-lista-de-presente', 'Public\CriarLista::index');
+$routes->get('criar-lista-de-presente/continuar', 'Public\CriarLista::continuar');
+$routes->get('criar-lista-de-presente/(:segment)', 'Public\CriarLista::form/$1');
+$routes->post('criar-lista-de-presente/(:segment)', 'Public\CriarLista::criar/$1');
 
 // ---------------------------------------------------------------------------
 // WEBHOOKS dos gateways de pagamento (isentos de CSRF — ver Config\Filters).
@@ -144,4 +186,5 @@ $routes->post('(:segment)/recado', 'Public\Evento::recado/$1');
 $routes->get('(:segment)/presentear/(:num)', 'Public\Checkout::form/$1/$2');
 $routes->post('(:segment)/presentear/(:num)', 'Public\Checkout::criar/$1/$2');
 $routes->get('(:segment)/pedido/(:segment)', 'Public\Checkout::pedido/$1/$2');
+$routes->post('(:segment)/pedido/(:segment)/pagar', 'Public\Checkout::pagar/$1/$2');
 $routes->post('(:segment)/pedido/(:segment)/simular', 'Public\Checkout::simular/$1/$2');

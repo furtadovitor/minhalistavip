@@ -117,6 +117,16 @@ class Eventos extends BaseController
         return redirect()->back()->with('sucesso', 'Disponibilidade do evento atualizada.');
     }
 
+    public function arquivar($id = null)
+    {
+        $arquivar = (int) $this->request->getPost('arquivar') === 1;
+
+        $this->eventos->arquivar((int) $id, $this->usuarioId(), $arquivar);
+
+        return redirect()->to(site_url('painel'))
+            ->with('sucesso', $arquivar ? 'Lista arquivada.' : 'Lista reativada.');
+    }
+
     public function excluir($id = null)
     {
         $this->eventos->excluir((int) $id, $this->usuarioId());

@@ -7,31 +7,20 @@ use App\Services\PagamentoService;
 use App\Services\PixService;
 
 /**
- * Endpoint de webhook do gateway PIX.
+ * Endpoint de webhook do gateway PIX ativo (sandbox ou Mercado Pago).
  *
  * Rota: POST /webhooks/pix (isenta de CSRF em Config\Filters).
- * Autenticação simples por token compartilhado (X-Webhook-Token ou campo
- * `token`). A confirmação é idempotente (PagamentoService).
- *
- * Exemplo de corpo:
- *   { "transacao_id": "SBXMLV20260929ABC123", "status": "pago", "valor": 330.00 }
+ * A autenticidade é validada pelo gateway selecionado (token compartilhado no
+ * sandbox; assinatura x-signature no Mercado Pago). A confirmação é idempotente
+ * (PagamentoService), então notificações repetidas não duplicam crédito.
  */
 class Pix extends BaseController
 {
     public function receber()
     {
-        $pix = new PixService();
+        $gateway = (new PixService())->gateway();
 
-        $token = $this->request->getHeaderLine('X-Webhook-Token');
-
-        if ($token === '') {
-            $token = (string) ($this->request->getPost('token') ?? $this->request->getGet('token'));
-        }
-
-        if (! $pix->tokenValido($token)) {
-            return $this->response->setStatusCode(401)
-                ->setJSON(['ok' => false, 'mensagem' => 'Token de webhook inválido.']);
-        }
+        $corpoBruto = (string) $this->request->getBody();
 
         $dados = $this->request->getJSON(true);
 
@@ -39,20 +28,49 @@ class Pix extends BaseController
             $dados = $this->request->getPost();
         }
 
-        $transacaoId = (string) ($dados['transacao_id'] ?? $dados['gateway_transacao_id'] ?? $dados['referencia_id'] ?? '');
-        $status      = strtolower((string) ($dados['status'] ?? 'pago'));
-        $gateway     = (string) ($dados['gateway'] ?? PixService::GATEWAY);
+        if (! is_array($dados)) {
+            $dados = [];
+        }
 
-        if ($transacaoId === '') {
+        // Token via query string (útil para testes manuais e no sandbox).
+        $token = $this->request->getGet('token');
+
+        if (is_string($token) && $token !== '' && ! isset($dados['token'])) {
+            $dados['token'] = $token;
+        }
+
+        $headers = [
+            'x-signature'     => $this->request->getHeaderLine('x-signature'),
+            'x-request-id'    => $this->request->getHeaderLine('x-request-id'),
+            'x-webhook-token' => $this->request->getHeaderLine('X-Webhook-Token'),
+        ];
+
+        if (! $gateway->validarAssinatura($headers, $corpoBruto, $dados)) {
+            return $this->response->setStatusCode(401)
+                ->setJSON(['ok' => false, 'mensagem' => 'Assinatura de webhook inválida.']);
+        }
+
+        $transacaoId = $gateway->transacaoIdDoWebhook($dados);
+
+        if ($transacaoId === null || $transacaoId === '') {
             return $this->response->setStatusCode(422)
-                ->setJSON(['ok' => false, 'mensagem' => 'Informe o transacao_id.']);
+                ->setJSON(['ok' => false, 'mensagem' => 'Notificação sem transação de pagamento.']);
+        }
+
+        $consulta = $gateway->consultar($transacaoId);
+
+        if ($consulta !== null) {
+            $dados['consulta'] = $consulta['payload'] ?? $consulta;
+            $status            = strtolower((string) ($consulta['status'] ?? ''));
+        } else {
+            $status = strtolower((string) ($dados['status'] ?? 'pago'));
         }
 
         if (! in_array($status, ['pago', 'paid', 'approved', 'aprovado', 'confirmed'], true)) {
-            return $this->response->setJSON(['ok' => true, 'mensagem' => 'Status ignorado: ' . $status]);
+            return $this->response->setJSON(['ok' => true, 'mensagem' => 'Status ignorado: ' . ($status !== '' ? $status : 'desconhecido')]);
         }
 
-        $resultado = (new PagamentoService())->confirmar($gateway, $transacaoId, $dados, 'pix.pago');
+        $resultado = (new PagamentoService())->confirmar($gateway->nome(), $transacaoId, $dados, 'pix.pago');
 
         return $this->response->setStatusCode($resultado['ok'] ? 200 : 404)->setJSON($resultado);
     }

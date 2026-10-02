@@ -37,6 +37,11 @@ class PlataformaSeeder extends Seeder
             ['chave' => 'pix_cidade_plataforma', 'valor' => 'SAO PAULO', 'grupo' => 'pix', 'descricao' => 'Cidade do recebedor exibida no PIX'],
             ['chave' => 'pix_expiracao_minutos', 'valor' => '30', 'grupo' => 'pix', 'descricao' => 'Validade da cobrança PIX em minutos'],
             ['chave' => 'pix_webhook_token', 'valor' => 'sandbox-token', 'grupo' => 'pix', 'descricao' => 'Token compartilhado para autenticar o webhook PIX'],
+            ['chave' => 'pix_gateway', 'valor' => 'sandbox', 'grupo' => 'pix', 'descricao' => 'Gateway PIX ativo (sandbox ou mercadopago)'],
+            ['chave' => 'mercadopago_access_token', 'valor' => '', 'grupo' => 'pix', 'descricao' => 'Mercado Pago - Access Token (produção)'],
+            ['chave' => 'mercadopago_public_key', 'valor' => '', 'grupo' => 'pix', 'descricao' => 'Mercado Pago - Public Key (Checkout Bricks)'],
+            ['chave' => 'mercadopago_webhook_secret', 'valor' => '', 'grupo' => 'pix', 'descricao' => 'Mercado Pago - segredo de assinatura do webhook'],
+            ['chave' => 'mercadopago_notification_url', 'valor' => '', 'grupo' => 'pix', 'descricao' => 'Mercado Pago - URL pública do webhook (ex.: https://.../webhooks/pix)'],
         ];
 
         foreach ($itens as $item) {

@@ -27,6 +27,7 @@ $titulo = $titulo ?? 'Minha Lista VIP';
         --bg: #F9FAFB;
         --ink: #111827;
         --muted: #6B7280;
+        --raio-btn: .7rem;
     }
     body {
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -34,6 +35,42 @@ $titulo = $titulo ?? 'Minha Lista VIP';
         color: var(--ink);
     }
     h1, h2, h3, h4, h5, h6, .font-display { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+
+    /* Botões e campos padronizados (canto suave) no painel/Home/login */
+    .btn,
+    .form-control,
+    .form-select {
+        border-radius: var(--raio-btn);
+    }
+    .input-group > :first-child {
+        border-top-left-radius: var(--raio-btn);
+        border-bottom-left-radius: var(--raio-btn);
+    }
+    .input-group > :last-child {
+        border-top-right-radius: var(--raio-btn);
+        border-bottom-right-radius: var(--raio-btn);
+    }
+
+    /* Botões somente com ícone ficam circulares (mesmo padrão em todo o painel) */
+    .btn-icon {
+        width: 2.1rem;
+        height: 2.1rem;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50% !important;
+    }
+    .btn-icon.btn-sm { width: 1.9rem; height: 1.9rem; }
+
+    /* Abas em pílula com o mesmo raio e a cor da marca */
+    .nav-pills .nav-link {
+        border-radius: var(--raio-btn);
+        font-weight: 600;
+        color: var(--muted);
+    }
+    .nav-pills .nav-link:hover { color: var(--brand-dark); background-color: var(--brand-soft); }
+    .nav-pills .nav-link.active { background-color: var(--brand); color: #fff; }
 
     /* Utilitários do design system */
     .fs-7 { font-size: .875rem; }

@@ -62,7 +62,7 @@
                                 <form method="post" class="d-inline" action="<?= site_url('admin/planos/' . $plano['id'] . '/excluir') ?>"
                                       onsubmit="return confirm('Remover este plano?');">
                                     <?= csrf_field() ?>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </td>

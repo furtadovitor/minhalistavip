@@ -11,6 +11,14 @@ $rotuloStatus = [
     'confirmado' => 'Confirmado',
     'recusado'   => 'Recusado',
 ];
+$retorno = http_build_query(array_filter([
+    'busca'     => $filtros['busca'] ?? null,
+    'status'    => $filtros['status'] ?? null,
+    'presenca'  => $filtros['presenca'] ?? null,
+    'categoria' => $filtros['categoria'] ?? null,
+    'ordem'     => in_array($filtros['ordem'] ?? '', ['antigos', 'nome', 'status'], true) ? $filtros['ordem'] : null,
+]));
+$temFiltro = $retorno !== '';
 ?>
 
 <?= $this->section('conteudo') ?>
@@ -29,6 +37,9 @@ $rotuloStatus = [
         <a class="btn btn-outline-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/convidados/exportar') ?>">
             <i class="bi bi-filetype-csv me-1"></i>Exportar CSV
         </a>
+        <a class="btn btn-brand" href="<?= site_url('painel/eventos/' . $evento->id . '/checkin') ?>">
+            <i class="bi bi-clipboard-check me-1"></i>Fazer check-in
+        </a>
         <?php if ($evento->status === 'publicado'): ?>
             <a class="btn btn-outline-success" target="_blank" href="<?= site_url($evento->slug) ?>#presenca">
                 <i class="bi bi-box-arrow-up-right me-1"></i>Ver página
@@ -45,7 +56,7 @@ $rotuloStatus = [
                 <p class="h3 fw-bold mb-0"><?= (int) $resumo['pessoas_confirmadas'] ?></p>
                 <p class="text-muted fs-8 mb-0">
                     <?= (int) $resumo['confirmados'] ?> confirmação(ões) ·
-                    <?= (int) $acompanhantesResumo['menores'] ?> menor(es) / <?= (int) $acompanhantesResumo['maiores'] ?> maior(es)
+                    <?= (int) $acompanhantesResumo['criancas'] ?> criança(s) / <?= (int) $acompanhantesResumo['bebes'] ?> bebê(s)
                 </p>
             </div>
         </div>
@@ -135,11 +146,11 @@ $rotuloStatus = [
 <form class="card border-0 shadow-sm rounded-4 mb-3" method="get" action="<?= site_url('painel/eventos/' . $evento->id . '/convidados') ?>">
     <div class="card-body">
         <div class="row g-2 align-items-end">
-            <div class="col-md-4">
+            <div class="col-12 col-md-4">
                 <label class="form-label fw-semibold fs-7 mb-1" for="f-busca">Buscar</label>
-                <input type="search" class="form-control" id="f-busca" name="busca" value="<?= esc($filtros['busca'] ?? '') ?>" placeholder="Nome, e-mail ou telefone">
+                <input type="search" class="form-control" id="f-busca" name="busca" value="<?= esc($filtros['busca'] ?? '') ?>" placeholder="Nome do convidado ou acompanhante, e-mail, telefone">
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-2">
                 <label class="form-label fw-semibold fs-7 mb-1" for="f-status">Status</label>
                 <select class="form-select" id="f-status" name="status">
                     <option value="">Todos</option>
@@ -150,10 +161,45 @@ $rotuloStatus = [
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-2">
-                <button class="btn btn-outline-brand w-100"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+            <div class="col-6 col-md-2">
+                <label class="form-label fw-semibold fs-7 mb-1" for="f-presenca">Presença</label>
+                <select class="form-select" id="f-presenca" name="presenca">
+                    <option value="">Todos</option>
+                    <option value="presentes" <?= ($filtros['presenca'] ?? '') === 'presentes' ? 'selected' : '' ?>>Já chegaram</option>
+                    <option value="ausentes" <?= ($filtros['presenca'] ?? '') === 'ausentes' ? 'selected' : '' ?>>Ainda não chegaram</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label fw-semibold fs-7 mb-1" for="f-categoria">Acompanhantes</label>
+                <select class="form-select" id="f-categoria" name="categoria">
+                    <option value="">Todos</option>
+                    <option value="crianca" <?= ($filtros['categoria'] ?? '') === 'crianca' ? 'selected' : '' ?>>Com criança</option>
+                    <option value="bebe" <?= ($filtros['categoria'] ?? '') === 'bebe' ? 'selected' : '' ?>>Com bebê</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label fw-semibold fs-7 mb-1" for="f-ordem">Ordenar por</label>
+                <select class="form-select" id="f-ordem" name="ordem">
+                    <option value="recentes" <?= ($filtros['ordem'] ?? 'recentes') === 'recentes' ? 'selected' : '' ?>>Mais recentes</option>
+                    <option value="antigos" <?= ($filtros['ordem'] ?? '') === 'antigos' ? 'selected' : '' ?>>Mais antigos</option>
+                    <option value="nome" <?= ($filtros['ordem'] ?? '') === 'nome' ? 'selected' : '' ?>>Nome (A–Z)</option>
+                    <option value="status" <?= ($filtros['ordem'] ?? '') === 'status' ? 'selected' : '' ?>>Status</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 d-flex gap-2">
+                <button class="btn btn-outline-brand flex-grow-1"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+                <?php if ($temFiltro): ?>
+                    <a class="btn btn-outline-secondary" href="<?= site_url('painel/eventos/' . $evento->id . '/convidados') ?>" title="Limpar filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
+        <?php if ($temFiltro): ?>
+            <p class="text-muted fs-8 mb-0 mt-2">
+                <i class="bi bi-funnel me-1"></i><?= count($convidados) ?> resultado(s) para os filtros aplicados.
+            </p>
+        <?php endif; ?>
     </div>
 </form>
 
@@ -162,8 +208,14 @@ $rotuloStatus = [
         <div class="card-body text-center py-5">
             <div class="bg-indigo-100 text-indigo-700 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
                  style="width:64px;height:64px;"><i class="bi bi-people fs-3"></i></div>
-            <p class="mb-1 fw-semibold">Nenhum convidado ainda.</p>
-            <p class="text-muted mb-0">Compartilhe o link do evento — as confirmações aparecem aqui para você aprovar.</p>
+            <p class="mb-1 fw-semibold">
+                <?= $temFiltro ? 'Nenhum convidado encontrado com esses filtros.' : 'Nenhum convidado ainda.' ?>
+            </p>
+            <p class="text-muted mb-0">
+                <?= $temFiltro
+                    ? 'Ajuste a busca ou limpe os filtros para ver a lista completa.'
+                    : 'Compartilhe o link do evento — as confirmações aparecem aqui para você aprovar.' ?>
+            </p>
         </div>
     </div>
 <?php else: ?>
@@ -174,7 +226,7 @@ $rotuloStatus = [
                     <tr>
                         <th>Convidado</th>
                         <th>Contato</th>
-                        <th class="text-center">Acompanhantes</th>
+                        <th>Acompanhantes</th>
                         <th class="text-center">Pessoas</th>
                         <th>Status</th>
                         <th>Enviado</th>
@@ -183,7 +235,11 @@ $rotuloStatus = [
                 </thead>
                 <tbody>
                 <?php foreach ($convidados as $c): ?>
-                    <?php $status = (string) $c['status']; ?>
+                    <?php
+                    $status        = (string) $c['status'];
+                    $acompanhantes = $acompanhantesPorConvidado[(int) $c['id']] ?? [];
+                    $nomes         = array_column($acompanhantes, 'nome');
+                    ?>
                     <tr>
                         <td>
                             <div class="fw-semibold"><?= esc($c['nome']) ?></div>
@@ -195,12 +251,27 @@ $rotuloStatus = [
                             <?php if (! empty($c['telefone'])): ?><div><i class="bi bi-telephone me-1"></i><?= esc($c['telefone']) ?></div><?php endif; ?>
                             <?php if (! empty($c['email'])): ?><div><i class="bi bi-envelope me-1"></i><?= esc($c['email']) ?></div><?php endif; ?>
                         </td>
-                        <td class="text-center small"><?= (int) $c['quantidade_acompanhantes'] ?></td>
+                        <td class="small">
+                            <div class="fw-semibold"><?= (int) $c['quantidade_acompanhantes'] ?></div>
+                            <?php if (! empty($nomes)): ?>
+                                <div class="text-muted fs-8 text-truncate" style="max-width: 200px;" title="<?= esc(implode(', ', $nomes)) ?>">
+                                    <?= esc(implode(', ', array_slice($nomes, 0, 2))) ?><?= count($nomes) > 2 ? ' +' . (count($nomes) - 2) : '' ?>
+                                </div>
+                            <?php elseif ((int) $c['quantidade_acompanhantes'] > 0): ?>
+                                <div class="fs-8"><a href="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id']) ?>">detalhar</a></div>
+                            <?php endif; ?>
+                        </td>
                         <td class="text-center fw-semibold"><?= (int) $c['quantidade_acompanhantes'] + 1 ?></td>
                         <td>
                             <span class="badge text-bg-<?= $badgeStatus[$status] ?? 'secondary' ?>">
                                 <?= esc($rotuloStatus[$status] ?? ucfirst($status)) ?>
                             </span>
+                            <?php if (! empty($c['check_in_em'])): ?>
+                                <div class="fs-8 text-success mt-1">
+                                    <i class="bi bi-check2-circle me-1"></i>Check-in
+                                    <?= esc(date('d/m H:i', strtotime((string) $c['check_in_em']))) ?>
+                                </div>
+                            <?php endif; ?>
                         </td>
                         <td class="small text-muted">
                             <?= $c['criado_em'] !== null ? esc(date('d/m/Y H:i', strtotime((string) $c['criado_em']))) : '—' ?>
@@ -215,6 +286,7 @@ $rotuloStatus = [
                                     <form method="post" class="d-inline"
                                           action="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id'] . '/aprovar') ?>">
                                         <?= csrf_field() ?>
+                                        <input type="hidden" name="retorno" value="<?= esc($retorno, 'attr') ?>">
                                         <button class="btn btn-sm btn-success"><i class="bi bi-check2 me-1"></i>Aprovar</button>
                                     </form>
                                 <?php endif; ?>
@@ -222,6 +294,7 @@ $rotuloStatus = [
                                     <form method="post" class="d-inline"
                                           action="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id'] . '/recusar') ?>">
                                         <?= csrf_field() ?>
+                                        <input type="hidden" name="retorno" value="<?= esc($retorno, 'attr') ?>">
                                         <button class="btn btn-sm btn-outline-warning">Recusar</button>
                                     </form>
                                 <?php endif; ?>
@@ -229,7 +302,8 @@ $rotuloStatus = [
                                       action="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id'] . '/remover') ?>"
                                       onsubmit="return confirm('Remover este convidado da lista?');">
                                     <?= csrf_field() ?>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    <input type="hidden" name="retorno" value="<?= esc($retorno, 'attr') ?>">
+                                    <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </td>

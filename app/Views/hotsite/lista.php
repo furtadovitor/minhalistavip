@@ -16,9 +16,10 @@ $escuro  = $escuro ?? false;
 $stats   = $stats ?? ['cotas_total' => 0, 'cotas_vendidas' => 0, 'arrecadado' => 0.0, 'confirmados' => 0];
 $rsvpEncerrado = $rsvpEncerrado ?? false;
 $maxAcompanhantes = $maxAcompanhantes ?? 20;
-$oldNomes  = array_values((array) (old('acompanhantes_nome') ?? []));
-$oldIdades = array_values((array) (old('acompanhantes_idade') ?? []));
-$oldQtd    = max(count($oldNomes), (int) (old('qtd_acompanhantes') ?? 0));
+$galeria   = $galeria ?? [];
+$oldNomes      = array_values((array) (old('acompanhantes_nome') ?? []));
+$oldCategorias = array_values((array) (old('acompanhantes_categoria') ?? []));
+$oldStatus     = (string) (old('status') ?? '');
 $exibirValores = isset($evento->exibir_valores) ? (bool) $evento->exibir_valores : true;
 
 $imgUrl = static function (?string $caminho): ?string {
@@ -37,6 +38,7 @@ if (! empty($evento->meta_valor) && (float) $evento->meta_valor > 0) {
 
 $urlPublica = site_url($evento->slug);
 $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' . $urlPublica);
+$navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -95,7 +97,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
         .countdown .cx strong { display: block; font-size: 1.5rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
         .countdown .cx span { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; opacity: .85; }
 
-        .hero-cta .btn { border-radius: 999px; padding: .65rem 1.5rem; font-weight: 700; }
+        .hero-cta .btn { padding: .65rem 1.5rem; font-weight: 700; }
         .btn-glass {
             background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.45); color: #fff;
         }
@@ -133,7 +135,6 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
 
         /* ---------- TOOLBAR ---------- */
         .toolbar { display: flex; flex-wrap: wrap; gap: .6rem; }
-        .toolbar .form-control, .toolbar .form-select { border-radius: 999px; }
 
         /* ---------- CARDS DE PRESENTE ---------- */
         .presente-card {
@@ -162,7 +163,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
         .tema-escuro .presente-cotas { color: #9ca3af; }
         .btn-presentear {
             background: var(--cor-primaria); border: 0; color: #fff; font-weight: 700;
-            border-radius: 999px; padding: .5rem 1rem;
+            padding: .5rem 1rem;
         }
         .btn-presentear:hover { filter: brightness(.93); color: #fff; }
         .btn-presentear:disabled { opacity: .55; }
@@ -188,16 +189,93 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
             background: var(--cor-primaria); color: #fff; font-weight: 700;
         }
 
+        /* ---------- GALERIA ---------- */
+        .galeria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: .75rem;
+        }
+        .galeria-item {
+            position: relative; border: 0; padding: 0; background: none; cursor: pointer;
+            border-radius: var(--raio); overflow: hidden; aspect-ratio: 1 / 1;
+        }
+        .galeria-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+        .galeria-item:hover img { transform: scale(1.06); }
+        .galeria-legenda {
+            position: absolute; left: 0; right: 0; bottom: 0; padding: .6rem .65rem;
+            color: #fff; font-size: .78rem; text-align: left; line-height: 1.2;
+            background: linear-gradient(180deg, transparent, rgba(0,0,0,.7));
+        }
+
+        /* ---------- RSVP ---------- */
+        .rsvp-icone {
+            width: 64px; height: 64px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 2rem; margin-bottom: .6rem;
+            background: color-mix(in srgb, var(--cor-primaria) 12%, #fff);
+        }
+        .btn-confirmar-presenca {
+            background: linear-gradient(135deg, #16a34a, #059669);
+            border: 0; color: #fff; font-weight: 700;
+            padding: .8rem 1.8rem;
+            box-shadow: 0 8px 20px rgba(22,163,74,.25);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .btn-confirmar-presenca:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 12px 26px rgba(22,163,74,.35); }
+        .btn-nao-vou {
+            background: #fff; border: 1px solid rgba(0,0,0,.12); color: #4b5563; font-weight: 700;
+            padding: .8rem 1.8rem;
+            transition: transform .15s ease, background .15s ease;
+        }
+        .btn-nao-vou:hover { background: #f3f4f6; color: #111827; transform: translateY(-2px); }
+        .tema-escuro .btn-nao-vou { background: transparent; color: #e5e7eb; border-color: rgba(255,255,255,.25); }
+        .tema-escuro .btn-nao-vou:hover { background: rgba(255,255,255,.08); color: #fff; }
+
+        .rsvp-modal-icone {
+            width: 56px; height: 56px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.7rem;
+            background: color-mix(in srgb, var(--cor-primaria) 12%, #fff);
+        }
+        .acompanhante-row { background: #f9fafb; }
+        .tema-escuro .acompanhante-row { background: #15151F; border-color: rgba(255,255,255,.12) !important; }
+
+        /* Cartões de categoria do acompanhante */
+        .cat-opcoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+        @media (max-width: 575.98px) { .cat-opcoes { grid-template-columns: 1fr; } }
+        .cat-opcao { position: relative; margin: 0; cursor: pointer; }
+        .cat-opcao input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+        .cat-box {
+            display: flex; flex-direction: column; align-items: center; gap: .15rem; height: 100%;
+            border: 2px solid #E5E7EB; border-radius: .9rem; padding: .7rem .5rem; text-align: center;
+            transition: all .15s ease; background: #fff;
+        }
+        .tema-escuro .cat-box { background: #15151F; border-color: rgba(255,255,255,.14); }
+        .cat-opcao:hover .cat-box { border-color: rgba(0,0,0,.25); }
+        .cat-opcao input:focus-visible + .cat-box { outline: 2px solid var(--cor-primaria); outline-offset: 2px; }
+        .cat-opcao input:checked + .cat-box {
+            border-color: var(--cor-primaria);
+            background: color-mix(in srgb, var(--cor-primaria) 12%, #fff);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor-primaria) 14%, transparent);
+        }
+        .tema-escuro .cat-opcao input:checked + .cat-box { background: color-mix(in srgb, var(--cor-primaria) 26%, #15151F); }
+        .cat-icone { font-size: 1.6rem; line-height: 1; }
+        .cat-titulo { font-weight: 700; font-size: .82rem; }
+        .cat-sub { font-size: .7rem; color: #6B7280; line-height: 1.1; }
+        .tema-escuro .cat-sub { color: #9ca3af; }
+
         .hotsite-footer { background: #111827; color: #9ca3af; }
         .hotsite-footer a { color: #d1d5db; text-decoration: none; }
         .hotsite-footer a:hover { color: #fff; }
 
         #toast {
-            position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%) translateY(120%);
+            position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%) translateY(150%);
             background: #111827; color: #fff; padding: .7rem 1.1rem; border-radius: 999px;
-            font-size: .88rem; z-index: 1080; transition: transform .3s ease; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+            font-size: .88rem; z-index: 1080; transition: transform .3s ease, opacity .3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,.25);
+            opacity: 0; visibility: hidden; pointer-events: none;
         }
-        #toast.show { transform: translateX(-50%) translateY(0); }
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
     </style>
 </head>
 <body class="bg-body-tertiary <?= $escuro ? 'tema-escuro' : '' ?>">
@@ -265,7 +343,10 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
         </div>
 
         <div class="hero-cta d-flex flex-wrap gap-2 justify-content-center">
-            <a class="btn btn-light" href="#presentes"><i class="bi bi-gift me-1"></i>Ver presentes</a>
+            <?php if (! empty($evento->permite_rsvp) && $modo !== 'demo' && ! $rsvpEncerrado): ?>
+                <a class="btn btn-light" href="#presenca"><i class="bi bi-check2-circle me-1"></i>Confirmar presença</a>
+            <?php endif; ?>
+            <a class="btn btn-<?= (! empty($evento->permite_rsvp) && $modo !== 'demo' && ! $rsvpEncerrado) ? 'glass' : 'light' ?>" href="#presentes"><i class="bi bi-gift me-1"></i>Ver presentes</a>
             <a class="btn btn-glass" target="_blank" rel="noopener"
                href="https://wa.me/?text=<?= $textoShare ?>"><i class="bi bi-whatsapp me-1"></i>Compartilhar</a>
             <button class="btn btn-glass" type="button" id="btn-copiar-link"><i class="bi bi-link-45deg me-1"></i>Copiar link</button>
@@ -276,9 +357,12 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
 <!-- ============================ NAV ============================ -->
 <nav class="hotsite-nav py-2">
     <div class="container d-flex gap-1 justify-content-center flex-wrap">
-        <a href="#presentes" class="nav-pill active" data-nav="presentes"><i class="bi bi-gift"></i>Presentes</a>
+        <a href="#presentes" class="nav-pill<?= $navInicial === 'presentes' ? ' active' : '' ?>" data-nav="presentes"><i class="bi bi-gift"></i>Presentes</a>
         <?php if (! empty($evento->permite_rsvp)): ?>
-            <a href="#presenca" class="nav-pill" data-nav="presenca"><i class="bi bi-check2-circle"></i>Presença</a>
+            <a href="#presenca" class="nav-pill<?= $navInicial === 'presenca' ? ' active' : '' ?>" data-nav="presenca"><i class="bi bi-check2-circle"></i>Presença</a>
+        <?php endif; ?>
+        <?php if (! empty($galeria)): ?>
+            <a href="#galeria" class="nav-pill" data-nav="galeria"><i class="bi bi-images"></i>Galeria</a>
         <?php endif; ?>
         <?php if (! empty($evento->permite_recados)): ?>
             <a href="#recados" class="nav-pill" data-nav="recados"><i class="bi bi-chat-heart"></i>Recados</a>
@@ -314,6 +398,54 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
                 </div>
             </div>
         </div>
+    <?php endif; ?>
+
+    <!-- ===================== PRESENÇA (RSVP) ===================== -->
+    <?php if (! empty($evento->permite_rsvp)): ?>
+        <section id="presenca" class="py-3">
+            <div class="card border-0 shadow-sm rounded-4 reveal">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <span class="rsvp-icone">💌</span>
+                    <h2 class="h3 secao-titulo mb-1">Confirme sua presença</h2>
+                    <?php if (! empty($evento->limite_convidados)): ?>
+                        <p class="secao-sub mb-4">
+                            <?= (int) $stats['confirmados'] ?> confirmação(ões) ·
+                            limite de <?= (int) $evento->limite_convidados ?> convidados
+                        </p>
+                    <?php else: ?>
+                        <p class="secao-sub mb-4">Sua resposta ajuda o organizador a preparar tudo com carinho.</p>
+                    <?php endif; ?>
+
+                    <?php if ($modo === 'demo'): ?>
+                        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                            <button type="button" class="btn btn-confirmar-presenca btn-lg" data-bs-toggle="modal" data-bs-target="#modalDemo">
+                                <i class="bi bi-hand-thumbs-up-fill me-1"></i>Sim, estarei lá
+                            </button>
+                            <button type="button" class="btn btn-nao-vou btn-lg" data-bs-toggle="modal" data-bs-target="#modalDemo">
+                                <i class="bi bi-hand-thumbs-down-fill me-1"></i>Não posso ir
+                            </button>
+                        </div>
+                    <?php elseif ($rsvpEncerrado): ?>
+                        <div class="alert alert-warning rounded-4 text-center mb-0">
+                            <i class="bi bi-people-fill me-1"></i>
+                            As confirmações estão <strong>encerradas</strong>: o limite de convidados foi atingido.
+                        </div>
+                    <?php else: ?>
+                        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                            <button type="button" class="btn btn-confirmar-presenca btn-lg"
+                                    data-bs-toggle="modal" data-bs-target="#modalRsvp" data-vai="1">
+                                <i class="bi bi-hand-thumbs-up-fill me-1"></i>Sim, estarei lá
+                            </button>
+                            <button type="button" class="btn btn-nao-vou btn-lg"
+                                    data-bs-toggle="modal" data-bs-target="#modalRsvp" data-vai="0">
+                                <i class="bi bi-hand-thumbs-down-fill me-1"></i>Não posso ir
+                            </button>
+                        </div>
+                        <p class="text-muted fs-8 mt-3 mb-0">Você poderá adicionar acompanhantes na confirmação.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </section>
     <?php endif; ?>
 
     <!-- ===================== PRESENTES ===================== -->
@@ -439,88 +571,26 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
         <?php endif; ?>
     </section>
 
-    <!-- ===================== RSVP ===================== -->
-    <?php if (! empty($evento->permite_rsvp)): ?>
-        <section id="presenca" class="py-5">
-            <div class="card border-0 shadow-sm rounded-4 reveal">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <h2 class="h3 secao-titulo mb-1">Confirme sua presença</h2>
-                        <?php if (! empty($evento->limite_convidados)): ?>
-                            <p class="secao-sub mb-0">
-                                <?= (int) $stats['confirmados'] ?> confirmação(ões) ·
-                                limite de <?= (int) $evento->limite_convidados ?> convidados
-                            </p>
-                        <?php else: ?>
-                            <p class="secao-sub mb-0">Sua resposta ajuda o organizador a preparar tudo com carinho.</p>
+    <!-- ===================== GALERIA ===================== -->
+    <?php if (! empty($galeria)): ?>
+        <section id="galeria" class="py-4">
+            <div class="text-center mb-4">
+                <h2 class="h3 secao-titulo mb-1">Galeria de fotos</h2>
+                <p class="secao-sub mb-0">Momentos especiais compartilhados pelo organizador.</p>
+            </div>
+            <div class="galeria-grid">
+                <?php foreach ($galeria as $foto): ?>
+                    <?php $fotoUrl = $imgUrl($foto['imagem'] ?? null); ?>
+                    <?php if ($fotoUrl === null): ?><?php continue; ?><?php endif; ?>
+                    <button type="button" class="galeria-item reveal" data-bs-toggle="modal" data-bs-target="#modalGaleria"
+                            data-img="<?= esc($fotoUrl, 'attr') ?>"
+                            data-legenda="<?= esc((string) ($foto['legenda'] ?? ''), 'attr') ?>">
+                        <img src="<?= esc($fotoUrl, 'attr') ?>" alt="<?= esc((string) ($foto['legenda'] ?? 'Foto do evento'), 'attr') ?>" loading="lazy">
+                        <?php if (! empty($foto['legenda'])): ?>
+                            <span class="galeria-legenda"><?= esc((string) $foto['legenda']) ?></span>
                         <?php endif; ?>
-                    </div>
-
-                    <?php if ($modo === 'demo'): ?>
-                        <div class="text-center">
-                            <p class="text-muted">Em uma lista real, o convidado confirma a presença por aqui.</p>
-                            <button class="btn btn-presentear" data-bs-toggle="modal" data-bs-target="#modalDemo">Confirmar presença</button>
-                        </div>
-                    <?php elseif ($rsvpEncerrado): ?>
-                        <div class="alert alert-warning rounded-4 text-center mb-0">
-                            <i class="bi bi-people-fill me-1"></i>
-                            As confirmações estão <strong>encerradas</strong>: o limite de convidados foi atingido.
-                        </div>
-                    <?php else: ?>
-                        <form method="post" action="<?= site_url($evento->slug . '/rsvp') ?>" id="form-rsvp"
-                              class="row g-3 justify-content-center"
-                              data-max="<?= (int) $maxAcompanhantes ?>"
-                              data-old-nomes="<?= esc(json_encode($oldNomes), 'attr') ?>"
-                              data-old-idades="<?= esc(json_encode($oldIdades), 'attr') ?>">
-                            <?= csrf_field() ?>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold fs-7" for="rsvp-nome">Seu nome</label>
-                                <input type="text" class="form-control" id="rsvp-nome" name="nome"
-                                       value="<?= esc(old('nome')) ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold fs-7" for="rsvp-telefone">
-                                    Telefone <span class="text-muted fw-normal">(opcional)</span>
-                                </label>
-                                <input type="text" class="form-control" id="rsvp-telefone" name="telefone"
-                                       value="<?= esc(old('telefone')) ?>">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold fs-7" for="rsvp-status">Você vai?</label>
-                                <select class="form-select" id="rsvp-status" name="status">
-                                    <option value="confirmado" <?= old('status') === 'recusado' ? '' : 'selected' ?>>Sim, estarei presente</option>
-                                    <option value="recusado" <?= old('status') === 'recusado' ? 'selected' : '' ?>>Não poderei ir</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold fs-7" for="rsvp-qtd">Quantos acompanhantes?</label>
-                                <select class="form-select" id="rsvp-qtd" name="qtd_acompanhantes">
-                                    <?php for ($i = 0; $i <= (int) $maxAcompanhantes; $i++): ?>
-                                        <option value="<?= $i ?>" <?= $i === $oldQtd ? 'selected' : '' ?>>
-                                            <?= $i === 0 ? 'Nenhum' : $i ?>
-                                        </option>
-                                    <?php endfor; ?>
-                                </select>
-                            </div>
-
-                            <div class="col-12" id="rsvp-bloco-acompanhantes">
-                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
-                                    <span class="form-label fw-semibold fs-7 mb-0">Dados dos acompanhantes</span>
-                                    <span class="text-muted fs-8">Nome completo e idade são obrigatórios</span>
-                                </div>
-                                <div id="rsvp-acompanhantes-rows" class="d-flex flex-column gap-2"></div>
-                                <p class="text-muted fs-8 mb-0 mt-2">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    A classificação <strong>menor/maior de idade</strong> é feita automaticamente pela idade.
-                                </p>
-                            </div>
-
-                            <div class="col-12 text-center mt-4">
-                                <button class="btn btn-presentear px-4"><i class="bi bi-check2-circle me-1"></i>Confirmar</button>
-                            </div>
-                        </form>
-                    <?php endif; ?>
-                </div>
+                    </button>
+                <?php endforeach; ?>
             </div>
         </section>
     <?php endif; ?>
@@ -609,6 +679,86 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
     </div>
 <?php endif; ?>
 
+<?php if (! empty($galeria)): ?>
+    <div class="modal fade" id="modalGaleria" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 rounded-4" style="background: rgba(17,24,39,.96);">
+                <div class="modal-body p-3 text-center">
+                    <img src="" alt="" id="galeria-img" class="img-fluid rounded-3" style="max-height: 78vh;">
+                    <p class="text-white-50 mt-3 mb-0" id="galeria-legenda"></p>
+                    <button type="button" class="btn btn-light btn-sm mt-3" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if ($modo !== 'demo' && ! empty($evento->permite_rsvp) && ! $rsvpEncerrado): ?>
+    <div class="modal fade" id="modalRsvp" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 position-relative">
+                <form method="post" action="<?= site_url($evento->slug . '/rsvp') ?>" id="form-rsvp"
+                      data-max="<?= (int) $maxAcompanhantes ?>"
+                      data-old-nomes="<?= esc(json_encode($oldNomes), 'attr') ?>"
+                      data-old-categorias="<?= esc(json_encode($oldCategorias), 'attr') ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="status" id="rsvp-status" value="confirmado">
+
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Fechar" style="z-index: 2;"></button>
+
+                    <div class="modal-body pt-4 px-4">
+                        <div class="text-center mb-4">
+                            <span class="rsvp-modal-icone" id="rsvp-icone">💌</span>
+                            <h5 class="fw-bold mt-2 mb-1" id="rsvp-titulo">Confirmar presença</h5>
+                            <p class="text-muted mb-0" id="rsvp-intro"></p>
+                        </div>
+
+                        <div id="rsvp-bloco-dados">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold fs-7" for="rsvp-nome">
+                                        <i class="bi bi-person me-1"></i>Seu nome *
+                                    </label>
+                                    <input type="text" class="form-control" id="rsvp-nome" name="nome"
+                                           value="<?= esc(old('nome')) ?>" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold fs-7" for="rsvp-telefone">
+                                        <i class="bi bi-whatsapp me-1"></i>Telefone <span class="text-muted fw-normal">(opcional)</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="rsvp-telefone" name="telefone"
+                                           value="<?= esc(old('telefone')) ?>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" id="rsvp-divisor">
+
+                        <div id="rsvp-bloco-acompanhantes">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                                <span class="fw-semibold"><i class="bi bi-people me-1"></i>Acompanhantes</span>
+                                <button type="button" class="btn btn-sm btn-outline-brand" id="rsvp-add-acompanhante">
+                                    <i class="bi bi-plus-lg me-1"></i>Adicionar acompanhante
+                                </button>
+                            </div>
+                            <div id="rsvp-acompanhantes-rows" class="d-flex flex-column"></div>
+                            <p class="text-muted fs-8 mb-0 mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Informe o nome e a categoria de cada acompanhante. Crianças e bebês contam como menores.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-presentear px-4" id="rsvp-submit">Confirmar presença</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -655,7 +805,7 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
     }
 
     // ---------- Nav ativa ----------
-    const secoes = ['presentes', 'presenca', 'recados']
+    const secoes = ['presentes', 'galeria', 'presenca', 'recados']
         .map(function (id) { return document.getElementById(id); })
         .filter(Boolean);
     if (secoes.length && 'IntersectionObserver' in window) {
@@ -744,54 +894,139 @@ $textoShare = rawurlencode($evento->titulo . ' — veja a lista de presentes: ' 
     const form = document.getElementById('form-rsvp');
     if (!form) { return; }
 
-    const qtd    = document.getElementById('rsvp-qtd');
-    const status = document.getElementById('rsvp-status');
-    const bloco  = document.getElementById('rsvp-bloco-acompanhantes');
-    const rows   = document.getElementById('rsvp-acompanhantes-rows');
-    const max    = parseInt(form.dataset.max, 10) || 20;
-    const oldNomes  = JSON.parse(form.dataset.oldNomes || '[]');
-    const oldIdades = JSON.parse(form.dataset.oldIdades || '[]');
+    const status  = document.getElementById('rsvp-status');
+    const titulo  = document.getElementById('rsvp-titulo');
+    const intro   = document.getElementById('rsvp-intro');
+    const icone   = document.getElementById('rsvp-icone');
+    const divisor = document.getElementById('rsvp-divisor');
+    const submit  = document.getElementById('rsvp-submit');
+    const bloco   = document.getElementById('rsvp-bloco-acompanhantes');
+    const rows    = document.getElementById('rsvp-acompanhantes-rows');
+    const addBtn  = document.getElementById('rsvp-add-acompanhante');
+    const max     = parseInt(form.dataset.max, 10) || 20;
+    const oldNomes = JSON.parse(form.dataset.oldNomes || '[]');
+    const oldCategorias = JSON.parse(form.dataset.oldCategorias || '[]');
 
-    const escapar = (v) => String(v)
-        .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const CATEGORIAS = [
+        ['adulto',  '🧑', 'Adulto',  'ou adolescente'],
+        ['crianca', '🧒', 'Criança', '5 a 12 anos'],
+        ['bebe',    '👶', 'Bebê',    'menos de 5 anos']
+    ];
 
-    function construir() {
-        const n = Math.min(max, Math.max(0, parseInt(qtd.value || '0', 10)));
-        const vaiComparecer = status.value !== 'recusado';
+    function renumerar() {
+        Array.prototype.forEach.call(rows.children, function (row, i) {
+            row.querySelector('[data-campo="nome"]').name = 'acompanhantes_nome[' + i + ']';
+            row.querySelectorAll('[data-campo="categoria"]').forEach(function (radio) {
+                radio.name = 'acompanhantes_categoria[' + i + ']';
+            });
+            if (! row.querySelector('[data-campo="categoria"]:checked')) {
+                const primeiro = row.querySelector('[data-campo="categoria"]');
+                if (primeiro) { primeiro.checked = true; }
+            }
+        });
 
-        const nomesAtuais  = [];
-        const idadesAtuais = [];
-        rows.querySelectorAll('[name="acompanhantes_nome[]"]').forEach(function (el, i) { nomesAtuais[i] = el.value; });
-        rows.querySelectorAll('[name="acompanhantes_idade[]"]').forEach(function (el, i) { idadesAtuais[i] = el.value; });
-
-        rows.innerHTML = '';
-        bloco.classList.toggle('d-none', !vaiComparecer);
-
-        for (let i = 0; i < n; i++) {
-            const nome  = nomesAtuais[i] || oldNomes[i] || '';
-            const idade = idadesAtuais[i] || oldIdades[i] || '';
-            const wrap = document.createElement('div');
-            wrap.className = 'row g-2 align-items-center';
-            wrap.innerHTML =
-                '<div class="col-8">' +
-                    '<input type="text" class="form-control" name="acompanhantes_nome[]" ' +
-                    'placeholder="Nome completo do acompanhante ' + (i + 1) + '" ' +
-                    'value="' + escapar(nome) + '" ' + (vaiComparecer ? 'required' : 'disabled') + '>' +
-                '</div>' +
-                '<div class="col-4">' +
-                    '<input type="number" min="0" max="120" class="form-control" name="acompanhantes_idade[]" ' +
-                    'placeholder="Idade" value="' + escapar(idade) + '" ' +
-                    (vaiComparecer ? 'required' : 'disabled') + '>' +
-                '</div>';
-            rows.appendChild(wrap);
-        }
+        addBtn.disabled = rows.children.length >= max;
     }
 
-    qtd.addEventListener('change', construir);
-    status.addEventListener('change', construir);
-    construir();
+    function criarLinha(nome, categoria) {
+        const row = document.createElement('div');
+        row.className = 'acompanhante-row border rounded-4 p-3 mb-3';
+
+        let cards = '';
+        CATEGORIAS.forEach(function (cat, idx) {
+            const id = 'cat-' + Date.now() + '-' + idx + '-' + Math.random().toString(36).slice(2, 6);
+            cards +=
+                '<label class="cat-opcao">' +
+                    '<input type="radio" data-campo="categoria" value="' + cat[0] + '" id="' + id + '"' +
+                    (categoria === cat[0] ? ' checked' : '') + '>' +
+                    '<span class="cat-box">' +
+                        '<span class="cat-icone">' + cat[1] + '</span>' +
+                        '<span class="cat-titulo">' + cat[2] + '</span>' +
+                        '<span class="cat-sub">' + cat[3] + '</span>' +
+                    '</span>' +
+                '</label>';
+        });
+
+        row.innerHTML =
+            '<div class="d-flex justify-content-between align-items-center mb-2">' +
+                '<span class="fs-8 fw-semibold text-muted text-uppercase">Acompanhante</span>' +
+                '<button type="button" class="btn btn-sm btn-link text-danger p-0" data-remover>' +
+                    '<i class="bi bi-trash me-1"></i>Remover' +
+                '</button>' +
+            '</div>' +
+            '<div class="mb-3">' +
+                '<label class="form-label fs-7 fw-semibold mb-1"><i class="bi bi-person me-1"></i>Nome completo</label>' +
+                '<input type="text" class="form-control" data-campo="nome" placeholder="Ex.: Maria Fernanda Souza" required>' +
+            '</div>' +
+            '<label class="form-label fs-7 fw-semibold mb-1"><i class="bi bi-people me-1"></i>Categoria</label>' +
+            '<div class="cat-opcoes">' + cards + '</div>';
+
+        row.querySelector('[data-campo="nome"]').value = nome || '';
+        row.querySelector('[data-remover]').addEventListener('click', function () {
+            row.remove();
+            renumerar();
+        });
+
+        rows.appendChild(row);
+    }
+
+    addBtn.addEventListener('click', function () {
+        if (rows.children.length >= max) { return; }
+        criarLinha('', 'adulto');
+        renumerar();
+    });
+
+    // Restaura linhas de uma submissão anterior (erros de validação).
+    if (oldNomes.length) {
+        oldNomes.forEach(function (nome, i) {
+            criarLinha(nome, oldCategorias[i] || 'adulto');
+        });
+    }
+    renumerar();
+
+    // Ao abrir o modal, decide entre "vou" e "não vou".
+    const modal = document.getElementById('modalRsvp');
+    if (modal) {
+        modal.addEventListener('show.bs.modal', function (evento) {
+            const vai = ! (evento.relatedTarget && evento.relatedTarget.dataset.vai === '0');
+            status.value = vai ? 'confirmado' : 'recusado';
+
+            bloco.classList.toggle('d-none', !vai);
+            if (divisor) { divisor.classList.toggle('d-none', !vai); }
+
+            icone.textContent = vai ? '🎉' : '👋';
+            titulo.textContent = vai ? 'Confirmar presença' : 'Confirmar ausência';
+            submit.textContent = vai ? 'Confirmar presença' : 'Confirmar ausência';
+            intro.textContent = vai
+                ? 'Que alegria! Confirme seus dados e adicione acompanhantes, se houver.'
+                : 'Sentiremos sua falta! Confirme abaixo que você não poderá ir.';
+
+            rows.querySelectorAll('input').forEach(function (el) { el.disabled = !vai; });
+        });
+    }
 })();
 </script>
+
+<?php if (! empty($galeria)): ?>
+<script>
+(function () {
+    const modal = document.getElementById('modalGaleria');
+    if (!modal) { return; }
+
+    modal.addEventListener('show.bs.modal', function (evento) {
+        const botao = evento.relatedTarget;
+        if (!botao) { return; }
+
+        const img = document.getElementById('galeria-img');
+        const leg = document.getElementById('galeria-legenda');
+        const texto = botao.getAttribute('data-legenda') || '';
+
+        img.src = botao.getAttribute('data-img') || '';
+        leg.textContent = texto;
+        leg.style.display = texto ? '' : 'none';
+    });
+})();
+</script>
+<?php endif; ?>
 </body>
 </html>

@@ -96,11 +96,11 @@
 
                 <div class="d-grid">
                     <button class="btn btn-evento btn-lg py-3">
-                        <i class="bi bi-qr-code me-2"></i>Gerar PIX e continuar
+                        <i class="bi bi-credit-card me-2"></i>Continuar para o pagamento
                     </button>
                 </div>
                 <p class="text-center text-muted fs-8 mt-2 mb-0">
-                    Pagamento processado com segurança. O valor é creditado ao organizador.
+                    PIX ou cartão de crédito, processado com segurança. O valor é creditado ao organizador.
                 </p>
             </form>
         </div>
@@ -125,7 +125,7 @@
 
                     <div class="d-flex align-items-center gap-2 text-muted fs-8 mt-3">
                         <i class="bi bi-shield-lock"></i>
-                        <span>Pagamento via PIX com confirmação automática.</span>
+                        <span>Pagamento via PIX ou cartão de crédito, com confirmação automática.</span>
                     </div>
                 </div>
             </div>

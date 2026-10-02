@@ -1,3 +1,29 @@
+<?php
+
+/**
+ * @var array<string, mixed>|null $cobranca
+ * @var \App\Entities\Evento      $evento
+ * @var \App\Entities\Pedido      $pedido
+ * @var bool                      $bricks
+ * @var bool                      $simulacao
+ * @var string                    $public_key
+ * @var array<string, mixed>|null $presente
+ */
+$pagamentoPendente = is_array($cobranca)
+    && ($cobranca['status'] ?? null) === 'pendente'
+    && ! empty($cobranca['gateway_transacao_id']);
+
+$partes  = preg_split('/\s+/', trim((string) $pedido->nome_convidado), 2) ?: [];
+$payer   = ['firstName' => $partes[0] ?? 'Convidado'];
+
+if (! empty($partes[1])) {
+    $payer['lastName'] = $partes[1];
+}
+
+if (filter_var((string) $pedido->email_convidado, FILTER_VALIDATE_EMAIL)) {
+    $payer['email'] = (string) $pedido->email_convidado;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -68,12 +94,59 @@
             Este pedido não está mais ativo. Se precisar, faça um novo pedido.
         </div>
 
+    <?php elseif ($pedido->expirado()): ?>
+        <div class="alert alert-warning rounded-4 mb-0">
+            Este pedido expirou antes do pagamento. Volte ao evento e faça um novo pedido.
+        </div>
+
+    <?php elseif ($bricks): ?>
+        <div class="card border-0 shadow-sm mb-4" id="card-pagamento">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase text-muted fw-semibold mb-3">Pague com PIX ou cartão</h2>
+                <div id="paymentBrick_container"></div>
+            </div>
+        </div>
+
+        <div id="statusScreenBrick_container" class="<?= $pagamentoPendente ? '' : 'd-none' ?> mb-4"></div>
+
+        <div class="alert alert-danger rounded-4 d-none" id="payment-erro"></div>
+
+        <div class="alert alert-info rounded-4">
+            <i class="bi bi-info-circle me-1"></i>Após o pagamento, a confirmação é automática.
+            Atualize esta página em alguns instantes.
+        </div>
+
+        <a class="btn btn-outline-evento w-100 mb-3" href="<?= site_url($evento->slug . '/pedido/' . $pedido->protocolo . '?atualizar=1') ?>">
+            <i class="bi bi-arrow-clockwise me-1"></i>Já paguei, atualizar status
+        </a>
+
+        <?php if ($simulacao): ?>
+            <div class="card border-warning mb-4">
+                <div class="card-body p-4">
+                    <p class="fw-semibold mb-1"><i class="bi bi-bug me-1"></i>Modo de teste (sandbox)</p>
+                    <p class="text-muted fs-7">
+                        Ambiente de desenvolvimento: simule a confirmação do pagamento para validar o crédito
+                        na carteira e a publicação no mural.
+                    </p>
+                    <form method="post" action="<?= site_url($evento->slug . '/pedido/' . $pedido->protocolo . '/simular') ?>">
+                        <?= csrf_field() ?>
+                        <button class="btn btn-warning">Simular pagamento confirmado</button>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
+
     <?php elseif (! empty($cobranca['copia_e_cola'])): ?>
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4 text-center">
                 <h2 class="h6 text-uppercase text-muted fw-semibold mb-3">Pague com PIX</h2>
 
-                <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
+                <?php if (! empty($cobranca['qr_code_base64'])): ?>
+                    <img src="data:image/png;base64,<?= esc($cobranca['qr_code_base64'], 'attr') ?>"
+                         alt="QR Code PIX" width="220" height="220" class="mb-3 rounded">
+                <?php else: ?>
+                    <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
+                <?php endif; ?>
 
                 <p class="text-muted fs-7 mb-2">Ou copie o código PIX abaixo:</p>
                 <div class="input-group mb-2">
@@ -83,6 +156,13 @@
                         <i class="bi bi-clipboard me-1"></i>Copiar
                     </button>
                 </div>
+
+                <?php if (! empty($cobranca['ticket_url'])): ?>
+                    <a class="btn btn-outline-evento btn-sm mb-2" target="_blank" rel="noopener"
+                       href="<?= esc($cobranca['ticket_url'], 'attr') ?>">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Abrir no Mercado Pago
+                    </a>
+                <?php endif; ?>
 
                 <?php if (! empty($cobranca['expira_em'])): ?>
                     <p class="text-muted fs-8 mb-0">
@@ -102,7 +182,7 @@
             Atualize esta página em alguns instantes.
         </div>
 
-        <a class="btn btn-outline-evento w-100 mb-3" href="<?= site_url($evento->slug . '/pedido/' . $pedido->protocolo) ?>">
+        <a class="btn btn-outline-evento w-100 mb-3" href="<?= site_url($evento->slug . '/pedido/' . $pedido->protocolo . '?atualizar=1') ?>">
             <i class="bi bi-arrow-clockwise me-1"></i>Já paguei, atualizar status
         </a>
 
@@ -123,7 +203,11 @@
         <?php endif; ?>
     <?php else: ?>
         <div class="alert alert-warning rounded-4 mb-0">
-            Não encontramos os dados do PIX deste pedido. Entre em contato com o organizador.
+            <?php if (($pedido->gateway ?? '') === 'mercadopago'): ?>
+                O pagamento online está temporariamente indisponível. Entre em contato com o organizador.
+            <?php else: ?>
+                Não encontramos os dados do pagamento deste pedido. Entre em contato com o organizador.
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 
@@ -136,30 +220,140 @@
     Página criada com <a href="<?= site_url('/') ?>" class="text-decoration-none">Minha Lista VIP</a>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script>
-(function () {
-    const alvo = document.getElementById('qrcode');
-    const codigo = document.getElementById('pix-codigo');
+<?php if ($bricks): ?>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <script>
+    (function () {
+        var publicKey = <?= json_encode($public_key) ?>;
+        var endpoint  = <?= json_encode(site_url($evento->slug . '/pedido/' . $pedido->protocolo . '/pagar')) ?>;
+        var csrf      = <?= json_encode(csrf_hash()) ?>;
+        var existente = <?= $pagamentoPendente ? json_encode((string) $cobranca['gateway_transacao_id']) : 'null' ?>;
+        var threeDs   = <?= $pagamentoPendente ? json_encode($cobranca['three_ds_info'] ?? null) : 'null' ?>;
+        var payer     = <?= json_encode($payer, JSON_UNESCAPED_UNICODE) ?>;
 
-    if (alvo && codigo && typeof QRCode !== 'undefined') {
-        new QRCode(alvo, { text: codigo.value, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
-    }
+        var erroBox = document.getElementById('payment-erro');
+        var statusBox = document.getElementById('statusScreenBrick_container');
+        var cardPagamento = document.getElementById('card-pagamento');
 
-    const botao = document.getElementById('btn-copiar');
-    if (botao && codigo) {
-        botao.addEventListener('click', async function () {
-            try {
-                await navigator.clipboard.writeText(codigo.value);
-            } catch (e) {
-                codigo.select();
-                document.execCommand('copy');
+        if (!window.MercadoPago) {
+            return;
+        }
+
+        var mp = new MercadoPago(publicKey, { locale: 'pt-BR' });
+        var bricks = mp.bricks();
+
+        function mostrarErro(mensagem) {
+            if (!erroBox) return;
+
+            erroBox.textContent = mensagem;
+            erroBox.classList.remove('d-none');
+        }
+
+        function renderStatus(paymentId, info) {
+            if (cardPagamento) cardPagamento.classList.add('d-none');
+            if (statusBox) statusBox.classList.remove('d-none');
+
+            var initialization = { paymentId: String(paymentId) };
+
+            if (info && info.external_resource_url) {
+                initialization.additionalInfo = {
+                    externalResourceURL: info.external_resource_url,
+                    creq: info.creq
+                };
             }
-            botao.innerHTML = '<i class="bi bi-check2 me-1"></i>Copiado!';
-            setTimeout(() => { botao.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copiar'; }, 2000);
+
+            bricks.create('statusScreen', 'statusScreenBrick_container', {
+                initialization: initialization,
+                callbacks: {
+                    onReady: function () {},
+                    onError: function (error) { console.error(error); }
+                }
+            });
+        }
+
+        if (existente) {
+            renderStatus(existente, threeDs);
+            return;
+        }
+
+        bricks.create('payment', 'paymentBrick_container', {
+            initialization: {
+                amount: <?= json_encode(round((float) $pedido->valor_total, 2)) ?>,
+                payer: payer
+            },
+            customization: {
+                paymentMethods: {
+                    creditCard: 'all',
+                    bankTransfer: 'all'
+                },
+                visual: { style: { theme: 'bootstrap' } }
+            },
+            callbacks: {
+                onReady: function () {},
+                onError: function (error) { console.error(error); },
+                onSubmit: function (context) {
+                    erroBox.classList.add('d-none');
+
+                    return fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf
+                        },
+                        body: JSON.stringify(context.formData)
+                    })
+                    .then(function (resposta) {
+                        return resposta.json().catch(function () {
+                            return { ok: false, mensagem: 'Resposta inválida do servidor.' };
+                        });
+                    })
+                    .then(function (resultado) {
+                        if (resultado.status === 'pago') {
+                            window.location.reload();
+                            return;
+                        }
+
+                        if (resultado.status === 'pendente') {
+                            renderStatus(resultado.payment_id, resultado.three_ds_info);
+                            return;
+                        }
+
+                        mostrarErro(resultado.mensagem || 'Pagamento recusado. Tente novamente.');
+                    })
+                    .catch(function () {
+                        mostrarErro('Não foi possível processar o pagamento agora. Tente novamente.');
+                    });
+                }
+            }
         });
-    }
-})();
-</script>
+    })();
+    </script>
+<?php else: ?>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+    (function () {
+        const alvo = document.getElementById('qrcode');
+        const codigo = document.getElementById('pix-codigo');
+
+        if (alvo && codigo && typeof QRCode !== 'undefined') {
+            new QRCode(alvo, { text: codigo.value, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+        }
+
+        const botao = document.getElementById('btn-copiar');
+        if (botao && codigo) {
+            botao.addEventListener('click', async function () {
+                try {
+                    await navigator.clipboard.writeText(codigo.value);
+                } catch (e) {
+                    codigo.select();
+                    document.execCommand('copy');
+                }
+                botao.innerHTML = '<i class="bi bi-check2 me-1"></i>Copiado!';
+                setTimeout(() => { botao.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copiar'; }, 2000);
+            });
+        }
+    })();
+    </script>
+<?php endif; ?>
 </body>
 </html>

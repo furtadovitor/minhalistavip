@@ -106,7 +106,7 @@
                                       action="<?= site_url('painel/eventos/' . $evento->id . '/presentes/' . $presente['id'] . '/excluir') ?>"
                                       onsubmit="return confirm('Remover este presente da lista?');">
                                     <?= csrf_field() ?>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </td>

@@ -35,6 +35,44 @@ class EventoService
     }
 
     /**
+     * Listas ativas (não arquivadas) do organizador.
+     *
+     * @return list<Evento>
+     */
+    public function listarAtivos(int $usuarioId): array
+    {
+        return $this->eventos
+            ->where('usuario_id', $usuarioId)
+            ->where('arquivado', 0)
+            ->orderBy('criado_em', 'DESC')
+            ->findAll();
+    }
+
+    /**
+     * Listas arquivadas do organizador.
+     *
+     * @return list<Evento>
+     */
+    public function listarArquivados(int $usuarioId): array
+    {
+        return $this->eventos
+            ->where('usuario_id', $usuarioId)
+            ->where('arquivado', 1)
+            ->orderBy('criado_em', 'DESC')
+            ->findAll();
+    }
+
+    /**
+     * Arquiva/desarquiva uma lista.
+     */
+    public function arquivar(int $eventoId, int $usuarioId, bool $arquivado): bool
+    {
+        $this->doOrganizador($eventoId, $usuarioId);
+
+        return (bool) $this->eventos->update($eventoId, ['arquivado' => $arquivado ? 1 : 0]);
+    }
+
+    /**
      * Devolve o evento somente se pertencer ao organizador informado.
      *
      * @throws PageNotFoundException quando não existe ou é de outro tenant
@@ -140,7 +178,7 @@ class EventoService
         'login', 'registro', 'logout', 'painel', 'admin',
         'api', 'webhooks', 'uploads', 'assets', 'vendor',
         'home', 'index', 'www', 'e', 'sitemap', 'robots', 'favicon',
-        'demo', 'exemplos', 'buscar',
+        'demo', 'exemplos', 'buscar', 'criar-lista-de-presente',
     ];
 
     public function slugReservado(string $slug): bool

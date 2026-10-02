@@ -359,12 +359,148 @@ Rotas novas (grupo `/admin`):
 * Botão **Acompanhantes** na listagem e resumo de menores/maiores nos KPIs; o **CSV** passou a
   incluir colunas de menores/maiores e os nomes dos acompanhantes.
 
+### Etapa 17 — Painel do organizador estilo "Minhas listas" (concluída)
+Redesenho do painel do organizador inspirado no Lista Ideal, com foco em clareza:
+* **Menu colapsável** (`templates/layouts/app.php`): o menu lateral global (Minhas listas,
+  Carteira, Pedidos) alterna entre "ícone + nome" e "só ícone" (estado salvo em `localStorage`).
+  A navegação da lista **não fica no menu global**: dentro de um evento ela aparece em uma barra
+  própria ao lado do conteúdo (`templates/partials/evento_nav.php`), com os grupos **Lista**
+  (Presentes, Galeria, Recadinhos, Convidados, Compartilhar), **Dinheiro** (Pagamentos,
+  Forma de pagamento) e **Personalização** (Funcionalidades, Aparência, Informações, Configurações).
+  No desktop é uma coluna vertical; no mobile vira o dropdown **"Menu da lista"**.
+* **Home "Minhas listas"** (`Host\Dashboard`): abas **Ativas** e **Arquivadas**, cards com capa,
+  status e ações ("Gerenciar", "Ver página", arquivar/reativar) + KPIs (ativas, publicadas,
+  arrecadado, saldo). Arquivamento via `eventos.arquivado` (migration `2026-09-30-000018`).
+* **Workspace do evento** (`Host\Evento`, rota `painel/eventos/{id}`): visão geral com KPIs e
+  páginas dedicadas para editar cada aspecto da lista (informações, aparência com prévia,
+  funcionalidades, configurações com slug/publicação/zona de risco, forma de pagamento e
+  pagamentos do evento).
+* **Galeria de fotos** (`Host\Galeria` + tabela `evento_galeria`, migration `2026-09-30-000019`):
+  envio múltiplo, legenda, ordem, ocultar/exibir e exclusão. As fotos ativas aparecem no
+  **hotsite público** (seção "Galeria", com pill na navegação e lightbox em modal) e as
+  listas de exemplo ganharam galerias demonstrativas (`Public\Demo`).
+* **Recadinhos** (`Host\Recados`): moderação do mural (publicar, ocultar, excluir) com filtros.
+* **Compartilhar** (`Host\Evento::compartilhar`): link da lista, copiar, compartilhamento nativo,
+  botão de WhatsApp e QR Code (qrcodejs).
+
+### Etapa 18 — RSVP em destaque e acompanhantes por categoria (concluída)
+Confirmação de presença passou a ser a **primeira seção** do hotsite (antes dos presentes),
+com foco na ação mais importante da lista:
+* **Dois botões** ("Sim, estarei lá" / "Não posso ir") abrem um **modal** de confirmação.
+* No modal "vou": nome/telefone do titular e acompanhantes; no "não vou": só a confirmação de ausência.
+* **Acompanhantes** com nome completo + **categoria em cartões selecionáveis** com ícones
+  (🧑 Adulto ou adolescente, 🧒 Criança 5 a 12 anos, 👶 Bebê menos de 5 anos). O botão
+  **"Adicionar acompanhante"** clona a linha e cada linha pode ser removida. O modal tem
+  cabeçalho ilustrado e alterna entre "vou" (🎉) e "não vou" (👋).
+* Nova coluna `rsvp_acompanhantes.categoria` (migration `2026-09-30-000020`); o campo `menor`
+  passa a ser derivado da categoria (criança e bebê ⇒ menor). A idade continua suportada nos
+  registros antigos.
+* Painel de convidados (`Host\Convidados`) atualizado: acompanhante é adicionado por categoria,
+  o detalhe mostra Adultos / Crianças / Bebês, e o CSV exporta a categoria.
+* Nav do hotsite reordenada (Presença → Presentes → Galeria → Recados), com Presença ativa por
+  padrão, e o CTA principal do hero aponta para a confirmação.
+
+### Etapa 19 — Padronização de botões e campos (concluída)
+Unifica o raio de cantos, que antes misturava o default do Bootstrap (6px) com pills avulsos:
+* **Páginas públicas do evento** (`design_evento.php`): token `--raio-btn: 999px` aplicado a
+  todos os `.btn`, `.form-control` e `.form-select` (e cantos do `input-group`) — visual pill
+  consistente no hotsite, checkout e pedido.
+* **Painel, Home e login** (`design_system.php`): token `--raio-btn: .7rem` (canto suave,
+  alinhado aos cards `rounded-4` e à navegação lateral).
+* Removidos os `999px`/`rounded-pill` avulsos (`hotsite/lista.php` e `home.php`) — tudo passa a
+  herdar o token. Campos `textarea` usam raio menor para não virar "cápsula".
+
+### Etapa 20 — Home com atalhos + criação rápida de lista por tipo (concluída)
+Inspirada na listaideal.com.br:
+* **Catálogo central** `App\Services\TipoEventoService` com 24 ocasiões (chá de casa nova, chá de
+  bebê, casamento, aniversário, chá de panela/cozinha, noivado, chá de fraldas/revelação, quinze
+  anos, formatura, lingerie, amigo secreto, festa infantil/junina, bodas, pet, igreja, dia dos
+  namorados, natal, compras, material escolar, corporativo, outro) — rótulo, ícone, tema e cores.
+* **Migration** `2026-09-30-000021_AddTiposEventos` amplia o ENUM `eventos.tipo_evento`; a validação
+  do `EventoModel` e o helper `rotulo_tipo_evento()` passam a usar o catálogo (fonte única).
+* **Home redesenhada**: seção "Atalhos" com grade de tipos; hero e CTAs apontando para o novo fluxo.
+* **Fluxo de criação** `GET/POST /criar-lista-de-presente/{slug}` (`Public\CriarLista`): formulário
+  pede nome e descrição. Já logado → cria a lista e vai para os presentes; sem login → guarda a
+  intenção na sessão, pede login/cadastro e conclui em `/criar-lista-de-presente/continuar`.
+* **Painel**: botões somente-ícone viram circulares (`.btn-icon`), abas em pílula usam o raio e a
+  cor da marca, e a aba "Informações" passa a listar todos os tipos do catálogo. No workspace da
+  lista, a seção "Ações rápidas" foi removida e o "Resumo da lista" ocupa a largura total (com
+  Local/Endereço/Horário e o botão de publicar no cabeçalho).
+
+### Etapa 21 — Check-in presencial do evento (concluída)
+Controle de chegada no dia, a partir da lista de confirmados:
+* **Migration** `2026-09-30-000022_AddCheckinRsvp`: colunas `rsvp_confirmacoes.check_in_em`
+  (DATETIME) e `check_in_por` (usuário), com índice `(evento_id, check_in_em)`.
+* **Regras** (`ConvidadoService`): só convidado `confirmado` pode ter check-in; a presença conta
+  PESSOAS (titular + acompanhantes); recusar limpa o check-in; dá para desfazer.
+* **Tela** `GET /painel/eventos/{id}/checkin` (`Host\Checkin`): cartões grandes (uso no celular),
+  busca por nome/e-mail/telefone (com filtro "só quem ainda não chegou"), contadores de presentes
+  e barra de progresso. Ações `POST .../checkin/{id}` e `.../checkin/{id}/desfazer`.
+* **Integrações**: aba "Check-in" no menu do workspace; badge de check-in na lista de convidados;
+  coluna "Check-in em" no CSV; card "Presentes" no resumo do evento.
+
+### Etapa 22 — Gateway PIX real (Mercado Pago) com arquitetura plugável (concluída)
+* **Abstração** `App\Services\Pix\GatewayPixInterface` + `SandboxGateway` (BR Code EMV interno)
+  e `MercadoPagoGateway` (API `/v1/payments`, QR/Copia e Cola, consulta e assinatura).
+* **Fachada** `PixService` escolhe o gateway pela configuração `pix_gateway`
+  (`sandbox` | `mercadopago`), mantendo o mesmo contrato para `CheckoutService`.
+* **Webhook** `/webhooks/pix` agora valida a origem conforme o gateway (token no sandbox;
+  `x-signature` no Mercado Pago), extrai a transação e, no MP, consulta o status antes de
+  confirmar (idempotente pelo `PagamentoService`).
+* **Configurações** novas (`pix`, migrations `...000023`/`...000024`): `pix_gateway`,
+  `mercadopago_access_token`, `mercadopago_webhook_secret` e `mercadopago_notification_url`
+  — com select/segredos no painel.
+* **Pedido público**: exibe o QR do MP (`qr_code_base64`) quando disponível e o link da fatura.
+
+### Etapa 23 — Busca avançada e edição inline na lista de convidados (concluída)
+* **Filtros** na lista (`GET /painel/eventos/{id}/convidados`): presença no check-in
+  (já chegaram / ainda não chegaram), acompanhantes (com criança / com bebê) e ordenação
+  (mais recentes, mais antigos, nome A–Z, status). A busca por texto agora também encontra
+  pelo **nome dos acompanhantes** (`EXISTS` em `rsvp_acompanhantes`).
+* **Filtros preservados** ao aprovar, recusar ou remover: o formulário envia o campo `retorno`
+  com a query string atual e o controller redireciona de volta para a mesma visão filtrada.
+* **Edição inline do titular** (`POST .../convidados/{id}/editar`): nome, telefone, e-mail,
+  quantidade declarada e observação. A quantidade não pode ficar abaixo dos acompanhantes já
+  detalhados, e o aumento em convidado confirmado respeita o limite do evento.
+* **Edição inline do acompanhante** (`POST .../convidados/{id}/acompanhantes/{id}/editar`):
+  nome e categoria, com `menor` recalculado automaticamente.
+* **Adicionar acompanhante** agora sincroniza a quantidade declarada para cima (para contar no
+  total de pessoas e no limite) e, se o convidado estiver confirmado, desfaz a inserção caso
+  ultrapasse o limite.
+* **Listagem sem N+1**: `RsvpAcompanhanteModel::porConfirmacoes()` carrega os acompanhantes de
+  todos os convidados da página de uma vez e a tabela mostra os nomes com link "detalhar".
+* **Testes**: `tests/unit/ConvidadoServiceTest.php` cobre as regras de edição, limite e
+  sincronização da quantidade (10 testes).
+
+### Etapa 24 — Checkout Bricks do Mercado Pago: PIX + cartão de crédito (concluída)
+* **Configuração** `mercadopago_public_key` (migration `2026-10-01-000025`): o par
+  Access Token + Public Key é o que habilita o checkout embutido. Token de **conta de teste**
+  (`test_user_...@testuser.com`) é recusado pelo MP com `401 Unauthorized use of live
+  credentials` — usar as credenciais de teste (`TEST-...`) do aplicativo ou o par de produção
+  de uma conta real (`APP_USR-...`).
+* **Gateway**: `GatewayPixInterface::cobrarNaCriacao()` separa os fluxos — o sandbox gera o BR
+  Code na hora; o Mercado Pago não, pois o pagamento nasce quando o convidado envia o Brick.
+  `MercadoPagoGateway::pagar()` cria o pagamento a partir do `formData` do Brick (PIX ou cartão),
+  com `three_d_secure_mode: optional`, valor **sempre recalculado do pedido** e chave de
+  idempotência por tentativa.
+* **CheckoutService**: com gateway que não cobra na criação, o pedido é registrado sem transação
+  (aguardando o Brick), com expiração configurável (`pix_expiracao_minutos`).
+* **Página do pedido**: Payment Brick embutido (crédito + PIX) via `sdk.mercadopago.com/js/v2`;
+  o envio vai para `POST /{slug}/pedido/{protocolo}/pagar` (CSRF via header) e o resultado é
+  conciliado pelo `PagamentoService`. Pagamento aprovado recarrega a página; PIX pendente e
+  desafio 3DS abrem o Status Screen Brick (com `three_ds_info`); recusas ganham mensagens
+  traduzidas. Se já existe PIX pendente, a página reabre direto o Status Screen (sem duplicar).
+* **Webhook**: continua sendo a fonte de verdade para PIX/atualizações do MP — o `pagar` já grava
+  `gateway_transacao_id` e o `PagamentoService` confirma de forma idempotente.
+* **Testes**: `tests/unit/MercadoPagoGatewayTest.php` cobre cartão com 3DS, PIX, erro de
+  credenciais e a separação `cobrarNaCriacao`/public key (4 testes).
+
 ### Próximos módulos sugeridos
 1. Complementar o Painel do SuperAdmin: taxas, catálogo global, usuários, planos e conciliação.
-2. Substituir o PIX sandbox por um gateway real (Mercado Pago/Asaas) mantendo `PixService` e
-   `PagamentoService`.
-3. Notificações por e-mail (recibo do convidado, aviso de presente ao organizador, saque pago).
-4. Retomada do tema visual dos eventos (`Views/templates`) e upload de imagem nos presentes.
+2. Convite nominal / link por convidado (pré-cadastro + confirmação sem duplicados).
+3. Notificações por e-mail/WhatsApp (recibo do convidado, aviso de presente ao organizador,
+   confirmação aprovada, saque pago e lembrete).
+4. Relatórios (financeiro por evento, ocupação e lista consolidada).
 5. Expiração automática de pedidos `pendente` (job/cron) usando `pedidos.expira_em`.
 
 ---
