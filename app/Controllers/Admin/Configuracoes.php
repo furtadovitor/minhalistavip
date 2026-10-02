@@ -6,7 +6,9 @@ use App\Controllers\BaseController;
 use App\Services\ConfiguracaoService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
+use Config\Services;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Configurações globais da plataforma (taxas, PIX, parâmetros de saque).
@@ -54,6 +56,14 @@ class Configuracoes extends BaseController
 
     public function salvar()
     {
+        $aviso = $this->validarCredenciaisMercadoPago();
+
+        if ($aviso !== null) {
+            return redirect()->to(site_url('admin/configuracoes'))
+                ->withInput()
+                ->with('erro', $aviso);
+        }
+
         foreach (self::CHAVES as $grupo => $chaves) {
             foreach ($chaves as $chave) {
                 $valor = $this->request->getPost($chave);
@@ -68,5 +78,54 @@ class Configuracoes extends BaseController
 
         return redirect()->to(site_url('admin/configuracoes'))
             ->with('sucesso', 'Configurações salvas com sucesso.');
+    }
+
+    /**
+     * Confere se o Access Token e a Public Key do Mercado Pago são coerentes
+     * (mesmo ambiente). Evita o erro `401 Unauthorized use of live credentials`
+     * causado por misturar um token de usuário de teste com uma Public Key de
+     * produção (ou vice-versa).
+     */
+    private function validarCredenciaisMercadoPago(): ?string
+    {
+        $token = trim((string) $this->request->getPost('mercadopago_access_token'));
+        $publicKey = trim((string) $this->request->getPost('mercadopago_public_key'));
+
+        if ($token === '' || $publicKey === '') {
+            return null;
+        }
+
+        try {
+            $resposta = Services::curlrequest()->request('GET', 'https://api.mercadopago.com/users/me', [
+                'headers'     => ['Authorization' => 'Bearer ' . $token],
+                'http_errors' => false,
+                'timeout'     => 10,
+            ]);
+        } catch (Throwable $e) {
+            log_message('warning', 'Não foi possível validar as credenciais do Mercado Pago: ' . $e->getMessage());
+
+            return null;
+        }
+
+        $status = $resposta->getStatusCode();
+
+        if ($status !== 200) {
+            return 'O Access Token do Mercado Pago parece inválido (HTTP ' . $status . '). Confira em Suas integrações.';
+        }
+
+        $usuario    = json_decode((string) $resposta->getBody(), true);
+        $ehTeste    = is_array($usuario) && (bool) ($usuario['test_data']['test_user'] ?? false);
+        $tokenTeste = str_starts_with($token, 'TEST-');
+        $pkTeste    = str_starts_with($publicKey, 'TEST-');
+
+        if (($ehTeste || $tokenTeste) && ! $pkTeste) {
+            return 'Credenciais inconsistentes: o Access Token é de teste, mas a Public Key não é (deve começar com TEST-). Use o par de teste do mesmo aplicativo.';
+        }
+
+        if (! $ehTeste && ! $tokenTeste && $pkTeste) {
+            return 'Credenciais inconsistentes: o Access Token é de produção, mas a Public Key é de teste (TEST-). Use credenciais do mesmo ambiente.';
+        }
+
+        return null;
     }
 }

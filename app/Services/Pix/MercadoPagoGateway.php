@@ -387,10 +387,21 @@ class MercadoPagoGateway implements GatewayPixInterface
             throw new RuntimeException('Falha ao comunicar com o Mercado Pago: ' . $e->getMessage());
         }
 
-        $decodificado = json_decode((string) $resposta->getBody(), true);
+        $status = $resposta->getStatusCode();
+        $corpo  = (string) $resposta->getBody();
+
+        if ($status >= 400) {
+            log_message('error', 'Mercado Pago HTTP {status} em {caminho}: {corpo}', [
+                'status'  => $status,
+                'caminho' => $caminho,
+                'corpo'   => $corpo,
+            ]);
+        }
+
+        $decodificado = json_decode($corpo, true);
 
         if (! is_array($decodificado)) {
-            throw new RuntimeException('Resposta inválida do Mercado Pago (HTTP ' . $resposta->getStatusCode() . ').');
+            throw new RuntimeException('Resposta inválida do Mercado Pago (HTTP ' . $status . ').');
         }
 
         return $decodificado;
@@ -439,6 +450,17 @@ class MercadoPagoGateway implements GatewayPixInterface
                 if (is_array($causa) && ! empty($causa['description'])) {
                     $mensagem .= ' ' . (string) $causa['description'];
                 }
+            }
+        }
+
+        $normalizado = strtolower($mensagem);
+
+        // Credenciais incoerentes entre Access Token e Public Key (ex.: token de
+        // usuário de teste com Public Key de produção). Fica no log; o convidado
+        // recebe uma mensagem neutra.
+        foreach (['unauthorized use of live credentials', 'invalid access token', 'invalid_credentials', 'unauthorized'] as $assinatura) {
+            if (str_contains($normalizado, $assinatura)) {
+                return 'Pagamento indisponível no momento. Avise o organizador da lista.';
             }
         }
 

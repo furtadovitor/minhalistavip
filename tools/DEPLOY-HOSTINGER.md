@@ -206,8 +206,14 @@ O sistema tem gateway plugável. Para usar o Mercado Pago em produção:
 1. No Mercado Pago, em **Suas integrações → Credenciais**:
    - **Produção:** copie o **Access Token** (`APP_USR-...`) e a **Public Key** (`APP_USR-...`);
    - **Teste:** use o par `TEST-...` (Access Token + Public Key) no mesmo ambiente.
-   > Atenção: as duas credenciais precisam ser do **mesmo ambiente**. Token de conta de teste
-   > isolada gera `401 Unauthorized use of live credentials` na criação do pagamento.
+   > Atenção: as duas credenciais precisam ser do **mesmo ambiente e do mesmo aplicativo**.
+   > Token de conta de teste isolada gera `401 Unauthorized use of live credentials` na criação
+   > do pagamento. Cuidado: credenciais de **usuário de teste** podem começar com `APP_USR-`
+   > mesmo sendo de teste — o prefixo não basta para decidir. Para confirmar, consulte
+   > `GET https://api.mercadopago.com/users/me` com o token e veja `test_data.test_user`:
+   > se for `true`, você precisa do par de **teste** (`TEST-...`) do mesmo aplicativo; se for
+   > `false`, use o par de **produção** (`APP_USR-...`) do mesmo aplicativo. O painel
+   > SuperAdmin → Configurações valida isso ao salvar e recusa o par incoerente.
 2. No painel do SuperAdmin → **Configurações → PIX**, defina:
    - `pix_gateway` = **Mercado Pago**;
    - `mercadopago_access_token` = seu access token;

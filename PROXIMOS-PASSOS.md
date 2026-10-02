@@ -119,9 +119,16 @@ Configurações) e **botões/campos padronizados**.
    configurações do gateway PIX (`pix_gateway`, Mercado Pago e `mercadopago_public_key`).
 2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), definir
-   `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente** (teste
-   `TEST-...` ou produção `APP_USR-...` de conta real), **segredo do webhook**, cadastrar a URL
-   `https://SEU-DOMINIO/webhooks/pix` no painel do Mercado Pago, e trocar o `pix_webhook_token`.
+   `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente E do mesmo
+   aplicativo**, **segredo do webhook**, cadastrar a URL `https://SEU-DOMINIO/webhooks/pix` no
+   painel do Mercado Pago, e trocar o `pix_webhook_token`.
+   > **Erro `401 Unauthorized use of live credentials`:** normalmente é credencial misturada.
+   > Um token de **usuário de teste** pode vir com prefixo `APP_USR-` (parece produção, mas é
+   > teste) — se a Public Key for de **produção**, o MP recusa. Confirme com
+   > `GET https://api.mercadopago.com/users/me` (`test_data.test_user`): `true` → use o par
+   > `TEST-...`; `false` → use o par `APP_USR-...`. Use sempre as duas do **mesmo aplicativo**.
+   > O painel de Configurações agora valida e bloqueia o par incoerente, e o gateway registra o
+   > motivo real no log (`writable/logs/`) devolvendo mensagem neutra ao convidado.
 4. **Cron da conciliação** — agendar `php spark pedidos:conciliar` a cada 5 minutos (expira
    pedidos vencidos e confirma pagamentos com webhook perdido). Passo a passo no
    `tools/DEPLOY-HOSTINGER.md`.

@@ -161,7 +161,7 @@ final class MercadoPagoGatewayTest extends CIUnitTestCase
         Services::injectMock('curlrequest', $curl);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Unauthorized use of live credentials');
+        $this->expectExceptionMessage('Pagamento indisponível no momento. Avise o organizador da lista.');
 
         (new MercadoPagoGateway($this->configuracao()))->pagar($this->pedido(), [
             'payment_method_id' => 'pix',
