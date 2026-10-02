@@ -4,6 +4,8 @@
 
 ## Onde paramos
 - **Etapas 1 a 24 concluídas e commitadas** (ver `SCRIPT.md`).
+- **Migrations locais em dia** (`php spark migrate` → `000018`–`000025`, batch 4) e dump
+  `tools/db/minhalistavip-local.sql` regenerado. Corrige o erro local `Unknown column 'arquivado'`.
 - **Local:** `http://localhost/minhalistavip/public/`
 - **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
   `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
@@ -36,6 +38,28 @@ Configurações) e **botões/campos padronizados**.
   na página do pedido (`sdk.mercadopago.com/js/v2`), com 3DS 2.0 e Status Screen para PIX/desafio.
   Requer **Access Token + Public Key** coerentes (teste `TEST-...` ou produção `APP_USR-...`):
   token de conta de teste isolado dá `401 Unauthorized use of live credentials`.
+- **Novo (front-end):** **Home reformulada** (`app/Views/home.php`) como landing completa, no
+  estilo do temfestinha, evoluindo a identidade indigo atual. Reforça **grátis** e **rapidez**,
+  e apresenta três pilares: **site personalizado**, **convite online** e **lista de presentes**.
+  Novas seções: faixa de confiança, "3 passos" (com selos de tempo), pilares, grade de recursos,
+  benefícios organizador/convidado, **depoimentos** e **FAQ** (accordion). Reforço de **grátis** e
+  **1 minuto** no hero, na faixa de confiança, na seção "3 passos" e na página
+  `public/criar_lista_tipos.php`. Estilos escopados com prefixo `.lp-` (não altera layout/footer).
+  Todas as features anunciadas existem na plataforma.
+- **Novo (front-end):** **depoimentos e exemplos viraram carrosséis** responsivos
+  (scroll-snap + setas + indicadores por página, `role`/`aria-label`), com JS próprio no fim de
+  `home.php` (sem dependência de lib). Inclui **passe de responsivo**: título do hero com
+  `clamp()`, offsets dos selos flutuantes por breakpoint, botões longos que quebram a linha
+  (`max-width:100%`), padding do CTA final menor no mobile e `overflow-wrap` nos textos.
+- **Novo (front-end):** **animações de UI** na Home — revelação ao rolar com
+  `IntersectionObserver` + entrada escalonada ("stagger") no hero, seções, cards, carrosséis e
+  FAQ; barras de progresso do mockup animando; blob de fundo do hero flutuando; micro-interações
+  (seta do botão desliza, ícone do card dá zoom, botão afunda no `:active`) e `:focus-visible`
+  nos controles do carrossel. Usa animação com `backwards` (não `forwards`) para **não quebrar o
+  hover dos cards**. Tudo **respeita `prefers-reduced-motion`** e é **progressive enhancement**:
+  sem JS (classe `lp-js`) o conteúdo permanece visível.
+  > **Pendência:** os **depoimentos** em `home.php` são **placeholder** — substituir por relatos
+  > reais e autorizados antes de divulgar.
 
 ## Pendências no servidor (Hostinger)
 1. Rodar as **migrations novas** (ou reimportar o dump):
