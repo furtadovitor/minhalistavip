@@ -77,6 +77,11 @@ Configurações) e **botões/campos padronizados**.
   com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.
   **`painel/eventos`**: miniatura + "Gerenciar" + menu de ações (dropdown). **Convidados**: stat cards
   com ícones. `.stat-card` / `.stat-icon` viraram padrão do layout do painel.
+- **Novo (identidade):** **logo** "Minha Lista VIP" — monograma **"M"** branco sobre um squircle com
+  gradiente indigo→violeta. Partial inline `templates/partials/logo.php` (marca + wordmark, com
+  variante clara e "VIP" em gradiente), usada nos layouts público, painel e autenticação. Assets:
+  `public/favicon.svg`, `public/favicon.ico`, `public/favicon-192.png`, `public/apple-touch-icon.png`
+  e `public/assets/logo.svg`. Rasters gerados por `tools/gerar-favicon.php` (GD).
 - **Novo (front-end):** **animações de UI** na Home — revelação ao rolar com
   `IntersectionObserver` + entrada escalonada ("stagger") no hero, seções, cards, carrosséis e
   FAQ; barras de progresso do mockup animando; blob de fundo do hero flutuando; micro-interações

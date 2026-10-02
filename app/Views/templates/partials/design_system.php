@@ -12,6 +12,11 @@ $titulo = $titulo ?? 'Minha Lista VIP';
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= esc($titulo) ?></title>
 
+<link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
+<link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
+<link rel="apple-touch-icon" href="<?= base_url('apple-touch-icon.png') ?>">
+<meta name="theme-color" content="#4F46E5">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -118,4 +123,23 @@ $titulo = $titulo ?? 'Minha Lista VIP';
     footer.site-footer { background: #111827; color: #9CA3AF; }
     footer.site-footer a { color: #D1D5DB; text-decoration: none; }
     footer.site-footer a:hover { color: #fff; }
+
+    /* Logo da plataforma (marca + wordmark) */
+    .brand-logo { display: inline-flex; align-items: center; gap: .55rem; text-decoration: none; }
+    .brand-logo .brand-mark { display: block; flex: none; }
+    .brand-word {
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+        font-weight: 800; letter-spacing: -.02em; line-height: 1;
+        font-size: var(--brand-text-size, 1rem); color: var(--ink); white-space: nowrap;
+    }
+    .brand-logo--claro .brand-word { color: #fff; }
+    .brand-vip {
+        margin-left: .3rem;
+        background: linear-gradient(135deg, #6366F1, #7C3AED);
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .brand-logo--claro .brand-vip {
+        background: linear-gradient(135deg, #A5B4FC, #C4B5FD);
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
 </style>

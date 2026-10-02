@@ -6,8 +6,8 @@
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
     <div class="container">
-        <a class="navbar-brand text-brand" href="<?= site_url('/') ?>">
-            <i class="bi bi-gift-fill me-1"></i>Minha Lista VIP
+        <a class="navbar-brand p-0" href="<?= site_url('/') ?>">
+            <?= view('templates/partials/logo', ['altura' => 32]) ?>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPublica"
                 aria-controls="navPublica" aria-expanded="false" aria-label="Alternar navegação">
@@ -41,7 +41,7 @@
     <div class="container">
         <div class="row g-4">
             <div class="col-md-5">
-                <p class="navbar-brand text-white mb-2"><i class="bi bi-gift-fill me-1"></i>Minha Lista VIP</p>
+                <div class="mb-2"><?= view('templates/partials/logo', ['altura' => 30, 'claro' => true]) ?></div>
                 <p class="fs-7 mb-0" style="max-width: 380px;">
                     Listas de presentes em dinheiro, RSVP e mural de recados para casamentos,
                     chás e aniversários. O convidado presenteia via PIX e o valor cai na sua conta.

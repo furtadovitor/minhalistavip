@@ -188,6 +188,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
         body.menu-collapsed .app-sidebar .app-nav-text,
         body.menu-collapsed .app-sidebar .app-nav-label,
         body.menu-collapsed .app-sidebar .brand-text,
+        body.menu-collapsed .app-sidebar .brand-word,
         body.menu-collapsed .app-sidebar .user-block { display: none; }
         body.menu-collapsed .app-sidebar .app-nav-link { justify-content: center; padding-left: .5rem; padding-right: .5rem; }
         body.menu-collapsed .app-sidebar .app-brand { justify-content: center; }
@@ -205,8 +206,8 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
     <!-- Sidebar (desktop) -->
     <aside class="app-sidebar d-none d-lg-flex flex-column p-3 flex-shrink-0">
         <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
-            <a class="app-brand navbar-brand text-brand d-flex align-items-center gap-2 mb-0 px-1" href="<?= site_url('painel') ?>">
-                <i class="bi bi-gift-fill"></i><span class="brand-text">Minha Lista VIP</span>
+            <a class="app-brand navbar-brand d-flex align-items-center mb-0 px-1 text-decoration-none" href="<?= site_url('painel') ?>">
+                <?= view('templates/partials/logo', ['altura' => 32]) ?>
             </a>
             <button class="app-toggle" type="button" id="menuToggle" aria-label="Recolher menu" title="Recolher menu">
                 <i class="bi bi-chevron-left"></i>
@@ -241,7 +242,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
                     data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-label="Abrir menu">
                 <i class="bi bi-list"></i>
             </button>
-            <span class="navbar-brand text-brand d-lg-none mb-0"><i class="bi bi-gift-fill"></i></span>
+            <span class="d-lg-none mb-0"><?= view('templates/partials/logo', ['altura' => 30, 'nome' => false]) ?></span>
             <div class="ms-auto d-flex align-items-center gap-2">
                 <?php if ($evento !== null && $evento->status === 'publicado'): ?>
                     <a class="btn btn-sm btn-outline-brand" href="<?= site_url($evento->slug) ?>" target="_blank">
@@ -283,7 +284,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
 <!-- Menu mobile -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
     <div class="offcanvas-header border-bottom">
-        <span class="navbar-brand text-brand mb-0" id="menuLateralLabel"><i class="bi bi-gift-fill"></i>Minha Lista VIP</span>
+        <span class="mb-0" id="menuLateralLabel"><?= view('templates/partials/logo', ['altura' => 30]) ?></span>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
     </div>
     <div class="offcanvas-body d-flex flex-column">

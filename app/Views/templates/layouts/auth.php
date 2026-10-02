@@ -7,8 +7,8 @@
 <div class="auth-shell">
     <div class="auth-card">
         <div class="text-center mb-4">
-            <a href="<?= site_url('/') ?>" class="auth-logo h4 d-inline-flex align-items-center gap-2 mb-2">
-                <i class="bi bi-gift-fill"></i> Minha Lista VIP
+            <a href="<?= site_url('/') ?>" class="d-inline-flex mb-2 text-decoration-none">
+                <?= view('templates/partials/logo', ['altura' => 42]) ?>
             </a>
             <p class="text-muted small mb-0">Presentes em dinheiro, RSVP e mural de recados para o seu evento.</p>
         </div>
