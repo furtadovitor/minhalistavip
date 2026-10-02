@@ -118,6 +118,8 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
 
     // --- Listas (eventos) de todos os organizadores ---
     $routes->get('listas', 'Admin\Eventos::index');
+    $routes->get('listas/exportar', 'Admin\Eventos::exportar');
+    $routes->post('listas/lote', 'Admin\Eventos::acaoEmLote');
     $routes->get('listas/(:num)', 'Admin\Eventos::ver/$1');
     $routes->post('listas/(:num)/publicar', 'Admin\Eventos::alternarPublicacao/$1');
     $routes->post('listas/(:num)/arquivar', 'Admin\Eventos::alternarArquivado/$1');

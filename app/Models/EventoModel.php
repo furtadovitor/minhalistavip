@@ -96,14 +96,39 @@ class EventoModel extends Model
     }
 
     /**
-     * Listagem administrativa (SuperAdmin) de TODAS as listas da plataforma,
-     * com filtros e paginação. Traz o nome/e-mail do organizador como campos
-     * extras (organizador_nome / organizador_email) na própria entidade.
+     * Listagem administrativa (SuperAdmin) de TODAS as listas da plataforma, com filtros.
+     * Traz o nome/e-mail do organizador como campos extras (organizador_nome /
+     * organizador_email) na própria entidade.
      *
-     * @param array{busca?: string|null, status?: string|null, arquivado?: string|null, tipo_evento?: string|null, organizador?: string|int|null} $filtros
+     * @param array{busca?: string|null, status?: string|null, arquivado?: string|null, tipo_evento?: string|null, organizador?: string|int|null, periodo?: string|int|null} $filtros
      * @return list<Evento>
      */
     public function paginarAdmin(array $filtros = [], int $porPagina = 20): array
+    {
+        $this->prepararQueryAdmin($filtros);
+
+        return $this->orderBy('eventos.criado_em', 'DESC')->paginate($porPagina, 'listas');
+    }
+
+    /**
+     * Mesma filtragem de paginarAdmin(), porém sem paginação (usada no export CSV).
+     *
+     * @param array<string, mixed> $filtros
+     * @return list<Evento>
+     */
+    public function listarAdmin(array $filtros = [], int $limite = 0): array
+    {
+        $this->prepararQueryAdmin($filtros);
+
+        return $this->orderBy('eventos.criado_em', 'DESC')->findAll($limite > 0 ? $limite : null);
+    }
+
+    /**
+     * Monta o SELECT com JOIN do organizador e aplica os filtros administrativos.
+     *
+     * @param array<string, mixed> $filtros
+     */
+    private function prepararQueryAdmin(array $filtros): void
     {
         $this->select('eventos.*, u.nome AS organizador_nome, u.email AS organizador_email')
             ->join('usuarios u', 'u.id = eventos.usuario_id', 'left');
@@ -134,6 +159,11 @@ class EventoModel extends Model
             $this->where('eventos.usuario_id', (int) $filtros['organizador']);
         }
 
-        return $this->orderBy('eventos.criado_em', 'DESC')->paginate($porPagina, 'listas');
+        if (! empty($filtros['periodo'])) {
+            $dias = (int) $filtros['periodo'];
+            if ($dias > 0) {
+                $this->where('eventos.criado_em >=', date('Y-m-d H:i:s', strtotime('-' . $dias . ' days')));
+            }
+        }
     }
 }

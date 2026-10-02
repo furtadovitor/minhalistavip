@@ -33,18 +33,12 @@ class Eventos extends BaseController
 
     public function index()
     {
-        $filtros = [
-            'busca'       => $this->request->getGet('busca') ?: null,
-            'status'      => $this->request->getGet('status') ?: null,
-            'arquivado'   => $this->request->getGet('arquivado'),
-            'tipo_evento' => $this->request->getGet('tipo_evento') ?: null,
-            'organizador' => $this->request->getGet('organizador') ?: null,
-        ];
+        $filtros = $this->filtrosDaRequisicao();
 
         $listas = $this->eventos->paginarAdmin($filtros, 20);
 
         // Mantém os filtros ao navegar entre as páginas.
-        $this->eventos->pager->only(['busca', 'status', 'arquivado', 'tipo_evento', 'organizador']);
+        $this->eventos->pager->only(['busca', 'status', 'arquivado', 'tipo_evento', 'organizador', 'periodo']);
 
         return $this->render('admin/eventos/index', [
             'titulo'  => 'Listas da plataforma',
@@ -116,6 +110,97 @@ class Eventos extends BaseController
             'sucesso',
             $novo ? 'Lista arquivada.' : 'Lista reativada.'
         );
+    }
+
+    /**
+     * Filtros vindos da querystring (compartilhados entre listagem e exportação).
+     *
+     * @return array<string, string|null>
+     */
+    private function filtrosDaRequisicao(): array
+    {
+        return [
+            'busca'       => $this->request->getGet('busca') ?: null,
+            'status'      => $this->request->getGet('status') ?: null,
+            'arquivado'   => $this->request->getGet('arquivado'),
+            'tipo_evento' => $this->request->getGet('tipo_evento') ?: null,
+            'organizador' => $this->request->getGet('organizador') ?: null,
+            'periodo'     => $this->request->getGet('periodo') ?: null,
+        ];
+    }
+
+    /**
+     * Exporta as listas filtradas em CSV (UTF-8 com BOM e ';' — abre certinho no Excel pt-BR).
+     */
+    public function exportar(): ResponseInterface
+    {
+        $filtros = $this->filtrosDaRequisicao();
+        $linhas  = (new EventoModel())->listarAdmin($filtros);
+
+        $csv  = "\xEF\xBB\xBF"; // BOM para o Excel reconhecer o UTF-8
+        $csv .= "ID;Titulo;Slug;Organizador;Email;Tipo;Status;Situacao;Publicada em;Criada em\r\n";
+
+        foreach ($linhas as $l) {
+            $csv .= implode(';', [
+                (int) $l->id,
+                $this->csv($l->titulo),
+                $this->csv('/' . $l->slug),
+                $this->csv((string) ($l->organizador_nome ?? '')),
+                $this->csv((string) ($l->organizador_email ?? '')),
+                $this->csv(rotulo_tipo_evento((string) $l->tipo_evento)),
+                rotulo_status_evento((string) $l->status),
+                $l->arquivado ? 'Arquivada' : 'Ativa',
+                $l->publicado_em !== null ? $l->publicado_em->format('d/m/Y H:i') : '',
+                $l->criado_em !== null ? $l->criado_em->format('d/m/Y H:i') : '',
+            ]) . "\r\n";
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/csv; charset=utf-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="listas-' . date('Ymd-His') . '.csv"')
+            ->setBody($csv);
+    }
+
+    /**
+     * Aplica uma ação em massa (arquivar / reativar / publicar / despublicar).
+     */
+    public function acaoEmLote()
+    {
+        $ids  = array_values(array_filter(array_map('intval', (array) $this->request->getPost('ids'))));
+        $acao = (string) $this->request->getPost('acao');
+
+        if ($ids === []) {
+            return redirect()->back()->with('erro', 'Selecione ao menos uma lista.');
+        }
+
+        $acoes = [
+            'arquivar'    => ['arquivado' => 1],
+            'reativar'    => ['arquivado' => 0],
+            'publicar'    => ['status' => 'publicado', 'publicado_em' => date('Y-m-d H:i:s')],
+            'despublicar' => ['status' => 'rascunho', 'publicado_em' => null],
+        ];
+
+        if (! isset($acoes[$acao])) {
+            return redirect()->back()->with('erro', 'Ação em lote inválida.');
+        }
+
+        $ids   = array_slice($ids, 0, 500);
+        $dados = $acoes[$acao] + ['atualizado_em' => date('Y-m-d H:i:s')];
+
+        db_connect()->table('eventos')->whereIn('id', $ids)->update($dados);
+
+        return redirect()->back()->with('sucesso', count($ids) . ' lista(s) atualizada(s).');
+    }
+
+    private function csv(?string $valor): string
+    {
+        $valor = (string) $valor;
+
+        if (preg_match('/[";\r\n]/', $valor) === 1) {
+            return '"' . str_replace('"', '""', $valor) . '"';
+        }
+
+        return $valor;
     }
 
     /**
