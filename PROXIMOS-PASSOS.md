@@ -77,6 +77,13 @@ Configurações) e **botões/campos padronizados**.
   com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.
   **`painel/eventos`**: miniatura + "Gerenciar" + menu de ações (dropdown). **Convidados**: stat cards
   com ícones. `.stat-card` / `.stat-icon` viraram padrão do layout do painel.
+- **Novo (financeiro do organizador):** a tela `painel/carteira` virou **"Financeiro"** com:
+  **Dados do Responsável** (nome, e-mail, telefone, CPF, nascimento), **Dados Bancários**
+  (tipo do pagamento, tipo da chave, chave PIX) e **Endereço de Correspondência** (CEP, endereço,
+  bairro, cidade, UF) — salvos em `usuarios` (migration `000026`); **Valores aguardando liberação**
+  (cartão, janela de 30 dias); **Solicitar resgate** (habilita só com os dados completos) e
+  **Status de resgates**. O resgate usa a **chave PIX salva** como padrão. Os dados são privados e
+  **não aparecem no site do evento**.
 - **Novo (identidade):** **logo** "Minha Lista VIP" — monograma **"M"** branco sobre um squircle com
   gradiente indigo→violeta. Partial inline `templates/partials/logo.php` (marca + wordmark, com
   variante clara e "VIP" em gradiente), usada nos layouts público, painel e autenticação. Assets:

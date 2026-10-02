@@ -50,7 +50,7 @@ if ($superadmin) {
     $grupos = [
         ['rotulo' => 'Geral', 'itens' => [
             ['rota' => 'painel', 'icone' => 'bi-grid', 'rotulo' => 'Minhas listas', 'exato' => true, 'tambem' => ['painel/eventos']],
-            ['rota' => 'painel/carteira', 'icone' => 'bi-wallet2', 'rotulo' => 'Carteira'],
+            ['rota' => 'painel/carteira', 'icone' => 'bi-wallet2', 'rotulo' => 'Financeiro'],
             ['rota' => 'painel/pedidos', 'icone' => 'bi-bag-check', 'rotulo' => 'Pedidos'],
         ]],
     ];

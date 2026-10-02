@@ -21,7 +21,50 @@ class Usuario extends Entity
     /**
      * @var list<string>
      */
-    protected $dates = ['criado_em', 'atualizado_em', 'deletado_em', 'ultimo_login_em'];
+    protected $dates = ['criado_em', 'atualizado_em', 'deletado_em', 'ultimo_login_em', 'data_nascimento', 'dados_repasse_ok_em'];
+
+    /**
+     * Campos obrigatórios para habilitar o resgate/repasse.
+     *
+     * @var list<string>
+     */
+    public const CAMPOS_REPASSE = [
+        'nome', 'email', 'telefone', 'cpf_cnpj', 'data_nascimento',
+        'destinatario', 'cep', 'endereco', 'bairro', 'cidade', 'estado',
+        'tipo_pagamento', 'tipo_chave_pix', 'chave_pix',
+    ];
+
+    /**
+     * O organizador já preencheu todos os dados de repasse?
+     */
+    public function repasseCompleto(): bool
+    {
+        foreach (self::CAMPOS_REPASSE as $campo) {
+            if (trim((string) ($this->attributes[$campo] ?? '')) === '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Campos de repasse que ainda faltam preencher.
+     *
+     * @return list<string>
+     */
+    public function repasseFaltando(): array
+    {
+        $faltando = [];
+
+        foreach (self::CAMPOS_REPASSE as $campo) {
+            if (trim((string) ($this->attributes[$campo] ?? '')) === '') {
+                $faltando[] = $campo;
+            }
+        }
+
+        return $faltando;
+    }
 
     /**
      * Nunca expor o hash da senha em serializações.

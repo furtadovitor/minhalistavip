@@ -97,6 +97,7 @@ $routes->group('painel', ['filter' => 'auth'], static function (RouteCollection 
     // --- Pedidos e carteira ---
     $routes->get('pedidos', 'Host\Pedidos::index');
     $routes->get('carteira', 'Host\Carteira::index');
+    $routes->post('carteira/repasse', 'Host\Carteira::salvarRepasse');
     $routes->get('carteira/saque', 'Host\Carteira::saque');
     $routes->post('carteira/saque', 'Host\Carteira::solicitarSaque');
 });

@@ -113,6 +113,33 @@ class CarteiraService
     }
 
     /**
+     * Prazo (dias) que os presentes pagos via cartão ficam "aguardando liberação"
+     * da operadora antes de entrarem no saldo disponível.
+     */
+    public const PRAZO_LIBERACAO_CARTAO_DIAS = 30;
+
+    /**
+     * Soma dos presentes pagos por CARTÃO dentro da janela de liberação da operadora.
+     * É informativo (o crédito na carteira continua imediato no pagamento).
+     */
+    public function aguardandoLiberacao(int $usuarioId): float
+    {
+        $limite = date('Y-m-d H:i:s', strtotime('-' . self::PRAZO_LIBERACAO_CARTAO_DIAS . ' days'));
+
+        $row = $this->db->table('pedidos p')
+            ->selectSum('p.valor_presentes', 'total')
+            ->join('eventos e', 'e.id = p.evento_id')
+            ->where('e.usuario_id', $usuarioId)
+            ->where('p.status', 'pago')
+            ->where('p.metodo_pagamento', 'cartao')
+            ->where('p.pago_em >=', $limite)
+            ->get()
+            ->getRow();
+
+        return round((float) ($row->total ?? 0), 2);
+    }
+
+    /**
      * Solicita um saque: valida o mínimo e o saldo e reserva o valor
      * com um débito imediato na carteira.
      *

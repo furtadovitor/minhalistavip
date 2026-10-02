@@ -140,9 +140,9 @@ Gere a chave de criptografia (SSH): `php spark key:generate`.
 
 > **Atualizações de esquema:** sempre que houver uma migration nova, rode `php spark migrate`
 > (por SSH) ou reimporte o dump atualizado em `tools/db/minhalistavip-local.sql`.
-> Exemplos: `000016` adiciona `eventos.limite_convidados`; `000017` cria `rsvp_acompanhantes`;
-> `000018` adiciona `eventos.arquivado`; `000019` cria `evento_galeria`; `000020` adiciona
-> `rsvp_acompanhantes.categoria`.
+> Exemplos recentes: `000016`–`000020` (limite de convidados, acompanhantes, arquivar, galeria,
+> categoria); `000021`–`000022` (tipos de evento e check-in); `000023`–`000025` (gateway PIX /
+> Mercado Pago) e `000026` (dados de repasse do organizador).
 
 > **Acentos / UTF-8 (mojibake):** se os acentos aparecerem como `Jo├úo`, `Espa├ºo`, `Beb├¬`,
 > o banco sofreu **dupla codificação** (dump exportado por um script que capturava a saída do

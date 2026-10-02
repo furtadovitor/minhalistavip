@@ -52,7 +52,7 @@
                 <div>
                     <p class="text-muted text-uppercase fs-8 fw-semibold mb-0">Saldo</p>
                     <p class="h5 fw-bold mb-0"><?= esc(moeda_brl($saldo ?? 0)) ?></p>
-                    <a href="<?= site_url('painel/carteira') ?>" class="fs-8 text-decoration-none">Ver carteira &rarr;</a>
+                    <a href="<?= site_url('painel/carteira') ?>" class="fs-8 text-decoration-none">Ver financeiro &rarr;</a>
                 </div>
             </div>
         </div>
