@@ -6,6 +6,8 @@
         <h1 class="h4 fw-bold mb-1">Criar conta de organizador</h1>
         <p class="text-muted fs-7 mb-4">Em poucos minutos sua lista de presentes está no ar.</p>
 
+        <?= view('templates/partials/google_login') ?>
+
         <form method="post" action="<?= site_url('registro') ?>">
             <?= csrf_field() ?>
 

@@ -230,6 +230,28 @@ O sistema tem gateway plugável. Para usar o Mercado Pago em produção:
 
 ---
 
+## Login com Google (opcional)
+
+1. No [Google Cloud Console](https://console.cloud.google.com/): crie um projeto e configure a
+   **Tela de permissão OAuth** (tipo **Externo**; pode ficar em modo de teste).
+2. Em **APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth**, tipo
+   **Aplicativo da Web**. Em **URIs de redirecionamento autorizados**, cadastre (uma por ambiente):
+   - `http://localhost/minhalistavip/public/auth/google/callback`
+   - `https://SEU-DOMINIO.com.br/auth/google/callback`
+3. Copie o **Client ID** e o **Client Secret** para o `.env` do servidor:
+   ```
+   google.clientId = 1234567890-xxxxxxxx.apps.googleusercontent.com
+   google.clientSecret = GOCSPX-xxxxxxxxxxxxxxxx
+   ```
+4. Pronto: o botão **"Entrar com Google"** aparece sozinho no login/registro (some enquanto as
+   chaves não estiverem preenchidas).
+
+> A conta é vinculada pelo **e-mail**: se já existe um organizador com o mesmo e-mail, ele é
+> conectado; se não existe, a conta é criada na hora (nível organizador, ativa). Os segredos ficam
+> no `.env` — nunca no Git.
+
+---
+
 ## Problemas comuns
 
 | Sintoma | Causa provável | Solução |

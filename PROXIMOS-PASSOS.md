@@ -86,6 +86,12 @@ Configurações) e **botões/campos padronizados**.
   **não aparecem no site do evento**. No **admin → Saques** cada solicitação tem o botão
   **"Dados de repasse"** (modal com responsável, dados bancários e endereço, com "Copiar dados" e
   aviso quando incompleto), para o SuperAdmin pagar o PIX.
+- **Novo (login):** **"Entrar com Google"** (OAuth 2.0 / OpenID Connect, sem dependência nova —
+  usando o `CURLRequest` do CI4). Rotas `auth/google` e `auth/google/callback` com validação de
+  `state`; vincula por e-mail (conecta conta existente) ou **cria o organizador** na hora; guarda
+  `usuarios.google_id` (migration `000027`). O botão aparece no login/registro **só quando**
+  `google.clientId`/`google.clientSecret` estão no `.env` (Config\Google). Passo a passo no
+  `tools/DEPLOY-HOSTINGER.md`.
 - **Novo (identidade):** **logo** "Minha Lista VIP" — monograma **"M"** branco sobre um squircle com
   gradiente indigo→violeta. Partial inline `templates/partials/logo.php` (marca + wordmark, com
   variante clara e "VIP" em gradiente), usada nos layouts público, painel e autenticação. Assets:

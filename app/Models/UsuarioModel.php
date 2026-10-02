@@ -38,6 +38,7 @@ class UsuarioModel extends Model
         'tipo_chave_pix',
         'chave_pix',
         'dados_repasse_ok_em',
+        'google_id',
         'nivel',
         'status',
         'ultimo_login_em',
@@ -61,6 +62,11 @@ class UsuarioModel extends Model
             'is_unique' => 'Este e-mail já está cadastrado.',
         ],
     ];
+
+    public function buscarPorGoogleId(string $googleId): ?Usuario
+    {
+        return $this->where('google_id', $googleId)->first();
+    }
 
     public function buscarPorEmail(string $email): ?Usuario
     {

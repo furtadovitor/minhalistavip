@@ -13,6 +13,8 @@
             </div>
         <?php endif; ?>
 
+        <?= view('templates/partials/google_login') ?>
+
         <form method="post" action="<?= site_url('login') ?>">
             <?= csrf_field() ?>
 

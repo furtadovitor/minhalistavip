@@ -17,6 +17,10 @@ $routes->group('', ['filter' => 'guest'], static function (RouteCollection $rout
     $routes->post('login', 'Auth::autenticar');
     $routes->get('registro', 'Auth::registro');
     $routes->post('registro', 'Auth::salvarRegistro');
+
+    // "Entrar com Google" (OAuth 2.0 / OpenID Connect).
+    $routes->get('auth/google', 'Auth::google');
+    $routes->get('auth/google/callback', 'Auth::googleCallback');
 });
 
 $routes->get('logout', 'Auth::logout');

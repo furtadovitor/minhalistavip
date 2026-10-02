@@ -89,4 +89,124 @@ class Auth extends BaseController
         return redirect()->to(site_url('login'))
             ->with('sucesso', 'Conta criada! Faça login para começar.');
     }
+
+    /**
+     * Inicia o fluxo "Entrar com Google" (redireciona para o Google).
+     */
+    public function google()
+    {
+        $google = config('Google');
+
+        if (! $google->configurado()) {
+            return redirect()->to(site_url('login'))->with('erro', 'Login com Google não está configurado.');
+        }
+
+        $state = bin2hex(random_bytes(16));
+        session()->set('google_oauth_state', $state);
+
+        $params = [
+            'client_id'     => $google->clientId,
+            'redirect_uri'  => $this->googleRedirectUri(),
+            'response_type' => 'code',
+            'scope'         => 'openid email profile',
+            'state'         => $state,
+            'access_type'   => 'online',
+            'prompt'        => 'select_account',
+        ];
+
+        return redirect()->to('https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params));
+    }
+
+    /**
+     * Retorno do Google: valida o state, troca o code por token e faz o login.
+     */
+    public function googleCallback()
+    {
+        $google = config('Google');
+
+        if (! $google->configurado()) {
+            return redirect()->to(site_url('login'))->with('erro', 'Login com Google não está configurado.');
+        }
+
+        if ($this->request->getGet('error')) {
+            return redirect()->to(site_url('login'))->with('erro', 'Login com Google cancelado.');
+        }
+
+        $state       = (string) $this->request->getGet('state');
+        $stateSessao = (string) session()->get('google_oauth_state');
+        session()->remove('google_oauth_state');
+
+        if ($state === '' || $stateSessao === '' || ! hash_equals($stateSessao, $state)) {
+            return redirect()->to(site_url('login'))->with('erro', 'Sessão de login expirada. Tente novamente.');
+        }
+
+        $code = (string) $this->request->getGet('code');
+
+        if ($code === '') {
+            return redirect()->to(site_url('login'))->with('erro', 'Não recebemos a autorização do Google.');
+        }
+
+        $client = service('curlrequest');
+
+        try {
+            $resposta = $client->post('https://oauth2.googleapis.com/token', [
+                'form_params' => [
+                    'code'          => $code,
+                    'client_id'     => $google->clientId,
+                    'client_secret' => $google->clientSecret,
+                    'redirect_uri'  => $this->googleRedirectUri(),
+                    'grant_type'    => 'authorization_code',
+                ],
+                'http_errors' => false,
+                'timeout'     => 15,
+            ]);
+        } catch (\Throwable $e) {
+            return redirect()->to(site_url('login'))->with('erro', 'Falha ao falar com o Google. Tente novamente.');
+        }
+
+        $token = json_decode($resposta->getBody(), true);
+
+        if ($resposta->getStatusCode() !== 200 || empty($token['access_token'])) {
+            return redirect()->to(site_url('login'))->with('erro', 'Não foi possível concluir o login com o Google.');
+        }
+
+        try {
+            $perfilResp = $client->get('https://www.googleapis.com/oauth2/v3/userinfo', [
+                'headers'     => ['Authorization' => 'Bearer ' . $token['access_token']],
+                'http_errors' => false,
+                'timeout'     => 15,
+            ]);
+        } catch (\Throwable $e) {
+            return redirect()->to(site_url('login'))->with('erro', 'Falha ao obter seus dados do Google.');
+        }
+
+        $perfil = json_decode($perfilResp->getBody(), true);
+
+        if ($perfilResp->getStatusCode() !== 200 || empty($perfil['email'])) {
+            return redirect()->to(site_url('login'))->with('erro', 'Não foi possível obter seu e-mail do Google.');
+        }
+
+        $resultado = $this->auth->entrarComGoogle(
+            (string) ($perfil['sub'] ?? ''),
+            (string) $perfil['email'],
+            (string) ($perfil['name'] ?? ''),
+            (bool) ($perfil['email_verified'] ?? false)
+        );
+
+        if (! $resultado['ok']) {
+            return redirect()->to(site_url('login'))->with('erro', $resultado['mensagem']);
+        }
+
+        $destino = session()->get('redirect_url') ?: site_url($this->auth->rotaInicial());
+        session()->remove('redirect_url');
+
+        return redirect()->to($destino)->with('sucesso', $resultado['mensagem']);
+    }
+
+    private function googleRedirectUri(): string
+    {
+        $google = config('Google');
+
+        return trim($google->redirectUri) !== '' ? trim($google->redirectUri) : site_url('auth/google/callback');
+    }
 }
