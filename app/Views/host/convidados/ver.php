@@ -200,7 +200,7 @@ foreach ($acompanhantes as $a) {
                                             </button>
                                             <form method="post" class="d-inline"
                                                   action="<?= $base . '/acompanhantes/' . $a['id'] . '/remover' ?>"
-                                                  onsubmit="return confirm('Remover este acompanhante?');">
+                                                  data-confirm="Remover este acompanhante?">
                                                 <?= csrf_field() ?>
                                                 <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                                             </form>

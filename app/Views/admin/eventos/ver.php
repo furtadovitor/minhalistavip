@@ -56,7 +56,7 @@ $percentual = $evento->percentual_taxa !== null ? number_format((float) $evento-
         <?php endif; ?>
     </form>
     <form method="post" action="<?= site_url('admin/listas/' . $evento->id . '/arquivar') ?>"
-          onsubmit="return confirm('<?= $evento->arquivado ? 'Reativar' : 'Arquivar' ?> esta lista?');">
+          data-confirm="<?= esc(($evento->arquivado ? 'Reativar' : 'Arquivar') . ' esta lista?') ?>">
         <?= csrf_field() ?>
         <?php if ($evento->arquivado): ?>
             <button class="btn btn-outline-success"><i class="bi bi-arrow-counterclockwise me-1"></i>Reativar</button>

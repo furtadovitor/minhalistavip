@@ -56,7 +56,7 @@
                 <h2 class="h6 text-uppercase text-danger mb-3">Zona de risco</h2>
                 <p class="text-muted fs-7">A exclusão remove a lista e os presentes associados. Não pode ser desfeita.</p>
                 <form method="post" action="<?= site_url('painel/eventos/' . $evento->id . '/excluir') ?>"
-                      onsubmit="return confirm('Excluir definitivamente esta lista?');">
+                      data-confirm="Excluir definitivamente esta lista?">
                     <?= csrf_field() ?>
                     <button class="btn btn-outline-danger w-100"><i class="bi bi-trash me-1"></i>Excluir lista</button>
                 </form>

@@ -75,7 +75,7 @@
                                             </button>
                                             <button class="btn btn-sm btn-outline-danger btn-icon"
                                                     formaction="<?= site_url('admin/categorias/' . $categoria['id'] . '/excluir') ?>"
-                                                    onclick="return confirm('Remover esta categoria? Itens ficarão sem categoria.');">
+                                                    data-confirm="Remover esta categoria? Itens ficarão sem categoria.">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>

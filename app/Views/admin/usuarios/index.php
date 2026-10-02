@@ -80,7 +80,7 @@
                                 <a class="btn btn-sm btn-outline-brand" href="<?= site_url('admin/usuarios/' . $u->id) ?>">Ver</a>
                                 <?php if ((int) $u->id !== (int) $usuarioAtualId): ?>
                                     <form method="post" class="d-inline" action="<?= site_url('admin/usuarios/' . $u->id . '/alternar') ?>"
-                                          onsubmit="return confirm('Alterar o status deste usuário?');">
+                                          data-confirm="Alterar o status deste usuário?">
                                         <?= csrf_field() ?>
                                         <button class="btn btn-sm btn-outline-<?= $u->status === 'ativo' ? 'danger' : 'success' ?>">
                                             <?= $u->status === 'ativo' ? 'Suspender' : 'Ativar' ?>

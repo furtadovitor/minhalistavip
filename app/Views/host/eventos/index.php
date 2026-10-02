@@ -108,7 +108,7 @@
                                         </li>
                                         <li>
                                             <form method="post" action="<?= site_url('painel/eventos/' . $evento->id . '/excluir') ?>"
-                                                  onsubmit="return confirm('Remover este evento e a lista de presentes?');">
+                                                  data-confirm="Remover este evento e a lista de presentes?">
                                                 <?= csrf_field() ?>
                                                 <button class="dropdown-item text-danger">
                                                     <i class="bi bi-trash me-2"></i>Excluir

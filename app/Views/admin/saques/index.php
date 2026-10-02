@@ -144,7 +144,7 @@
                                     <?php endif; ?>
 
                                     <form method="post" action="<?= site_url('admin/saques/' . $saque['id'] . '/pagar') ?>"
-                                          onsubmit="return confirm('Confirmar que o PIX de <?= esc(moeda_brl($saque['valor'])) ?> foi transferido?');">
+                                          data-confirm="Confirmar que o PIX de <?= esc(moeda_brl($saque['valor'])) ?> foi transferido?">
                                         <?= csrf_field() ?>
                                         <button class="btn btn-sm btn-success">Marcar como pago</button>
                                     </form>
@@ -152,7 +152,7 @@
 
                                 <form method="post" class="d-flex gap-1 justify-content-end mt-1"
                                       action="<?= site_url('admin/saques/' . $saque['id'] . '/recusar') ?>"
-                                      onsubmit="return confirm('Recusar este saque? O valor volta para a carteira do organizador.');">
+                                      data-confirm="Recusar este saque? O valor volta para a carteira do organizador.">
                                     <?= csrf_field() ?>
                                     <input type="text" class="form-control form-control-sm" name="motivo"
                                            placeholder="Motivo da recusa" style="max-width: 180px;">

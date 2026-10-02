@@ -306,6 +306,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 (function () {
     var chave = 'mlv_menu_colapsado';
@@ -325,6 +326,99 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
         localStorage.setItem(chave, colapsado ? '1' : '0');
         aplicar(colapsado);
     });
+})();
+</script>
+<script>
+/**
+ * Confirmações do painel com SweetAlert2 (nunca usamos confirm() nativo).
+ *
+ * Uso:
+ *   <form ... data-confirm="Remover este item?"> ... </form>
+ *   <button ... data-confirm="Aplicar a ação?"> ... </button>
+ *
+ * Cobre form (submit), botões (click) e botões com `formaction`. Se o CDN do
+ * SweetAlert não carregar, cai no confirm() nativo como último recurso.
+ */
+(function () {
+    function perguntar(mensagem) {
+        var destrutivo = /remover|excluir|deletar|recusar|cancelar/i.test(mensagem || '');
+
+        if (typeof Swal === 'undefined') {
+            return Promise.resolve(window.confirm(mensagem));
+        }
+
+        return Swal.fire({
+            title: 'Confirmar ação?',
+            text: mensagem,
+            icon: destrutivo ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonText: destrutivo ? 'Sim, continuar' : 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: destrutivo ? '#DC3545' : '#4F46E5',
+            cancelButtonColor: '#6B7280',
+            reverseButtons: true,
+            focusCancel: true,
+        }).then(function (r) { return r.isConfirmed; });
+    }
+
+    function enviar(form, submitter) {
+        if (form.requestSubmit) {
+            if (submitter) {
+                try {
+                    form.requestSubmit(submitter);
+                    return;
+                } catch (e) {
+                    // segue para o fallback
+                }
+            }
+            form.requestSubmit();
+            return;
+        }
+        form.submit();
+    }
+
+    // Formulários com data-confirm
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (! form.matches || ! form.matches('form[data-confirm]') || form.dataset.confirmado === '1') {
+            return;
+        }
+        e.preventDefault();
+        var submitter = e.submitter || null;
+        perguntar(form.dataset.confirm).then(function (ok) {
+            if (! ok) { return; }
+            form.dataset.confirmado = '1';
+            enviar(form, submitter);
+        });
+    }, true);
+
+    // Botões/links com data-confirm
+    document.addEventListener('click', function (e) {
+        var el = e.target.closest('[data-confirm]');
+        if (! el || el.tagName === 'FORM' || el.dataset.confirmado === '1') {
+            return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        perguntar(el.dataset.confirm).then(function (ok) {
+            if (! ok) { return; }
+            el.dataset.confirmado = '1';
+
+            if (el.tagName === 'A' && el.getAttribute('href')) {
+                window.location.href = el.getAttribute('href');
+                return;
+            }
+
+            var form = el.form || el.closest('form');
+            if (! form) { return; }
+
+            // Evita perguntar duas vezes se o próprio form também tem data-confirm.
+            if (form.hasAttribute('data-confirm')) {
+                form.dataset.confirmado = '1';
+            }
+            enviar(form, el);
+        });
+    }, true);
 })();
 </script>
 </body>

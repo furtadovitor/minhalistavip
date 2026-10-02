@@ -124,7 +124,7 @@ $cartoes = [
                 <option value="reativar">Reativar</option>
             </select>
             <button class="btn btn-sm btn-brand" type="submit" form="loteForm"
-                    onclick="return confirm('Aplicar a ação selecionada às listas marcadas?');">
+                    data-confirm="Aplicar a ação selecionada às listas marcadas?">
                 <i class="bi bi-lightning-charge me-1"></i>Aplicar
             </button>
             <span class="text-muted fs-8" id="lote-contador"></span>
@@ -220,7 +220,7 @@ $cartoes = [
 
                                 <form method="post" class="d-inline"
                                       action="<?= site_url('admin/listas/' . $lista->id . '/arquivar') ?>"
-                                      onsubmit="return confirm('<?= $lista->arquivado ? 'Reativar' : 'Arquivar' ?> esta lista?');">
+                                      data-confirm="<?= esc(($lista->arquivado ? 'Reativar' : 'Arquivar') . ' esta lista?') ?>">
                                     <?= csrf_field() ?>
                                     <?php if ($lista->arquivado): ?>
                                         <button class="btn btn-sm btn-outline-success" title="Reativar">

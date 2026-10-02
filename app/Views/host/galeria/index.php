@@ -61,7 +61,7 @@
                                 </button>
                             </form>
                             <form method="post" action="<?= site_url('painel/eventos/' . $evento->id . '/galeria/' . $foto['id'] . '/excluir') ?>"
-                                  onsubmit="return confirm('Remover esta foto?');">
+                                  data-confirm="Remover esta foto?">
                                 <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
                             </form>

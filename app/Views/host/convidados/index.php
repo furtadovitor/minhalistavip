@@ -312,7 +312,7 @@ $temFiltro = $retorno !== '';
                                 <?php endif; ?>
                                 <form method="post" class="d-inline"
                                       action="<?= site_url('painel/eventos/' . $evento->id . '/convidados/' . $c['id'] . '/remover') ?>"
-                                      onsubmit="return confirm('Remover este convidado da lista?');">
+                                      data-confirm="Remover este convidado da lista?">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="retorno" value="<?= esc($retorno, 'attr') ?>">
                                     <button class="btn btn-sm btn-outline-danger btn-icon"><i class="bi bi-trash"></i></button>
