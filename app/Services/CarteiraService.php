@@ -213,7 +213,18 @@ class CarteiraService
     public function saquesAdmin(array $filtros = []): array
     {
         $builder = $this->db->table('saques s')
-            ->select('s.*, u.nome AS organizador_nome, u.email AS organizador_email')
+            ->select(
+                's.*, ' .
+                'u.nome AS organizador_nome, u.email AS organizador_email, ' .
+                'u.telefone AS organizador_telefone, u.cpf_cnpj AS organizador_cpf, ' .
+                'u.data_nascimento AS organizador_nascimento, ' .
+                'u.destinatario AS repasse_destinatario, u.cep AS repasse_cep, ' .
+                'u.endereco AS repasse_endereco, u.numero AS repasse_numero, ' .
+                'u.complemento AS repasse_complemento, u.bairro AS repasse_bairro, ' .
+                'u.cidade AS repasse_cidade, u.estado AS repasse_estado, ' .
+                'u.tipo_pagamento AS repasse_tipo_pagamento, ' .
+                'u.tipo_chave_pix AS repasse_tipo_chave, u.chave_pix AS repasse_chave_pix'
+            )
             ->join('usuarios u', 'u.id = s.usuario_id')
             ->orderBy('s.id', 'DESC');
 

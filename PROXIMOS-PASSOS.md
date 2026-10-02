@@ -83,7 +83,9 @@ Configurações) e **botões/campos padronizados**.
   bairro, cidade, UF) — salvos em `usuarios` (migration `000026`); **Valores aguardando liberação**
   (cartão, janela de 30 dias); **Solicitar resgate** (habilita só com os dados completos) e
   **Status de resgates**. O resgate usa a **chave PIX salva** como padrão. Os dados são privados e
-  **não aparecem no site do evento**.
+  **não aparecem no site do evento**. No **admin → Saques** cada solicitação tem o botão
+  **"Dados de repasse"** (modal com responsável, dados bancários e endereço, com "Copiar dados" e
+  aviso quando incompleto), para o SuperAdmin pagar o PIX.
 - **Novo (identidade):** **logo** "Minha Lista VIP" — monograma **"M"** branco sobre um squircle com
   gradiente indigo→violeta. Partial inline `templates/partials/logo.php` (marca + wordmark, com
   variante clara e "VIP" em gradiente), usada nos layouts público, painel e autenticação. Assets:
