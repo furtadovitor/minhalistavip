@@ -65,6 +65,18 @@ Configurações) e **botões/campos padronizados**.
   detalhe traz dados do evento, do organizador e números (presentes, convidados/confirmados,
   pedidos pagos, arrecadado e taxas). Novo em: `Admin\Eventos`, `EventoModel::paginarAdmin()`,
   views `admin/eventos/{index,ver}.php`, rotas e item no menu lateral.
+- **Novo (front-end):** **hotsite público refinado** (`hotsite/lista.php`) — revelação em cascata
+  (stagger) e **progressive enhancement** (antes o conteúdo sumia se o JS falhasse), estado visual
+  **"Esgotado"** + "faltam X cotas", chips no hero, rótulo da contagem, título com `clamp()`,
+  `:focus-visible` (acessibilidade) e **botão flutuante de WhatsApp** no mobile.
+- **Novo (admin):** **listas** ganharam **export CSV** (respeita os filtros; UTF-8 com BOM e `;`),
+  **filtro por período** (7/30/90 dias) e **ações em massa** (publicar/despublicar/arquivar/reativar
+  várias de uma vez), com seleção por checkbox no cabeçalho e contador.
+- **Novo (painel do organizador):** refinamento de UI/UX. **Minhas listas**: stat cards com ícones,
+  **busca e filtro de listas** por nome/tipo (com contadores atualizados nas abas), miniatura da capa
+  com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.
+  **`painel/eventos`**: miniatura + "Gerenciar" + menu de ações (dropdown). **Convidados**: stat cards
+  com ícones. `.stat-card` / `.stat-icon` viraram padrão do layout do painel.
 - **Novo (front-end):** **animações de UI** na Home — revelação ao rolar com
   `IntersectionObserver` + entrada escalonada ("stagger") no hero, seções, cards, carrosséis e
   FAQ; barras de progresso do mockup animando; blob de fundo do hero flutuando; micro-interações

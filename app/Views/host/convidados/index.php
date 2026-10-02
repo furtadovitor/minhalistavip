@@ -50,46 +50,58 @@ $temFiltro = $retorno !== '';
 
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase mb-1 fs-8">Confirmados</h2>
-                <p class="h3 fw-bold mb-0"><?= (int) $resumo['pessoas_confirmadas'] ?></p>
-                <p class="text-muted fs-8 mb-0">
-                    <?= (int) $resumo['confirmados'] ?> confirmação(ões) ·
-                    <?= (int) $acompanhantesResumo['criancas'] ?> criança(s) / <?= (int) $acompanhantesResumo['bebes'] ?> bebê(s)
-                </p>
+        <div class="card stat-card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-icon" style="background:#ECFDF5;color:#047857;"><i class="bi bi-people-fill"></i></span>
+                <div>
+                    <p class="text-muted text-uppercase fs-8 fw-semibold mb-0">Confirmados</p>
+                    <p class="h4 fw-bold mb-0"><?= (int) $resumo['pessoas_confirmadas'] ?></p>
+                    <p class="text-muted fs-8 mb-0">
+                        <?= (int) $resumo['confirmados'] ?> confirmação(ões) ·
+                        <?= (int) $acompanhantesResumo['criancas'] ?> criança(s) / <?= (int) $acompanhantesResumo['bebes'] ?> bebê(s)
+                    </p>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase mb-1 fs-8">Aguardando aprovação</h2>
-                <p class="h3 fw-bold mb-0 text-warning"><?= (int) $resumo['pendentes'] ?></p>
-                <p class="text-muted fs-8 mb-0"><?= (int) $resumo['pessoas_pendentes'] ?> pessoa(s) no total</p>
+        <div class="card stat-card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-icon" style="background:#FFFBEB;color:#B45309;"><i class="bi bi-hourglass-split"></i></span>
+                <div>
+                    <p class="text-muted text-uppercase fs-8 fw-semibold mb-0">Aguardando</p>
+                    <p class="h4 fw-bold mb-0 text-warning"><?= (int) $resumo['pendentes'] ?></p>
+                    <p class="text-muted fs-8 mb-0"><?= (int) $resumo['pessoas_pendentes'] ?> pessoa(s) no total</p>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase mb-1 fs-8">Recusados</h2>
-                <p class="h3 fw-bold mb-0 text-muted"><?= (int) $resumo['recusados'] ?></p>
-                <p class="text-muted fs-8 mb-0">Não poderão comparecer</p>
+        <div class="card stat-card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-icon" style="background:#F3F4F6;color:#4B5563;"><i class="bi bi-hand-thumbs-down"></i></span>
+                <div>
+                    <p class="text-muted text-uppercase fs-8 fw-semibold mb-0">Recusados</p>
+                    <p class="h4 fw-bold mb-0 text-muted"><?= (int) $resumo['recusados'] ?></p>
+                    <p class="text-muted fs-8 mb-0">Não poderão comparecer</p>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase mb-1 fs-8">Limite</h2>
-                <?php if ($resumo['limite'] !== null): ?>
-                    <p class="h3 fw-bold mb-0"><?= (int) $resumo['limite'] ?></p>
-                    <p class="text-muted fs-8 mb-0"><?= (int) $resumo['vagas'] ?> vaga(s) restante(s)</p>
-                <?php else: ?>
-                    <p class="h5 fw-bold mb-0">Ilimitado</p>
-                    <p class="text-muted fs-8 mb-0">Defina um limite no evento</p>
-                <?php endif; ?>
+        <div class="card stat-card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-icon bg-indigo-100 text-indigo-700"><i class="bi bi-speedometer2"></i></span>
+                <div>
+                    <p class="text-muted text-uppercase fs-8 fw-semibold mb-0">Limite</p>
+                    <?php if ($resumo['limite'] !== null): ?>
+                        <p class="h4 fw-bold mb-0"><?= (int) $resumo['limite'] ?></p>
+                        <p class="text-muted fs-8 mb-0"><?= (int) $resumo['vagas'] ?> vaga(s) restante(s)</p>
+                    <?php else: ?>
+                        <p class="h5 fw-bold mb-0">Ilimitado</p>
+                        <p class="text-muted fs-8 mb-0">Defina um limite no evento</p>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

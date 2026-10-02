@@ -133,6 +133,14 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
         }
         .app-toggle:hover { background: var(--brand-soft); color: var(--brand-dark); }
 
+        /* Cartões de indicador (padrão do painel) */
+        .stat-card { transition: transform .18s ease, box-shadow .18s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 1rem 2rem rgba(17, 24, 39, .10); }
+        .stat-icon {
+            width: 46px; height: 46px; border-radius: .85rem; flex: none;
+            display: flex; align-items: center; justify-content: center; font-size: 1.35rem;
+        }
+
         /* Navegação do evento (fora do menu global) */
         .evento-subnav { width: 236px; }
         .evento-card {
