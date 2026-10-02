@@ -94,4 +94,46 @@ class EventoModel extends Model
             ->orderBy('criado_em', 'DESC')
             ->findAll();
     }
+
+    /**
+     * Listagem administrativa (SuperAdmin) de TODAS as listas da plataforma,
+     * com filtros e paginação. Traz o nome/e-mail do organizador como campos
+     * extras (organizador_nome / organizador_email) na própria entidade.
+     *
+     * @param array{busca?: string|null, status?: string|null, arquivado?: string|null, tipo_evento?: string|null, organizador?: string|int|null} $filtros
+     * @return list<Evento>
+     */
+    public function paginarAdmin(array $filtros = [], int $porPagina = 20): array
+    {
+        $this->select('eventos.*, u.nome AS organizador_nome, u.email AS organizador_email')
+            ->join('usuarios u', 'u.id = eventos.usuario_id', 'left');
+
+        if (! empty($filtros['busca'])) {
+            $busca = (string) $filtros['busca'];
+            $this->groupStart()
+                ->like('eventos.titulo', $busca)
+                ->orLike('eventos.slug', $busca)
+                ->orLike('u.nome', $busca)
+                ->orLike('u.email', $busca)
+                ->groupEnd();
+        }
+
+        if (! empty($filtros['status'])) {
+            $this->where('eventos.status', $filtros['status']);
+        }
+
+        if (isset($filtros['arquivado']) && $filtros['arquivado'] !== '' && $filtros['arquivado'] !== null) {
+            $this->where('eventos.arquivado', (int) $filtros['arquivado']);
+        }
+
+        if (! empty($filtros['tipo_evento'])) {
+            $this->where('eventos.tipo_evento', $filtros['tipo_evento']);
+        }
+
+        if (! empty($filtros['organizador'])) {
+            $this->where('eventos.usuario_id', (int) $filtros['organizador']);
+        }
+
+        return $this->orderBy('eventos.criado_em', 'DESC')->paginate($porPagina, 'listas');
+    }
 }

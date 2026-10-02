@@ -50,7 +50,10 @@
 </div>
 
 <div class="d-flex flex-wrap gap-2 mt-4">
-    <a class="btn btn-brand" href="<?= site_url('admin/saques') ?>">
+    <a class="btn btn-brand" href="<?= site_url('admin/listas') ?>">
+        <i class="bi bi-list-ul me-1"></i>Ver todas as listas
+    </a>
+    <a class="btn btn-outline-brand" href="<?= site_url('admin/saques') ?>">
         <i class="bi bi-cash-coin me-1"></i>Gerenciar saques
     </a>
     <a class="btn btn-outline-brand" href="<?= site_url('admin/saques?status=solicitado') ?>">
@@ -60,7 +63,7 @@
 
 <div class="alert alert-info rounded-4 mt-4 mb-0">
     <i class="bi bi-info-circle me-1"></i>
-    A gestão de saques está disponível. Os módulos de taxas, catálogo global, usuários, planos e
-    conciliação financeira entram nas próximas etapas.
+    A gestão de <strong>listas</strong>, saques, catálogo, usuários, planos e conciliação
+    financeira está disponível no menu lateral.
 </div>
 <?= $this->endSection() ?>

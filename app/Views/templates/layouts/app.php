@@ -38,6 +38,7 @@ if ($superadmin) {
             ['rota' => 'admin/saques', 'icone' => 'bi-cash-coin', 'rotulo' => 'Saques'],
         ]],
         ['rotulo' => 'Gestão', 'itens' => [
+            ['rota' => 'admin/listas', 'icone' => 'bi-list-ul', 'rotulo' => 'Listas'],
             ['rota' => 'admin/catalogo', 'icone' => 'bi-collection', 'rotulo' => 'Catálogo'],
             ['rota' => 'admin/categorias', 'icone' => 'bi-tags', 'rotulo' => 'Categorias'],
             ['rota' => 'admin/planos', 'icone' => 'bi-award', 'rotulo' => 'Planos'],

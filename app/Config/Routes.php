@@ -116,6 +116,12 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
     // --- Financeiro / conciliação ---
     $routes->get('financeiro', 'Admin\Financeiro::index');
 
+    // --- Listas (eventos) de todos os organizadores ---
+    $routes->get('listas', 'Admin\Eventos::index');
+    $routes->get('listas/(:num)', 'Admin\Eventos::ver/$1');
+    $routes->post('listas/(:num)/publicar', 'Admin\Eventos::alternarPublicacao/$1');
+    $routes->post('listas/(:num)/arquivar', 'Admin\Eventos::alternarArquivado/$1');
+
     // --- Configurações da plataforma ---
     $routes->get('configuracoes', 'Admin\Configuracoes::index');
     $routes->post('configuracoes', 'Admin\Configuracoes::salvar');
