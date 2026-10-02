@@ -6,6 +6,12 @@
 - **Etapas 1 a 24 concluídas e commitadas** (ver `SCRIPT.md`).
 - **Migrations locais em dia** (`php spark migrate` → `000018`–`000025`, batch 4) e dump
   `tools/db/minhalistavip-local.sql` regenerado. Corrige o erro local `Unknown column 'arquivado'`.
+- **UTF-8 corrigido:** o banco local tinha **mojibake** (acentos como `Jo├úo`). Causa raiz:
+  o `tools/exportar-banco.ps1` capturava a saída do `mysqldump` como texto no PowerShell
+  (CP850) e regravava em UTF-8. **Script corrigido** (`--result-file`), **dados e comentários
+  reparados** e dump regenerado limpo. Reparo reutilizável em `tools/corrigir-mojibake.sql`
+  (idempotente, filtra pela assinatura `├`). Se a produção tiver o mesmo sintoma, rodar esse
+  script ou reimportar o dump limpo.
 - **Local:** `http://localhost/minhalistavip/public/`
 - **Login sem senha** ativo (basta o e-mail): `admin@minhalistavip.com.br` (SuperAdmin) e
   `organizador@minhalistavip.com.br` (Organizador). Interruptor: `AuthService::EXIGIR_SENHA`.
@@ -51,6 +57,14 @@ Configurações) e **botões/campos padronizados**.
   `home.php` (sem dependência de lib). Inclui **passe de responsivo**: título do hero com
   `clamp()`, offsets dos selos flutuantes por breakpoint, botões longos que quebram a linha
   (`max-width:100%`), padding do CTA final menor no mobile e `overflow-wrap` nos textos.
+- **Novo (admin):** **Admin → Listas** (`admin/listas`) — o SuperAdmin enxerga TODAS as listas da
+  plataforma (não só do seu tenant), com cartões de resumo clicáveis (total, publicadas,
+  rascunhos, encerradas, ativas, arquivadas), filtros (busca por título/slug/organizador,
+  status, situação, tipo de evento e organizador), paginação e ações de **publicar/despublicar**
+  e **arquivar/reativar**. Cada linha mostra dono (link para a ficha do usuário) e a página de
+  detalhe traz dados do evento, do organizador e números (presentes, convidados/confirmados,
+  pedidos pagos, arrecadado e taxas). Novo em: `Admin\Eventos`, `EventoModel::paginarAdmin()`,
+  views `admin/eventos/{index,ver}.php`, rotas e item no menu lateral.
 - **Novo (front-end):** **animações de UI** na Home — revelação ao rolar com
   `IntersectionObserver` + entrada escalonada ("stagger") no hero, seções, cards, carrosséis e
   FAQ; barras de progresso do mockup animando; blob de fundo do hero flutuando; micro-interações

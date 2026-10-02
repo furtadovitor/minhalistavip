@@ -144,6 +144,19 @@ Gere a chave de criptografia (SSH): `php spark key:generate`.
 > `000018` adiciona `eventos.arquivado`; `000019` cria `evento_galeria`; `000020` adiciona
 > `rsvp_acompanhantes.categoria`.
 
+> **Acentos / UTF-8 (mojibake):** se os acentos aparecerem como `Jo├úo`, `Espa├ºo`, `Beb├¬`,
+> o banco sofreu **dupla codificação** (dump exportado por um script que capturava a saída do
+> `mysqldump` como texto no PowerShell — decodificada em CP850 e regravada em UTF-8). O
+> exportador `tools/exportar-banco.ps1` **já foi corrigido** (usa `--result-file`, gravando os
+> bytes direto). Para **reparar** um banco já corrompido (local ou produção), rode:
+>
+> ```bash
+> mysql -u USUARIO -p --default-character-set=utf8mb4 SEU_BANCO < tools/corrigir-mojibake.sql
+> ```
+>
+> O script é idempotente e só altera registros com a assinatura do mojibake (o caractere `├`),
+> preservando dados que já estejam corretos. Faça backup antes.
+
 ---
 
 ## Passo 6 — `RewriteBase` para o domínio raiz
