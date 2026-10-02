@@ -168,13 +168,67 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         .btn-presentear:hover { filter: brightness(.93); color: #fff; }
         .btn-presentear:disabled { opacity: .55; }
 
-        /* ---------- REVEAL ---------- */
-        .reveal { opacity: 0; transform: translateY(18px); transition: opacity .55s ease, transform .55s ease; }
-        .reveal.reveal-visible { opacity: 1; transform: none; }
-        @media (prefers-reduced-motion: reduce) {
-            .reveal { opacity: 1; transform: none; transition: none; }
-            .presente-card, .presente-card:hover { transition: none; transform: none; }
+        /* ---------- REVEAL (progressive enhancement) ----------
+           O estado "escondido" só vale quando o JS está ativo (classe .hotsite-js
+           no <html>), então sem JS o conteúdo permanece visível. */
+        .hotsite-js .reveal:not(.reveal-visible) { opacity: 0; }
+        .reveal.reveal-visible { animation: hs-in .55s cubic-bezier(.22, .61, .36, 1) backwards; }
+        @keyframes hs-in {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        @media (prefers-reduced-motion: reduce) {
+            .hotsite-js .reveal:not(.reveal-visible) { opacity: 1; }
+            .reveal.reveal-visible { animation: none; }
+            .presente-card, .presente-card:hover, .galeria-item:hover img { transition: none; }
+        }
+
+        /* ---------- HERO: chips, título e contagem ---------- */
+        .hotsite-hero h1 { font-size: clamp(1.9rem, 5.2vw, 3.5rem); }
+        .hero-meta { gap: .6rem; }
+        .hero-meta-chip {
+            display: inline-flex; align-items: center; gap: .4rem;
+            background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+            border-radius: 999px; padding: .35rem .85rem; font-size: .85rem; font-weight: 500;
+            backdrop-filter: blur(6px);
+        }
+        .countdown-label {
+            font-size: .76rem; text-transform: uppercase; letter-spacing: .08em;
+            opacity: .85; margin-bottom: .5rem;
+        }
+
+        /* ---------- ESGOTADO / DISPONIBILIDADE ---------- */
+        .presente-img .esgotado-overlay {
+            position: absolute; inset: 0; z-index: 3;
+            background: rgba(17,24,39,.55); color: #fff; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: .4rem;
+            font-size: .95rem; letter-spacing: .03em; backdrop-filter: blur(1px);
+        }
+        .presente-faltam { color: var(--cor-primaria); font-weight: 700; }
+
+        /* ---------- ACESSIBILIDADE (foco visível) ---------- */
+        .hotsite-nav .nav-pill:focus-visible,
+        .galeria-item:focus-visible,
+        .hotsite-hero .btn:focus-visible,
+        .presente-card a:focus-visible,
+        .presente-card button:focus-visible,
+        .btn-confirmar-presenca:focus-visible,
+        .btn-nao-vou:focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--cor-primaria) 55%, transparent);
+            outline-offset: 2px;
+        }
+
+        /* ---------- FAB compartilhar (mobile) ---------- */
+        .fab-share {
+            position: fixed; right: 1rem; bottom: 1rem; z-index: 1050;
+            width: 54px; height: 54px; border-radius: 50%;
+            background: #25D366; color: #fff; border: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; box-shadow: 0 10px 24px rgba(0,0,0,.25);
+            transition: transform .15s ease, filter .15s ease;
+        }
+        .fab-share:hover { color: #fff; filter: brightness(.95); transform: translateY(-2px); }
+        @media (min-width: 992px) { .fab-share { display: none; } }
 
         /* ---------- RECADOS ---------- */
         .recado-card {
@@ -277,6 +331,7 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
     </style>
+    <script>document.documentElement.classList.add('hotsite-js');</script>
 </head>
 <body class="bg-body-tertiary <?= $escuro ? 'tema-escuro' : '' ?>">
 
@@ -307,14 +362,15 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
 
         <div class="hero-meta mb-4">
             <?php if (! empty($dataTexto)): ?>
-                <span><i class="bi bi-calendar-event me-1"></i><?= esc($dataTexto) ?></span>
+                <span class="hero-meta-chip"><i class="bi bi-calendar-event"></i><?= esc($dataTexto) ?></span>
             <?php endif; ?>
             <?php if (! empty($evento->local_nome)): ?>
-                <span><i class="bi bi-geo-alt me-1"></i><?= esc($evento->local_nome) ?></span>
+                <span class="hero-meta-chip"><i class="bi bi-geo-alt"></i><?= esc($evento->local_nome) ?></span>
             <?php endif; ?>
         </div>
 
         <?php if (! empty($dataIso) && strtotime($dataIso) > time()): ?>
+            <p class="countdown-label">Contagem regressiva</p>
             <div class="countdown mb-4" id="countdown" data-data="<?= esc($dataIso) ?>">
                 <div class="cx"><strong data-cd="dias">--</strong><span>dias</span></div>
                 <div class="cx"><strong data-cd="horas">--</strong><span>horas</span></div>
@@ -511,6 +567,9 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
                                     <div class="ph"><i class="bi <?= $tipoP === 'real' ? 'bi-bag-heart' : 'bi-gift-fill' ?>"></i></div>
                                 <?php endif; ?>
                                 <span class="presente-tag"><?= $tipoP === 'real' ? 'Loja' : 'Cota' ?></span>
+                                <?php if ($disponivel < 1): ?>
+                                    <span class="esgotado-overlay"><i class="bi bi-check2-circle"></i> Esgotado</span>
+                                <?php endif; ?>
                             </div>
                             <div class="presente-body">
                                 <h3><?= esc($presente['nome']) ?></h3>
@@ -523,7 +582,12 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
                                         <div class="progress-bar" role="progressbar"
                                              style="width: <?= $pctP ?>%; background-color: var(--cor-primaria);"></div>
                                     </div>
-                                    <p class="presente-cotas mb-3"><?= $vendidasP ?>/<?= $metaP ?> cotas presenteadas</p>
+                                    <p class="presente-cotas mb-3">
+                                        <?= $vendidasP ?>/<?= $metaP ?> cotas
+                                        <?php if ($disponivel > 0): ?>
+                                            · <span class="presente-faltam">faltam <?= $disponivel ?></span>
+                                        <?php endif; ?>
+                                    </p>
                                 <?php else: ?>
                                     <div class="mb-3"></div>
                                 <?php endif; ?>
@@ -759,6 +823,10 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
     </div>
 <?php endif; ?>
 
+<button type="button" class="fab-share" id="fab-share" aria-label="Compartilhar lista no WhatsApp">
+    <i class="bi bi-whatsapp"></i>
+</button>
+
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -791,17 +859,36 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         setInterval(tique, 1000);
     }
 
-    // ---------- Reveal ----------
-    const revelar = document.querySelectorAll('.reveal');
-    if ('IntersectionObserver' in window) {
+    // ---------- Reveal (com cascata) ----------
+    const revelar = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+    const semMovimento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (semMovimento || ! ('IntersectionObserver' in window)) {
+        revelar.forEach(function (el) { el.classList.add('reveal-visible'); });
+    } else {
         const io = new IntersectionObserver(function (entradas) {
             entradas.forEach(function (e) {
-                if (e.isIntersecting) { e.target.classList.add('reveal-visible'); io.unobserve(e.target); }
+                if (! e.isIntersecting) { return; }
+                const el  = e.target;
+                const pai = el.parentElement;
+                let atraso = 0;
+
+                if (pai) {
+                    const emGrade = pai.id === 'grade-presentes'
+                        || pai.classList.contains('galeria-grid')
+                        || pai.classList.contains('row');
+                    if (emGrade) {
+                        const irmaos = Array.prototype.filter.call(pai.children, function (c) {
+                            return c.classList.contains('reveal');
+                        });
+                        atraso = Math.max(0, irmaos.indexOf(el)) * 60;
+                    }
+                }
+
+                window.setTimeout(function () { el.classList.add('reveal-visible'); }, atraso);
+                io.unobserve(el);
             });
         }, { threshold: 0.08 });
         revelar.forEach(function (el) { io.observe(el); });
-    } else {
-        revelar.forEach(function (el) { el.classList.add('reveal-visible'); });
     }
 
     // ---------- Nav ativa ----------
@@ -884,6 +971,19 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
                 document.execCommand('copy'); document.body.removeChild(t);
             }
             aviso('Link copiado!');
+        });
+    }
+
+    // ---------- FAB compartilhar (mobile) ----------
+    const fab = document.getElementById('fab-share');
+    if (fab) {
+        fab.addEventListener('click', function () {
+            const url = window.location.href.split('#')[0];
+            window.open(
+                'https://wa.me/?text=' + encodeURIComponent(document.title + ' — ' + url),
+                '_blank',
+                'noopener'
+            );
         });
     }
 })();
