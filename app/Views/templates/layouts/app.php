@@ -41,6 +41,7 @@ if ($superadmin) {
             ['rota' => 'admin/listas', 'icone' => 'bi-list-ul', 'rotulo' => 'Listas'],
             ['rota' => 'admin/catalogo', 'icone' => 'bi-collection', 'rotulo' => 'Catálogo'],
             ['rota' => 'admin/categorias', 'icone' => 'bi-tags', 'rotulo' => 'Categorias'],
+            ['rota' => 'admin/demos', 'icone' => 'bi-images', 'rotulo' => 'Demos'],
             ['rota' => 'admin/planos', 'icone' => 'bi-award', 'rotulo' => 'Planos'],
             ['rota' => 'admin/usuarios', 'icone' => 'bi-people', 'rotulo' => 'Usuários'],
             ['rota' => 'admin/configuracoes', 'icone' => 'bi-gear', 'rotulo' => 'Configurações'],

@@ -1,6 +1,6 @@
 # Retomada do projeto — próximos passos
 
-> Atualizado ao final da sessão de 01/10/2026. O histórico completo das etapas está no `SCRIPT.md`.
+> Atualizado ao final da sessão de 03/10/2026. O histórico completo das etapas está no `SCRIPT.md`.
 
 ## Onde paramos
 - **Etapas 1 a 24 concluídas e commitadas** (ver `SCRIPT.md`).
@@ -76,6 +76,12 @@ Configurações) e **botões/campos padronizados**.
 - **Novo (admin):** **listas** ganharam **export CSV** (respeita os filtros; UTF-8 com BOM e `;`),
   **filtro por período** (7/30/90 dias) e **ações em massa** (publicar/despublicar/arquivar/reativar
   várias de uma vez), com seleção por checkbox no cabeçalho e contador.
+- **Novo (admin):** **Listas de exemplo (demos)** gerenciáveis em `admin/demos` — CRUD completo
+  (criar, editar, publicar/ocultar, reordenar e remover) das listas que aparecem na Home e em
+  `/demo/{slug}`. Tudo em uma tela: dados do card, capa (URL ou upload), cores/tema e as listas
+  internas de **presentes/cotas, recados e galeria** (linhas dinâmicas). Os 3 exemplos que eram
+  fixos no código foram importados para a tabela `demo_listas` (migration `000028`) e há a ação
+  **"Restaurar padrão"**. O `Public\Demo` agora lê do banco; a Home exibe só as publicadas.
 - **Novo (painel do organizador):** refinamento de UI/UX. **Minhas listas**: stat cards com ícones,
   **busca e filtro de listas** por nome/tipo (com contadores atualizados nas abas), miniatura da capa
   com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.
@@ -115,8 +121,9 @@ Configurações) e **botões/campos padronizados**.
 1. Rodar as **migrations novas** (ou reimportar o dump):
    `eventos.limite_convidados`, tabela `rsvp_acompanhantes`, `eventos.arquivado`,
    tabela `evento_galeria`, `rsvp_acompanhantes.categoria`, o ENUM ampliado de
-   `eventos.tipo_evento`, o check-in (`rsvp_confirmacoes.check_in_em/check_in_por`) e as
-   configurações do gateway PIX (`pix_gateway`, Mercado Pago e `mercadopago_public_key`).
+   `eventos.tipo_evento`, o check-in (`rsvp_confirmacoes.check_in_em/check_in_por`), as
+   configurações do gateway PIX (`pix_gateway`, Mercado Pago e `mercadopago_public_key`) e a
+   tabela `demo_listas` (listas de exemplo gerenciáveis no admin).
 2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), definir
    `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente E do mesmo

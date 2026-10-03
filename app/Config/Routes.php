@@ -149,6 +149,16 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
     $routes->post('categorias/(:num)/excluir', 'Admin\Categorias::excluir/$1');
     $routes->post('categorias/(:num)', 'Admin\Categorias::atualizar/$1');
 
+    // --- Listas de exemplo (demos) ---
+    $routes->get('demos', 'Admin\Demos::index');
+    $routes->get('demos/novo', 'Admin\Demos::novo');
+    $routes->post('demos', 'Admin\Demos::criar');
+    $routes->post('demos/restaurar', 'Admin\Demos::restaurar');
+    $routes->get('demos/(:num)/editar', 'Admin\Demos::editar/$1');
+    $routes->post('demos/(:num)/alternar', 'Admin\Demos::alternar/$1');
+    $routes->post('demos/(:num)/excluir', 'Admin\Demos::excluir/$1');
+    $routes->post('demos/(:num)', 'Admin\Demos::atualizar/$1');
+
     // --- Planos ---
     $routes->get('planos', 'Admin\Planos::index');
     $routes->get('planos/novo', 'Admin\Planos::novo');

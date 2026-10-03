@@ -390,7 +390,7 @@
                     <a class="btn btn-brand btn-lg px-4" href="<?= site_url('criar-lista-de-presente') ?>">
                         <i class="bi bi-rocket-takeoff me-2"></i>Criar minha lista grátis
                     </a>
-                    <a class="btn btn-outline-brand btn-lg px-4" href="<?= site_url('demo/casamento') ?>">
+                    <a class="btn btn-outline-brand btn-lg px-4" href="<?= ! empty($demos) ? site_url('demo/' . $demos[0]['slug']) : site_url('/') . '#exemplos' ?>">
                         Ver um exemplo
                     </a>
                 </div>
@@ -677,13 +677,14 @@
 </section>
 
 <!-- ======================= LISTAS DE EXEMPLO ==================== -->
+<?php if (! empty($demos)): ?>
 <section class="py-5 bg-light" id="exemplos">
     <div class="container py-4">
         <div class="lp-reveal text-center mb-5">
             <span class="lp-eyebrow mb-2">Inspire-se</span>
             <h2 class="fw-bold fs-2 mt-3 text-dark">Veja como fica a sua lista</h2>
             <p class="text-muted fs-6">
-                Navegue pelas 3 listas de exemplo e veja como é fácil e elegante presentear.
+                Navegue pelas <?= count($demos) ?> <?= count($demos) === 1 ? 'lista de exemplo' : 'listas de exemplo' ?> e veja como é fácil e elegante presentear.
                 As listas de clientes reais são privadas.
             </p>
         </div>
@@ -727,6 +728,7 @@
         </p>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- ========================== DEPOIMENTOS ========================== -->
 <section class="py-5" id="depoimentos">
