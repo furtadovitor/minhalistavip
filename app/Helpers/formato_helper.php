@@ -11,6 +11,40 @@ if (! function_exists('moeda_brl')) {
     }
 }
 
+if (! function_exists('cor_hex')) {
+    /**
+     * Normaliza uma cor para "#rrggbb".
+     *
+     * Aceita valores com "%23" (o "#" URL-encoded), sem "#" e a forma curta
+     * (#abc). Devolve $padrao quando o valor é inválido — protege o CSS do tema
+     * (uma cor inválida deixava o herói/botões brancos).
+     */
+    function cor_hex(?string $cor, string $padrao = '#4F46E5'): string
+    {
+        $cor = trim((string) $cor);
+
+        if ($cor === '') {
+            return $padrao;
+        }
+
+        if (str_contains($cor, '%')) {
+            $cor = urldecode($cor);
+        }
+
+        $cor = ltrim($cor, '#');
+
+        if (preg_match('/^[0-9a-fA-F]{3}$/', $cor) === 1) {
+            $cor = $cor[0] . $cor[0] . $cor[1] . $cor[1] . $cor[2] . $cor[2];
+        }
+
+        if (preg_match('/^[0-9a-fA-F]{6}$/', $cor) !== 1) {
+            return $padrao;
+        }
+
+        return '#' . strtolower($cor);
+    }
+}
+
 if (! function_exists('rotulo_status_evento')) {
     function rotulo_status_evento(string $status): string
     {

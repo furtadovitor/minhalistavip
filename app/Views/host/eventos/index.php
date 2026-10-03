@@ -36,7 +36,7 @@
                 <tbody>
                 <?php foreach ($eventos as $evento):
                     $capa = ! empty($evento->imagem_capa) ? base_url($evento->imagem_capa) : null;
-                    $grad = 'linear-gradient(135deg, ' . esc($evento->cor_primaria ?: '#4F46E5', 'attr') . ', ' . esc($evento->cor_secundaria ?: '#10B981', 'attr') . ')';
+                    $grad = 'linear-gradient(135deg, ' . cor_hex($evento->cor_primaria, '#4F46E5') . ', ' . cor_hex($evento->cor_secundaria, '#10B981') . ')';
                     $publicado = $evento->status === 'publicado';
                     ?>
                     <tr>

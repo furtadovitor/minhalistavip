@@ -11,8 +11,8 @@
  * @var bool|null   $escuro
  */
 $titulo        = $titulo ?? 'Evento';
-$corPrimaria   = $corPrimaria ?? '#4F46E5';
-$corSecundaria = $corSecundaria ?? '#10B981';
+$corPrimaria   = cor_hex($corPrimaria ?? null, '#4F46E5');
+$corSecundaria = cor_hex($corSecundaria ?? null, '#10B981');
 $escuro        = $escuro ?? false;
 
 /** Tipografia e estilo por tema (catálogo central em ModeloService). */

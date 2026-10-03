@@ -69,7 +69,7 @@
 <?php
 $renderCard = static function ($evento, bool $arquivado): void {
     $capa = ! empty($evento->imagem_capa) ? base_url($evento->imagem_capa) : null;
-    $gradiente = 'linear-gradient(135deg, ' . esc($evento->cor_primaria ?: '#4F46E5', 'attr') . ', ' . esc($evento->cor_secundaria ?: '#10B981', 'attr') . ')';
+    $gradiente = 'linear-gradient(135deg, ' . cor_hex($evento->cor_primaria, '#4F46E5') . ', ' . cor_hex($evento->cor_secundaria, '#10B981') . ')';
     $base = site_url('painel/eventos/' . $evento->id);
     $publicado = $evento->status === 'publicado';
     $urlHotsite = site_url($evento->slug);

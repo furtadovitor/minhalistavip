@@ -16,10 +16,8 @@ $corSecundaria = $corSecundaria ?? null;
 
 $estiloCores = '';
 if ($corPrimaria !== null && $corPrimaria !== '') {
-    $estiloCores = '--brand:' . esc($corPrimaria, 'attr') . ';';
-    if ($corSecundaria !== null && $corSecundaria !== '') {
-        $estiloCores .= '--brand-dark:' . esc($corSecundaria, 'attr') . ';';
-    }
+    $estiloCores  = '--brand:' . cor_hex($corPrimaria, '#4F46E5') . ';';
+    $estiloCores .= '--brand-dark:' . cor_hex($corSecundaria ?? null, '#4338CA') . ';';
 }
 
 $urlEstado   = site_url('suporte/conversa');
@@ -112,7 +110,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
 </style>
 
 <div class="mlv-chat <?= $variante === 'hotsite' ? 'mlv-chat--hotsite' : '' ?>" id="mlvChat"
-     style="<?= esc($estiloCores, 'attr') ?>"
+     style="<?= esc($estiloCores) ?>"
      data-canal="<?= esc($canal, 'attr') ?>"
      data-evento="<?= $eventoId !== null ? (int) $eventoId : '' ?>"
      data-estado="<?= esc($urlEstado, 'attr') ?>"

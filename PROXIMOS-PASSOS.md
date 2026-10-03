@@ -144,7 +144,8 @@ Configurações) e **botões/campos padronizados**.
    `eventos.tipo_evento`, o check-in (`rsvp_confirmacoes.check_in_em/check_in_por`), as
    configurações do gateway PIX (`pix_gateway`, Mercado Pago e `mercadopago_public_key`) e a
    tabela `demo_listas` (listas de exemplo gerenciáveis no admin) e as tabelas do chat de suporte
-   (`suporte_conversas` e `suporte_mensagens`).
+   (`suporte_conversas` e `suporte_mensagens`), além da correção das cores das listas
+   (`cor_primaria`/`cor_secundaria` que ficaram gravadas com `%23` e deixavam o hotsite branco).
 2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), definir
    `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente E do mesmo

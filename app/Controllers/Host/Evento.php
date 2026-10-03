@@ -109,8 +109,8 @@ class Evento extends BaseController
 
         $dados = [
             'tema'           => $this->texto('tema') ?: 'classico',
-            'cor_primaria'   => $this->texto('cor_primaria') ?: '#8e44ad',
-            'cor_secundaria' => $this->texto('cor_secundaria') ?: '#f39c12',
+            'cor_primaria'   => cor_hex($this->texto('cor_primaria'), '#8e44ad'),
+            'cor_secundaria' => cor_hex($this->texto('cor_secundaria'), '#f39c12'),
         ];
 
         if ($this->request->getPost('remover_capa')) {
