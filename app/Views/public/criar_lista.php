@@ -105,6 +105,15 @@ $slides = [
         color: var(--brand); margin-bottom: .5rem;
     }
 
+    .criar-aviso {
+        display: flex; align-items: flex-start; gap: .6rem;
+        background: color-mix(in srgb, var(--brand) 8%, #fff);
+        border: 1px solid color-mix(in srgb, var(--brand) 22%, #fff);
+        border-radius: .85rem; padding: .8rem .95rem;
+        font-size: .82rem; color: #374151; margin-bottom: 1.1rem;
+    }
+    .criar-aviso i { color: var(--brand); font-size: 1.1rem; line-height: 1.2; }
+
     /* Seletor de modelos */
     .modelo-scroll { position: relative; }
     .modelo-grid {
@@ -175,7 +184,8 @@ $slides = [
                 <span class="criar-step"><i class="bi bi-1-circle-fill"></i> Passo 1 de 2 · Dados da lista</span>
                 <h1 class="h3 fw-bold mb-1">Crie sua lista de presentes</h1>
                 <p class="text-muted mb-4">
-                    São só os dados principais — você personaliza o resto e adiciona os presentes depois.
+                    Preencha só os dados principais. Fique tranquilo(a): você
+                    <strong>pode alterar tudo depois</strong>.
                 </p>
 
                 <form method="post" action="<?= $acao ?>" id="form-criar-lista">
@@ -255,6 +265,14 @@ $slides = [
                         <label class="form-label fw-semibold" for="local_nome">Local do evento <span class="text-muted fw-normal">(opcional)</span></label>
                         <input type="text" class="form-control" id="local_nome" name="local_nome"
                                value="<?= esc($localSel) ?>" placeholder="Ex.: Ilhabela, SP">
+                    </div>
+
+                    <div class="criar-aviso">
+                        <i class="bi bi-pencil-square"></i>
+                        <span>
+                            Você pode <strong>alterar tudo depois</strong> — nome, modelo, tipo de evento,
+                            data, hora, local e os presentes.
+                        </span>
                     </div>
 
                     <button type="submit" class="btn btn-brand btn-lg w-100">
