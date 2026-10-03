@@ -147,18 +147,76 @@ class EventoService
     }
 
     /**
-     * Alterna entre rascunho e publicado.
+     * Alterna entre rascunho e publicado. Para publicar, o evento precisa passar
+     * por pendenciasPublicacao() (modelo, tipo, data, local e ao menos um presente).
+     *
+     * @return array{ok: bool, publicado: bool, pendencias: list<string>}
      */
-    public function alternarPublicacao(int $eventoId, int $usuarioId): bool
+    public function alternarPublicacao(int $eventoId, int $usuarioId): array
     {
-        $evento = $this->doOrganizador($eventoId, $usuarioId);
-
+        $evento     = $this->doOrganizador($eventoId, $usuarioId);
         $publicando = $evento->status !== 'publicado';
 
-        return (bool) $this->eventos->update($eventoId, [
+        if ($publicando) {
+            $pendencias = $this->pendenciasPublicacao($evento);
+
+            if ($pendencias !== []) {
+                return ['ok' => false, 'publicado' => false, 'pendencias' => $pendencias];
+            }
+        }
+
+        $this->eventos->update($eventoId, [
             'status'       => $publicando ? 'publicado' : 'rascunho',
             'publicado_em' => $publicando ? date('Y-m-d H:i:s') : null,
         ]);
+
+        return ['ok' => true, 'publicado' => $publicando, 'pendencias' => []];
+    }
+
+    /**
+     * Itens que impedem a publicação do site da lista. Vazio = pode publicar.
+     *
+     * Regras mínimas: modelo visual, tipo de evento, data, local e ao menos um
+     * presente ativo (sem presentes a lista não tem o que receber).
+     *
+     * @return list<string>
+     */
+    public function pendenciasPublicacao(Evento $evento): array
+    {
+        $pendencias = [];
+
+        if (! ModeloService::existe((string) $evento->tema)) {
+            $pendencias[] = 'Escolha um modelo visual.';
+        }
+
+        if (! TipoEventoService::existe((string) $evento->tipo_evento)) {
+            $pendencias[] = 'Informe o tipo de evento.';
+        }
+
+        if ($evento->data_evento === null) {
+            $pendencias[] = 'Informe a data do evento.';
+        }
+
+        if (trim((string) $evento->local_nome) === '') {
+            $pendencias[] = 'Informe o local do evento.';
+        }
+
+        $presentes = $this->db->table('presentes_evento')
+            ->where('evento_id', (int) $evento->id)
+            ->where('ativo', 1)
+            ->where('deletado_em IS NULL')
+            ->countAllResults();
+
+        if ($presentes < 1) {
+            $pendencias[] = 'Adicione pelo menos um presente à lista.';
+        }
+
+        return $pendencias;
+    }
+
+    public function podePublicar(Evento $evento): bool
+    {
+        return $this->pendenciasPublicacao($evento) === [];
     }
 
     public function excluir(int $eventoId, int $usuarioId): bool

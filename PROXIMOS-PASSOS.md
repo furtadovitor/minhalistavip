@@ -89,6 +89,11 @@ Configurações) e **botões/campos padronizados**.
   depois. O catálogo central **`ModeloService`** passou a ter **12 modelos visuais** (tipografia +
   cores), usados também nos selects/paletas do painel e no design do hotsite. A antiga grade de
   tipos (`criar_lista_tipos.php`) deixou de existir (os atalhos por tipo continuam na Home).
+- **Novo (publicação):** **regras para publicar a lista** — o site só vai ao ar com **modelo visual,
+  tipo de evento, data, local e ao menos um presente ativo**. No painel do organizador, o botão
+  Publicar mostra exatamente o que está faltando; no admin vale para a publicação individual e em
+  lote (o lote publica só as listas completas). Centralizado em
+  `EventoService::pendenciasPublicacao()`.
 - **Novo (painel do organizador):** refinamento de UI/UX. **Minhas listas**: stat cards com ícones,
   **busca e filtro de listas** por nome/tipo (com contadores atualizados nas abas), miniatura da capa
   com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.

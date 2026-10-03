@@ -112,9 +112,19 @@ class Eventos extends BaseController
 
     public function publicar($id = null)
     {
-        $this->eventos->alternarPublicacao((int) $id, $this->usuarioId());
+        $resultado = $this->eventos->alternarPublicacao((int) $id, $this->usuarioId());
 
-        return redirect()->back()->with('sucesso', 'Disponibilidade do evento atualizada.');
+        if (! $resultado['ok']) {
+            return redirect()->back()->with('erros', array_merge(
+                ['Para publicar a lista, complete os itens abaixo:'],
+                $resultado['pendencias']
+            ));
+        }
+
+        return redirect()->back()->with(
+            'sucesso',
+            $resultado['publicado'] ? 'Lista publicada! Compartilhe o link com os convidados.' : 'Lista despublicada.'
+        );
     }
 
     public function arquivar($id = null)

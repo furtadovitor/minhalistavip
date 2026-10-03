@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\EventoModel;
 use App\Models\UsuarioModel;
+use App\Services\EventoService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -87,6 +88,17 @@ class Eventos extends BaseController
     {
         $evento     = $this->buscar((int) $id);
         $publicando = $evento->status !== 'publicado';
+
+        if ($publicando) {
+            $pendencias = (new EventoService())->pendenciasPublicacao($evento);
+
+            if ($pendencias !== []) {
+                return redirect()->back()->with('erros', array_merge(
+                    ['Não é possível publicar esta lista. Itens pendentes:'],
+                    $pendencias
+                ));
+            }
+        }
 
         $this->eventos->update($evento->id, [
             'status'       => $publicando ? 'publicado' : 'rascunho',
@@ -173,10 +185,16 @@ class Eventos extends BaseController
             return redirect()->back()->with('erro', 'Selecione ao menos uma lista.');
         }
 
+        $ids = array_slice($ids, 0, 500);
+
+        // Publicação em lote respeita as mesmas regras do painel do organizador.
+        if ($acao === 'publicar') {
+            return $this->publicarEmLote($ids);
+        }
+
         $acoes = [
             'arquivar'    => ['arquivado' => 1],
             'reativar'    => ['arquivado' => 0],
-            'publicar'    => ['status' => 'publicado', 'publicado_em' => date('Y-m-d H:i:s')],
             'despublicar' => ['status' => 'rascunho', 'publicado_em' => null],
         ];
 
@@ -184,12 +202,57 @@ class Eventos extends BaseController
             return redirect()->back()->with('erro', 'Ação em lote inválida.');
         }
 
-        $ids   = array_slice($ids, 0, 500);
         $dados = $acoes[$acao] + ['atualizado_em' => date('Y-m-d H:i:s')];
 
         db_connect()->table('eventos')->whereIn('id', $ids)->update($dados);
 
         return redirect()->back()->with('sucesso', count($ids) . ' lista(s) atualizada(s).');
+    }
+
+    /**
+     * Publica em lote apenas as listas que atendem às regras de publicação.
+     *
+     * @param list<int> $ids
+     */
+    private function publicarEmLote(array $ids)
+    {
+        $servico    = new EventoService();
+        $eventos    = $this->eventos->whereIn('id', $ids)->findAll();
+        $liberadas  = [];
+        $bloqueadas = 0;
+
+        foreach ($eventos as $evento) {
+            if ($servico->podePublicar($evento)) {
+                $liberadas[] = (int) $evento->id;
+            } else {
+                $bloqueadas++;
+            }
+        }
+
+        if ($liberadas !== []) {
+            $agora = date('Y-m-d H:i:s');
+
+            db_connect()->table('eventos')->whereIn('id', $liberadas)->update([
+                'status'        => 'publicado',
+                'publicado_em'  => $agora,
+                'atualizado_em' => $agora,
+            ]);
+        }
+
+        if ($liberadas === []) {
+            return redirect()->back()->with(
+                'erro',
+                'Nenhuma lista foi publicada: as selecionadas têm dados incompletos (modelo, tipo, data, local ou presentes).'
+            );
+        }
+
+        $mensagem = count($liberadas) . ' lista(s) publicada(s).';
+
+        if ($bloqueadas > 0) {
+            $mensagem .= ' ' . $bloqueadas . ' não publicada(s) por dados incompletos.';
+        }
+
+        return redirect()->back()->with('sucesso', $mensagem);
     }
 
     private function csv(?string $valor): string
