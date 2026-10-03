@@ -294,6 +294,16 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         .acompanhante-row { background: #f9fafb; }
         .tema-escuro .acompanhante-row { background: #15151F; border-color: rgba(255,255,255,.12) !important; }
 
+        /* O formulário do RSVP é filho direto do .modal-content. Como o Bootstrap
+           só limita a altura do .modal-body quando ele é filho direto do
+           .modal-content, sem isto o corpo cresce além da tela e o conteúdo é
+           cortado (o modal não rola no mobile). */
+        #modalRsvp .modal-content > form {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
         /* Cartões de categoria do acompanhante */
         .cat-opcoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
         @media (max-width: 575.98px) { .cat-opcoes { grid-template-columns: 1fr; } }
@@ -1074,6 +1084,13 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         if (rows.children.length >= max) { return; }
         criarLinha('', 'adulto');
         renumerar();
+
+        // Leva o novo cartão à vista (no mobile o modal agora rola).
+        const nova = rows.lastElementChild;
+        if (nova) {
+            const reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            nova.scrollIntoView({ behavior: reduzir ? 'auto' : 'smooth', block: 'nearest' });
+        }
     });
 
     // Restaura linhas de uma submissão anterior (erros de validação).
