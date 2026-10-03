@@ -227,6 +227,12 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
                     <span class="badge badge-soft mt-1"><?= esc(ucfirst($usuario->nivel)) ?></span>
                 </div>
             <?php endif; ?>
+            <?php if (! $superadmin): ?>
+                <button type="button" class="app-nav-link w-100 border-0 bg-transparent text-start"
+                        data-bs-toggle="modal" data-bs-target="#modalSuporte" title="Suporte">
+                    <i class="bi bi-headset"></i><span class="app-nav-text">Suporte</span>
+                </button>
+            <?php endif; ?>
             <a class="app-nav-link" href="<?= site_url('/') ?>" target="_blank" title="Ver site">
                 <i class="bi bi-box-arrow-up-right"></i><span class="app-nav-text">Ver site</span>
             </a>
@@ -299,12 +305,22 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
                     <div class="text-muted fs-8 text-truncate"><?= esc($usuario->email) ?></div>
                 </div>
             <?php endif; ?>
+            <?php if (! $superadmin): ?>
+                <button type="button" class="app-nav-link w-100 border-0 bg-transparent text-start"
+                        data-bs-toggle="modal" data-bs-target="#modalSuporte">
+                    <i class="bi bi-headset"></i><span>Suporte</span>
+                </button>
+            <?php endif; ?>
             <a class="app-nav-link text-danger" href="<?= site_url('logout') ?>">
                 <i class="bi bi-box-arrow-right"></i><span>Sair</span>
             </a>
         </div>
     </div>
 </div>
+
+<?php if (! $superadmin): ?>
+    <?= view('templates/partials/suporte') ?>
+<?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

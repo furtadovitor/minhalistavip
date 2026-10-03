@@ -94,6 +94,11 @@ Configurações) e **botões/campos padronizados**.
   Publicar mostra exatamente o que está faltando; no admin vale para a publicação individual e em
   lote (o lote publica só as listas completas). Centralizado em
   `EventoService::pendenciasPublicacao()`.
+- **Novo (painel do organizador):** **botão de suporte** de fácil acesso (flutuante no canto +
+  item no menu lateral) que abre o modal **"Fale com uma pessoa de verdade"** com os canais
+  **E-mail** e **WhatsApp**. Os contatos ficam em `templates/partials/suporte.php` — hoje com
+  placeholder **`xxxx`**, trocar antes de divulgar. Não aparece para o SuperAdmin (é canal do
+  organizador).
 - **Novo (painel do organizador):** refinamento de UI/UX. **Minhas listas**: stat cards com ícones,
   **busca e filtro de listas** por nome/tipo (com contadores atualizados nas abas), miniatura da capa
   com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.
