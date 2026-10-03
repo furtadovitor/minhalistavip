@@ -193,6 +193,7 @@ $routes->match(['get', 'post'], 'buscar', 'Public\Busca::buscar');
 // Chat de suporte ao vivo (cliente: organizador ou visitante).
 $routes->get('suporte/conversa', 'Public\Suporte::estado');
 $routes->post('suporte/conversa/mensagens', 'Public\Suporte::enviar');
+$routes->post('suporte/conversa/retomar', 'Public\Suporte::retomar');
 $routes->post('suporte/conversa/encerrar', 'Public\Suporte::encerrar');
 
 // Atalhos de criação de lista por tipo de evento (chá de bebê, pet, natal...).

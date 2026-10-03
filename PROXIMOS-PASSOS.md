@@ -99,7 +99,10 @@ Configurações) e **botões/campos padronizados**.
   **admin** vê a **fila** em `admin/suporte`, **assume** (atômico, sem duplicar entre atendentes)
   e responde. A conversa fica no banco: se o cliente fechar o navegador e voltar em até **5 min**,
   o widget retoma de onde parou; passando disso, é **encerrada automaticamente**. Selo de não
-  lidas no botão e no menu do admin. Cron `php spark suporte:fechar-inativos`. Os canais de
+  lidas no botão e no menu do admin. Cron `php spark suporte:fechar-inativos`. O visitante sem
+  login informa **nome, telefone e e-mail** e recebe um **código de atendimento** (`SUP-XXXXXX`):
+  a partir daí retoma a conversa informando o código, de qualquer navegador. O código expira
+  **10 dias após o evento** (ou, sem evento, 10 dias após a última mensagem). Os canais de
   E-mail/WhatsApp seguem no modal dentro do chat (`templates/partials/suporte.php`, com
   placeholder **`xxxx`**, trocar antes de divulgar). Não aparece para o SuperAdmin como cliente.
 - **Novo (painel do organizador):** refinamento de UI/UX. **Minhas listas**: stat cards com ícones,
@@ -144,8 +147,9 @@ Configurações) e **botões/campos padronizados**.
    `eventos.tipo_evento`, o check-in (`rsvp_confirmacoes.check_in_em/check_in_por`), as
    configurações do gateway PIX (`pix_gateway`, Mercado Pago e `mercadopago_public_key`) e a
    tabela `demo_listas` (listas de exemplo gerenciáveis no admin) e as tabelas do chat de suporte
-   (`suporte_conversas` e `suporte_mensagens`), além da correção das cores das listas
-   (`cor_primaria`/`cor_secundaria` que ficaram gravadas com `%23` e deixavam o hotsite branco).
+   (`suporte_conversas` e `suporte_mensagens`, com `telefone`/`expira_em`), além da correção das
+   cores das listas (`cor_primaria`/`cor_secundaria` que ficaram gravadas com `%23` e deixavam o
+   hotsite branco).
 2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), definir
    `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente E do mesmo

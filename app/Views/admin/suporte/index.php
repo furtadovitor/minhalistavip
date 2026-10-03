@@ -190,6 +190,7 @@ $filaJson = json_encode([
                 '<div class="flex-grow-1">' +
                     '<div class="nome">' + esc(c.nome) + ' <span class="badge text-bg-light">' + c.protocolo + '</span></div>' +
                     '<div class="sub">' + (c.canal === 'painel' ? 'Organizador (painel)' : 'Visitante (site)') +
+                        (c.telefone ? ' · ' + esc(c.telefone) : '') +
                         (c.email ? ' · ' + esc(c.email) : '') + '</div>' +
                 '</div>' +
                 assumirBotao + encerrarBotao +

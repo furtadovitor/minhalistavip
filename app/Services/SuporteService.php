@@ -52,8 +52,8 @@ class SuporteService
     /**
      * Retoma a conversa aberta ou abre uma nova. Atualiza nome/e-mail/contexto.
      *
-     * @param array{usuario_id?: int|null, token?: string|null} $identidade
-     * @param array{nome?: string|null, email?: string|null, evento_id?: int|null, assunto?: string|null} $dados
+     * @param array{usuario_id?: int|null, token?: string|null, conversa_id?: int|null} $identidade
+     * @param array{nome?: string|null, email?: string|null, telefone?: string|null, evento_id?: int|null, assunto?: string|null} $dados
      * @return array<string, mixed>
      */
     public function abrir(array $identidade, string $canal, array $dados = []): array
@@ -62,7 +62,7 @@ class SuporteService
 
         if ($existente !== null) {
             $upd = [];
-            foreach (['nome' => 120, 'email' => 150, 'assunto' => 180] as $campo => $limite) {
+            foreach (['nome' => 120, 'email' => 150, 'telefone' => 30, 'assunto' => 180] as $campo => $limite) {
                 $valor = trim((string) ($dados[$campo] ?? ''));
                 if ($valor !== '') {
                     $upd[$campo] = mb_substr($valor, 0, $limite);
@@ -70,6 +70,7 @@ class SuporteService
             }
             if (! empty($dados['evento_id'])) {
                 $upd['evento_id'] = (int) $dados['evento_id'];
+                $upd['expira_em'] = $this->expiracaoParaEvento((int) $dados['evento_id']);
             }
             if ($upd !== []) {
                 $upd['atualizado_em'] = date('Y-m-d H:i:s');
@@ -87,9 +88,11 @@ class SuporteService
             'visitante_token' => $identidade['token'] ?? null,
             'nome'            => $this->limitar($dados['nome'] ?? null, 120),
             'email'           => $this->limitar($dados['email'] ?? null, 150),
+            'telefone'        => $this->limitar($dados['telefone'] ?? null, 30),
             'evento_id'       => ! empty($dados['evento_id']) ? (int) $dados['evento_id'] : null,
             'assunto'         => $this->limitar($dados['assunto'] ?? null, 180),
             'status'          => 'aguardando',
+            'expira_em'       => $this->expiracaoParaEvento(! empty($dados['evento_id']) ? (int) $dados['evento_id'] : null),
             'cliente_visto_em' => $agora,
             'criado_em'       => $agora,
             'atualizado_em'   => $agora,
@@ -97,9 +100,96 @@ class SuporteService
 
         $id = (int) $this->db->insertID();
 
-        $this->inserirMensagem($id, 'sistema', null, 'Conversa iniciada. Um atendente vai responder por aqui.');
+        $this->inserirMensagem($id, 'sistema', null, 'Conversa iniciada. Guarde seu código de atendimento para voltar a falar com a gente.');
 
         return $this->conversa($id);
+    }
+
+    /**
+     * Busca uma conversa pelo código de atendimento (protocolo).
+     *
+     * @return array<string, mixed>|null
+     */
+    public function porCodigo(string $codigo): ?array
+    {
+        $codigo = strtoupper(trim($codigo));
+
+        if ($codigo === '') {
+            return null;
+        }
+
+        $linha = $this->db->table('suporte_conversas')->where('protocolo', $codigo)->get()->getRowArray();
+
+        return $linha === null ? null : $linha;
+    }
+
+    /**
+     * Retoma uma conversa pelo código: reassocia a identidade atual e reabre
+     * se estava encerrada (desde que não tenha expirado).
+     *
+     * @param array{usuario_id?: int|null, token?: string|null} $identidade
+     * @return array<string, mixed>
+     */
+    public function retomar(int $conversaId, array $identidade): array
+    {
+        $conv = $this->conversa($conversaId);
+
+        if ($conv === null) {
+            return [];
+        }
+
+        $agora = date('Y-m-d H:i:s');
+        $upd   = ['cliente_visto_em' => $agora, 'atualizado_em' => $agora];
+
+        if (! empty($identidade['usuario_id'])) {
+            $upd['usuario_id'] = (int) $identidade['usuario_id'];
+        }
+        if (! empty($identidade['token'])) {
+            $upd['visitante_token'] = (string) $identidade['token'];
+        }
+
+        if ($conv['status'] === 'encerrada') {
+            $upd['status']        = 'aguardando';
+            $upd['encerrada_em']  = null;
+            $upd['encerrada_por'] = null;
+            $this->inserirMensagem($conversaId, 'sistema', null, 'Conversa retomada pelo cliente.');
+        }
+
+        $this->db->table('suporte_conversas')->where('id', $conversaId)->update($upd);
+
+        return $this->conversa($conversaId);
+    }
+
+    /**
+     * Data efetiva de expiração do código:
+     *  - conversas de evento: campo expira_em (data do evento + 10 dias);
+     *  - demais: última mensagem (ou criação) + 10 dias.
+     *
+     * @param array<string, mixed> $conv
+     */
+    public function expiracao(array $conv): ?string
+    {
+        if (! empty($conv['expira_em'])) {
+            return (string) $conv['expira_em'];
+        }
+
+        $ref = $conv['ultima_mensagem_em'] ?: ($conv['criado_em'] ?? null);
+
+        if (empty($ref)) {
+            return null;
+        }
+
+        return date('Y-m-d H:i:s', strtotime((string) $ref) + 10 * 86400);
+    }
+
+    /**
+     * @param array<string, mixed> $conv
+     */
+    public function expirou(array $conv): bool
+    {
+        $expiraEm = $this->expiracao($conv);
+
+        return $expiraEm !== null && strtotime($expiraEm) < time();
     }
 
     // ------------------------------------------------------------------
@@ -367,6 +457,12 @@ class SuporteService
      */
     private function aplicarIdentidade($builder, array $identidade): void
     {
+        if (! empty($identidade['conversa_id'])) {
+            $builder->where('id', (int) $identidade['conversa_id']);
+
+            return;
+        }
+
         if (! empty($identidade['usuario_id'])) {
             $builder->where('usuario_id', (int) $identidade['usuario_id']);
 
@@ -381,6 +477,25 @@ class SuporteService
 
         // Sem identidade: não casa com nenhuma conversa.
         $builder->where('id', -1);
+    }
+
+    /**
+     * Expiração para conversas abertas dentro de um evento: data do evento + 10 dias.
+     */
+    private function expiracaoParaEvento(?int $eventoId): ?string
+    {
+        if (empty($eventoId)) {
+            return null;
+        }
+
+        $evento = $this->db->table('eventos')->select('data_evento')->where('id', $eventoId)->get()->getRowArray();
+        $data   = $evento['data_evento'] ?? null;
+
+        if (empty($data)) {
+            return null;
+        }
+
+        return date('Y-m-d H:i:s', strtotime((string) $data . ' 23:59:59') + 10 * 86400);
     }
 
     private function gerarProtocolo(): string

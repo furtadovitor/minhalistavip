@@ -160,6 +160,7 @@ class Suporte extends BaseController
             'canal'         => $conv['canal'],
             'nome'          => $conv['nome_exibicao'] ?? $this->suporte->nomeExibicao($conv),
             'email'         => $conv['email'] ?? null,
+            'telefone'      => $conv['telefone'] ?? null,
             'assunto'       => $conv['assunto'] ?? null,
             'evento_id'     => ! empty($conv['evento_id']) ? (int) $conv['evento_id'] : null,
             'atendente_id'  => ! empty($conv['atendente_id']) ? (int) $conv['atendente_id'] : null,
