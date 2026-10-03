@@ -605,7 +605,7 @@
         </div>
 
         <div class="row g-3 justify-content-center">
-            <?= view('templates/partials/tipos_evento_grid') ?>
+            <?= view('templates/partials/tipos_evento_grid', ['tipos' => \App\Services\TipoEventoService::destaques()]) ?>
         </div>
     </div>
 </section>

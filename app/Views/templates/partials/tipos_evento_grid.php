@@ -8,7 +8,7 @@
 $tipos = $tipos ?? tipos_evento();
 ?>
 <?php foreach ($tipos as $chave => $tipo): ?>
-    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+    <div class="col-6 col-md-4 col-lg-3">
         <a class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-center transition-hover atalho-tipo"
            href="<?= esc(site_url('criar-lista-de-presente/' . $tipo['slug']), 'attr') ?>">
             <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center">

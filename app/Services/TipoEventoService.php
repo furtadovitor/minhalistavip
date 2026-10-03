@@ -115,11 +115,41 @@ class TipoEventoService
     ];
 
     /**
+     * Atalhos exibidos na Home — 16 tipos, em grade 4x4.
+     *
+     * @var list<string>
+     */
+    public const DESTAQUES = [
+        'casamento', 'cha_bebe', 'aniversario', 'cha_panela',
+        'cha_cozinha', 'cha_revelacao', 'cha_fraldas', 'quinze_anos',
+        'formatura', 'noivado', 'cha_lingerie', 'festa_infantil',
+        'amigo_secreto', 'festa_junina', 'natal', 'evento_pet',
+    ];
+
+    /**
      * @return list<string>
      */
     public static function chaves(): array
     {
         return array_keys(self::TIPOS);
+    }
+
+    /**
+     * Tipos em destaque (16) para a grade de atalhos da Home.
+     *
+     * @return array<string, array{slug: string, rotulo: string, icone: string, tema: string, cor_primaria: string, cor_secundaria: string}>
+     */
+    public static function destaques(): array
+    {
+        $saida = [];
+
+        foreach (self::DESTAQUES as $chave) {
+            if (isset(self::TIPOS[$chave])) {
+                $saida[$chave] = self::TIPOS[$chave];
+            }
+        }
+
+        return $saida;
     }
 
     /**
