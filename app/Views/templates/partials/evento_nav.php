@@ -38,13 +38,18 @@ $grupos = [
 </a>
 
 <div class="evento-head">
-    <div class="d-flex align-items-center gap-2 mb-1">
-        <span class="badge text-bg-<?= cor_status_evento($evento->status) ?>"><?= esc(rotulo_status_evento($evento->status)) ?></span>
-        <?php if ($evento->arquivado): ?>
-            <span class="badge text-bg-secondary">Arquivada</span>
-        <?php endif; ?>
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+        <span class="evento-eyebrow">Lista atual</span>
+        <div class="d-flex align-items-center gap-1">
+            <?php if ($evento->arquivado): ?>
+                <span class="badge text-bg-secondary">Arquivada</span>
+            <?php endif; ?>
+            <span class="badge text-bg-<?= cor_status_evento($evento->status) ?>"><?= esc(rotulo_status_evento($evento->status)) ?></span>
+        </div>
     </div>
-    <div class="titulo text-truncate" title="<?= esc($evento->titulo) ?>"><?= esc($evento->titulo) ?></div>
+    <a class="titulo text-truncate d-block" href="<?= site_url($base) ?>" title="<?= esc($evento->titulo) ?>">
+        <?= esc($evento->titulo) ?>
+    </a>
     <div class="slug text-truncate">/<?= esc($evento->slug) ?></div>
 </div>
 

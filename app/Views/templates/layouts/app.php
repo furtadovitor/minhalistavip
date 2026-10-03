@@ -123,6 +123,23 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
         .app-nav-link.active { background: var(--brand); color: #fff; }
         .app-topbar { background: #fff; border-bottom: 1px solid #E5E7EB; }
         .app-content { padding: 1.5rem; max-width: 1280px; }
+
+        /* Contexto da lista atual (topbar) */
+        .topbar-lista {
+            display: flex; align-items: center; gap: .55rem;
+            min-width: 0; flex: 1 1 auto; overflow: hidden;
+        }
+        .topbar-lista-voltar {
+            display: inline-flex; align-items: center; gap: .25rem; white-space: nowrap;
+            font-size: .8rem; color: #6B7280; text-decoration: none;
+        }
+        .topbar-lista-voltar:hover { color: var(--brand-dark); }
+        .topbar-lista-sep { width: 1px; height: 18px; background: #E5E7EB; flex: none; }
+        .topbar-lista-nome {
+            font-weight: 700; font-size: .92rem; color: #111827;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .topbar-lista .badge { flex: none; }
         .app-toggle {
             border: 1px solid #E5E7EB;
             background: #fff;
@@ -155,6 +172,12 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
         .evento-head { border-bottom: 1px solid #F3F4F6; padding-bottom: .85rem; margin-bottom: .5rem; }
         .evento-head .titulo { font-weight: 700; font-size: .95rem; line-height: 1.2; }
         .evento-head .slug { color: #9CA3AF; font-size: .75rem; }
+        .evento-eyebrow {
+            font-size: .66rem; text-transform: uppercase; letter-spacing: .08em;
+            color: #9CA3AF; font-weight: 700;
+        }
+        .evento-head a.titulo { color: #111827; text-decoration: none; }
+        .evento-head a.titulo:hover { color: var(--brand-dark); }
         .evento-voltar {
             display: inline-flex; align-items: center; gap: .35rem;
             color: #6B7280; text-decoration: none; font-size: .8rem; margin-bottom: .6rem;
@@ -249,8 +272,23 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
                     data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-label="Abrir menu">
                 <i class="bi bi-list"></i>
             </button>
-            <span class="d-lg-none mb-0"><?= view('templates/partials/logo', ['altura' => 30, 'nome' => false]) ?></span>
-            <div class="ms-auto d-flex align-items-center gap-2">
+
+            <?php if ($evento !== null): ?>
+                <div class="topbar-lista">
+                    <a class="topbar-lista-voltar d-none d-lg-inline-flex" href="<?= site_url('painel') ?>">
+                        <i class="bi bi-arrow-left"></i>Minhas listas
+                    </a>
+                    <span class="topbar-lista-sep d-none d-lg-inline-block"></span>
+                    <span class="topbar-lista-nome" title="<?= esc($evento->titulo) ?>"><?= esc($evento->titulo) ?></span>
+                    <span class="badge d-none d-sm-inline-block text-bg-<?= cor_status_evento($evento->status) ?>">
+                        <?= esc(rotulo_status_evento($evento->status)) ?>
+                    </span>
+                </div>
+            <?php else: ?>
+                <span class="d-lg-none mb-0"><?= view('templates/partials/logo', ['altura' => 30, 'nome' => false]) ?></span>
+            <?php endif; ?>
+
+            <div class="ms-auto d-flex align-items-center gap-2 flex-shrink-0">
                 <?php if ($evento !== null && $evento->status === 'publicado'): ?>
                     <a class="btn btn-sm btn-outline-brand" href="<?= site_url($evento->slug) ?>" target="_blank">
                         <i class="bi bi-box-arrow-up-right me-1"></i>Ver página
