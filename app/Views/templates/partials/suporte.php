@@ -60,7 +60,8 @@ $emailLink = 'mailto:' . $suporteEmail . '?subject=' . rawurlencode('Suporte - M
 <div class="modal fade" id="modalSuporte" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 position-relative">
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-3" style="z-index: 2;"
+                    data-bs-dismiss="modal" aria-label="Fechar"></button>
 
             <div class="modal-body p-4 p-sm-5 text-center">
                 <span class="suporte-icone"><i class="bi bi-headset"></i></span>
