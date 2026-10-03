@@ -66,7 +66,7 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         .hotsite-hero.has-cover { background-blend-mode: normal; }
         .hotsite-hero::after {
             content: ""; position: absolute; inset: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.05));
+            background: linear-gradient(180deg, rgba(17,24,39,.34) 0%, rgba(17,24,39,.12) 45%, rgba(17,24,39,.38) 100%);
             pointer-events: none;
         }
         .hotsite-hero > .container { position: relative; z-index: 2; }
@@ -97,11 +97,16 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         .countdown .cx strong { display: block; font-size: 1.5rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
         .countdown .cx span { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; opacity: .85; }
 
-        .hero-cta .btn { padding: .65rem 1.5rem; font-weight: 700; }
+        .hero-cta .btn { padding: .65rem 1.5rem; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.20); }
         .btn-glass {
-            background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.45); color: #fff;
+            background: rgba(17,24,39,.38); border: 1px solid rgba(255,255,255,.55); color: #fff;
+            backdrop-filter: blur(6px);
         }
-        .btn-glass:hover { background: rgba(255,255,255,.28); color: #fff; }
+        .btn-glass:hover { background: rgba(17,24,39,.55); color: #fff; border-color: #fff; }
+        .btn-whats {
+            background: #25D366; border: 1px solid #25D366; color: #fff;
+        }
+        .btn-whats:hover { background: #1EBE57; border-color: #1EBE57; color: #fff; }
 
         /* ---------- NAV ---------- */
         .hotsite-nav {
@@ -221,10 +226,10 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         /* ---------- FAB compartilhar (mobile) ---------- */
         .fab-share {
             position: fixed; right: 1rem; bottom: 1rem; z-index: 1050;
-            width: 54px; height: 54px; border-radius: 50%;
-            background: #25D366; color: #fff; border: 0;
+            width: 58px; height: 58px; border-radius: 50%;
+            background: #25D366; color: #fff; border: 3px solid #fff;
             display: inline-flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; box-shadow: 0 10px 24px rgba(0,0,0,.25);
+            font-size: 1.55rem; box-shadow: 0 12px 28px rgba(17,24,39,.40);
             transition: transform .15s ease, filter .15s ease;
         }
         .fab-share:hover { color: #fff; filter: brightness(.95); transform: translateY(-2px); }
@@ -413,7 +418,7 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
                 <a class="btn btn-light" href="#presenca"><i class="bi bi-check2-circle me-1"></i>Confirmar presença</a>
             <?php endif; ?>
             <a class="btn btn-<?= (! empty($evento->permite_rsvp) && $modo !== 'demo' && ! $rsvpEncerrado) ? 'glass' : 'light' ?>" href="#presentes"><i class="bi bi-gift me-1"></i>Ver presentes</a>
-            <a class="btn btn-glass" target="_blank" rel="noopener"
+            <a class="btn btn-whats" target="_blank" rel="noopener"
                href="https://wa.me/?text=<?= $textoShare ?>"><i class="bi bi-whatsapp me-1"></i>Compartilhar</a>
             <button class="btn btn-glass" type="button" id="btn-copiar-link"><i class="bi bi-link-45deg me-1"></i>Copiar link</button>
         </div>
