@@ -4,48 +4,49 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Services\EventoService;
+use App\Services\ModeloService;
 use App\Services\TipoEventoService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 /**
- * Criação rápida de lista a partir dos atalhos de tipo de evento da Home.
+ * Pré-registro e criação rápida de lista (nova entrada de "Criar minha lista").
  *
- * Fluxo (espelha o "criar lista" da listaideal.com.br):
- *  - Visitante escolhe o tipo em /criar-lista-de-presente/{slug}.
- *  - Informa nome e descrição da lista e confirma.
- *  - Já autenticado: a lista é criada na hora.
- *  - Sem login: guarda a intenção na sessão, pede login/cadastro e, ao voltar,
- *    conclui a criação automaticamente (/criar-lista-de-presente/continuar).
+ * Fluxo:
+ *  - Visitante informa nome, modelo visual, tipo de evento, data, hora e local.
+ *  - Clica em "Avançar".
+ *      - Já autenticado: a lista (rascunho) é criada na hora.
+ *      - Sem login: guarda a intenção na sessão, pede login/cadastro e, ao
+ *        voltar, conclui a criação automaticamente
+ *        (/criar-lista-de-presente/continuar).
  */
 class CriarLista extends BaseController
 {
     private const SESSAO_PENDENTE = 'lista_pendente';
 
     /**
-     * Vitrine de tipos (mesmos atalhos da Home).
+     * Tela de pré-registro (sem tipo pré-selecionado).
      */
     public function index()
     {
-        return $this->render('public/criar_lista_tipos', [
-            'titulo' => 'Crie sua lista de presentes grátis',
-            'tipos'  => TipoEventoService::todos(),
-        ]);
+        return $this->form(null);
     }
 
     /**
-     * Formulário de criação para um tipo específico.
+     * Tela de pré-registro, opcionalmente com um tipo de evento já escolhido
+     * (atalhos da Home: /criar-lista-de-presente/{slug}).
      */
     public function form($slug = null)
     {
-        $tipo = $this->resolverTipo((string) $slug);
-
+        $tipo     = ((string) $slug !== '') ? $this->resolverTipo((string) $slug) : null;
         $pendente = $this->session->get(self::SESSAO_PENDENTE);
 
         return $this->render('public/criar_lista', [
-            'titulo'   => 'Criar lista de ' . $tipo['rotulo'],
-            'tipo'     => $tipo,
-            'logado'   => $this->auth->estaLogado(),
-            'valores'  => $this->request->getPost() ?: ($pendente['dados'] ?? []),
+            'titulo'  => 'Crie sua lista de presentes grátis',
+            'tipo'    => $tipo,
+            'modelos' => ModeloService::todos(),
+            'tipos'   => TipoEventoService::todos(),
+            'logado'  => $this->auth->estaLogado(),
+            'valores' => $this->request->getPost() ?: ($pendente['dados'] ?? []),
         ]);
     }
 
@@ -54,21 +55,27 @@ class CriarLista extends BaseController
      */
     public function criar($slug = null)
     {
-        $tipo = $this->resolverTipo((string) $slug);
+        $tipoPre = ((string) $slug !== '') ? $this->resolverTipo((string) $slug) : null;
 
         $regras = [
-            'titulo'    => 'required|min_length[3]|max_length[180]',
-            'descricao' => 'permit_empty|max_length[2000]',
+            'titulo'      => 'required|min_length[3]|max_length[180]',
+            'tema'        => 'required',
+            'data_evento' => 'permit_empty|valid_date[Y-m-d]',
+            'horario'     => 'permit_empty',
+            'local_nome'  => 'permit_empty|max_length[180]',
         ];
 
-        if (! $this->validate($regras)) {
-            return redirect()->back()->withInput()->with('erros', $this->validator->getErrors());
+        $temaPost = (string) $this->request->getPost('tema');
+
+        if (! $this->validate($regras) || ! ModeloService::existe($temaPost)) {
+            return redirect()->back()->withInput()
+                ->with('erros', $this->validator->getErrors() ?: ['Escolha um modelo para a sua lista.']);
         }
 
-        $dados = $this->montarDados($tipo, $this->request->getPost());
+        $dados = $this->montarDados($tipoPre, $this->request->getPost());
 
         if (! $this->auth->estaLogado()) {
-            $this->session->set(self::SESSAO_PENDENTE, ['slug' => $tipo['slug'], 'dados' => $dados]);
+            $this->session->set(self::SESSAO_PENDENTE, ['dados' => $dados]);
             $this->session->set('redirect_url', site_url('criar-lista-de-presente/continuar'));
 
             return redirect()->to(site_url('login'))
@@ -94,7 +101,7 @@ class CriarLista extends BaseController
 
         if (! is_array($pendente) || empty($pendente['dados'])) {
             return redirect()->to(site_url('criar-lista-de-presente'))
-                ->with('erro', 'Escolha o tipo de evento para criar sua lista.');
+                ->with('erro', 'Preencha os dados da lista para continuar.');
         }
 
         return $this->finalizar($pendente['dados']);
@@ -117,27 +124,33 @@ class CriarLista extends BaseController
     }
 
     /**
-     * @param array{chave: string, slug: string, rotulo: string, icone: string, tema: string, cor_primaria: string, cor_secundaria: string} $tipo
+     * @param array{chave: string, slug: string, rotulo: string, icone: string, tema: string, cor_primaria: string, cor_secundaria: string}|null $tipoPre
      * @param array<string, mixed> $post
      * @return array<string, mixed>
      */
-    private function montarDados(array $tipo, array $post): array
+    private function montarDados(?array $tipoPre, array $post): array
     {
-        $descricao = trim((string) ($post['descricao'] ?? ''));
+        $modelo = ModeloService::um((string) ($post['tema'] ?? '')) ?? ModeloService::um('classico');
+
+        $tipoEvento = (string) ($post['tipo_evento'] ?? '');
+        if (! TipoEventoService::existe($tipoEvento)) {
+            $tipoEvento = $tipoPre['chave'] ?? 'outro';
+        }
 
         return [
-            'titulo'           => trim((string) ($post['titulo'] ?? '')),
-            'descricao'        => $descricao !== '' ? $descricao : null,
-            'mensagem_convite' => $descricao !== '' ? $descricao : null,
-            'tipo_evento'      => $tipo['chave'],
-            'tema'             => $tipo['tema'],
-            'cor_primaria'     => $tipo['cor_primaria'],
-            'cor_secundaria'   => $tipo['cor_secundaria'],
-            'quem_paga_taxa'   => 'convidado',
-            'permite_rsvp'     => 1,
-            'permite_recados'  => 1,
-            'exibir_valores'   => 1,
-            'status'           => 'rascunho',
+            'titulo'         => trim((string) ($post['titulo'] ?? '')),
+            'tipo_evento'    => $tipoEvento,
+            'tema'           => $modelo['chave'],
+            'cor_primaria'   => $modelo['cor_primaria'],
+            'cor_secundaria' => $modelo['cor_secundaria'],
+            'data_evento'    => trim((string) ($post['data_evento'] ?? '')) ?: null,
+            'horario'        => trim((string) ($post['horario'] ?? '')) ?: null,
+            'local_nome'     => trim((string) ($post['local_nome'] ?? '')) ?: null,
+            'quem_paga_taxa' => 'convidado',
+            'permite_rsvp'   => 1,
+            'permite_recados' => 1,
+            'exibir_valores' => 1,
+            'status'         => 'rascunho',
         ];
     }
 

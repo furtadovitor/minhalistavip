@@ -15,17 +15,9 @@ $corPrimaria   = $corPrimaria ?? '#4F46E5';
 $corSecundaria = $corSecundaria ?? '#10B981';
 $escuro        = $escuro ?? false;
 
-/** Tipografia e estilo por tema. */
-$temas = [
-    'classico'  => ['titulo' => 'Playfair Display', 'corpo' => 'Inter', 'google' => 'Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600', 'raio' => '1.25rem'],
-    'casamento' => ['titulo' => 'Cormorant Garamond', 'corpo' => 'Inter', 'google' => 'Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600', 'raio' => '1.1rem'],
-    'cha_bebe'  => ['titulo' => 'Poppins', 'corpo' => 'Nunito', 'google' => 'Poppins:wght@600;700;800&family=Nunito:wght@400;600', 'raio' => '1.75rem'],
-    'infantil'  => ['titulo' => 'Baloo 2', 'corpo' => 'Nunito', 'google' => 'Baloo+2:wght@600;700;800&family=Nunito:wght@400;600', 'raio' => '1.9rem'],
-    'moderno'   => ['titulo' => 'Space Grotesk', 'corpo' => 'Inter', 'google' => 'Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600', 'raio' => '.75rem'],
-];
-
-$tema = $tema ?? 'classico';
-$fonte = $temas[$tema] ?? $temas['classico'];
+/** Tipografia e estilo por tema (catálogo central em ModeloService). */
+$tema  = $tema ?? 'classico';
+$fonte = \App\Services\ModeloService::tipografia((string) $tema);
 ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

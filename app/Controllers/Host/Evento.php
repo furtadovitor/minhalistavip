@@ -7,6 +7,7 @@ use App\Models\GaleriaModel;
 use App\Models\PedidoModel;
 use App\Services\ConvidadoService;
 use App\Services\EventoService;
+use App\Services\ModeloService;
 use App\Services\PresenteEventoService;
 use App\Services\TipoEventoService;
 use App\Services\UploadService;
@@ -97,7 +98,7 @@ class Evento extends BaseController
         return $this->render('host/eventos/aparencia', [
             'titulo' => 'Aparência',
             'evento' => $this->eventos->doOrganizador((int) $eventoId, $this->usuarioId()),
-            'temas'  => self::TEMAS,
+            'temas'  => ModeloService::rotulos(),
         ]);
     }
 
@@ -246,17 +247,6 @@ class Evento extends BaseController
     // -----------------------------------------------------------------
     // Apoio
     // -----------------------------------------------------------------
-
-    /**
-     * @var array<string, string>
-     */
-    private const TEMAS = [
-        'classico'  => 'Clássico',
-        'casamento' => 'Casamento',
-        'cha_bebe'  => 'Chá de Bebê',
-        'infantil'  => 'Infantil',
-        'moderno'   => 'Moderno',
-    ];
 
     private function texto(string $campo): string
     {

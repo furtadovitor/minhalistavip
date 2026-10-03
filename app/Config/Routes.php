@@ -185,6 +185,7 @@ $routes->match(['get', 'post'], 'buscar', 'Public\Busca::buscar');
 // Atalhos de criação de lista por tipo de evento (chá de bebê, pet, natal...).
 $routes->get('criar-lista-de-presente', 'Public\CriarLista::index');
 $routes->get('criar-lista-de-presente/continuar', 'Public\CriarLista::continuar');
+$routes->post('criar-lista-de-presente', 'Public\CriarLista::criar');
 $routes->get('criar-lista-de-presente/(:segment)', 'Public\CriarLista::form/$1');
 $routes->post('criar-lista-de-presente/(:segment)', 'Public\CriarLista::criar/$1');
 

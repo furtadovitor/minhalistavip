@@ -82,6 +82,13 @@ Configurações) e **botões/campos padronizados**.
   internas de **presentes/cotas, recados e galeria** (linhas dinâmicas). Os 3 exemplos que eram
   fixos no código foram importados para a tabela `demo_listas` (migration `000028`) e há a ação
   **"Restaurar padrão"**. O `Public\Demo` agora lê do banco; a Home exibe só as publicadas.
+- **Novo (front-end):** **nova tela de "Criar minha lista"** (`/criar-lista-de-presente`) dividida
+  ao meio: à esquerda um **carrossel** de imagens com informes (galeria/link/Pix e cartão) e, à
+  direita, o **pré-registro** — nome da lista, **modelo visual**, tipo de evento, data, hora e local.
+  Ao **Avançar** já logado a lista é criada na hora; sem login, vai para o login e conclui sozinho
+  depois. O catálogo central **`ModeloService`** passou a ter **12 modelos visuais** (tipografia +
+  cores), usados também nos selects/paletas do painel e no design do hotsite. A antiga grade de
+  tipos (`criar_lista_tipos.php`) deixou de existir (os atalhos por tipo continuam na Home).
 - **Novo (painel do organizador):** refinamento de UI/UX. **Minhas listas**: stat cards com ícones,
   **busca e filtro de listas** por nome/tipo (com contadores atualizados nas abas), miniatura da capa
   com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.

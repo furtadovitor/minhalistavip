@@ -14,13 +14,7 @@ foreach (tipos_evento() as $chave => $tipoCatalogo) {
     $tipos[$chave] = $tipoCatalogo['rotulo'];
 }
 
-$temas = [
-    'classico'  => 'Clássico',
-    'casamento' => 'Casamento',
-    'cha_bebe'  => 'Chá de Bebê',
-    'infantil'  => 'Infantil',
-    'moderno'   => 'Moderno',
-];
+$temas = \App\Services\ModeloService::rotulos();
 ?>
 
 <?= $this->section('conteudo') ?>
@@ -179,13 +173,10 @@ $temas = [
                         <label class="form-label fw-semibold fs-7">Paletas prontas</label>
                         <div class="d-flex flex-wrap gap-2">
                             <?php
-                            $presets = [
-                                ['Clássico', '#4F46E5', '#10B981', 'classico'],
-                                ['Casamento', '#D97706', '#B45309', 'casamento'],
-                                ['Chá de bebê', '#06B6D4', '#0891B2', 'cha_bebe'],
-                                ['Infantil', '#F472B6', '#FBBF24', 'infantil'],
-                                ['Moderno', '#EC4899', '#8B5CF6', 'moderno'],
-                            ];
+                            $presets = [];
+                            foreach (\App\Services\ModeloService::todos() as $chave => $modelo) {
+                                $presets[] = [$modelo['rotulo'], $modelo['cor_primaria'], $modelo['cor_secundaria'], $chave];
+                            }
                             ?>
                             <?php foreach ($presets as $preset): ?>
                                 <button type="button"

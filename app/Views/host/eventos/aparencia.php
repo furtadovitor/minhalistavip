@@ -3,13 +3,10 @@
 <?php
 $valor = static fn (string $campo, $padrao = '') => old($campo, $evento->{$campo} ?? $padrao);
 
-$presets = [
-    ['Clássico', '#4F46E5', '#10B981', 'classico'],
-    ['Casamento', '#D97706', '#B45309', 'casamento'],
-    ['Chá de bebê', '#06B6D4', '#0891B2', 'cha_bebe'],
-    ['Infantil', '#F472B6', '#FBBF24', 'infantil'],
-    ['Moderno', '#EC4899', '#8B5CF6', 'moderno'],
-];
+$presets = [];
+foreach (\App\Services\ModeloService::todos() as $chave => $modelo) {
+    $presets[] = [$modelo['rotulo'], $modelo['cor_primaria'], $modelo['cor_secundaria'], $chave];
+}
 ?>
 
 <?= $this->section('conteudo') ?>
