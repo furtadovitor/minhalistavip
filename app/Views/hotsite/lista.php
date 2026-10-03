@@ -840,6 +840,15 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php if ($modo !== 'demo'): ?>
+    <?= view('templates/partials/chat', [
+        'canal'         => 'site',
+        'eventoId'      => $evento->id ?? null,
+        'variante'      => 'hotsite',
+        'corPrimaria'   => $evento->cor_primaria ?? null,
+        'corSecundaria' => $evento->cor_secundaria ?? null,
+    ]) ?>
+<?php endif; ?>
 <script>
 (function () {
     // ---------- Countdown ----------

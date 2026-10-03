@@ -94,11 +94,14 @@ Configurações) e **botões/campos padronizados**.
   Publicar mostra exatamente o que está faltando; no admin vale para a publicação individual e em
   lote (o lote publica só as listas completas). Centralizado em
   `EventoService::pendenciasPublicacao()`.
-- **Novo (painel do organizador):** **botão de suporte** de fácil acesso (flutuante no canto +
-  item no menu lateral) que abre o modal **"Fale com uma pessoa de verdade"** com os canais
-  **E-mail** e **WhatsApp**. Os contatos ficam em `templates/partials/suporte.php` — hoje com
-  placeholder **`xxxx`**, trocar antes de divulgar. Não aparece para o SuperAdmin (é canal do
-  organizador).
+- **Novo (suporte):** **chat ao vivo** por **polling** (roda na Hostinger, sem WebSocket). O
+  organizador (painel) e o visitante do site/hotsite abrem conversa pelo botão flutuante; o
+  **admin** vê a **fila** em `admin/suporte`, **assume** (atômico, sem duplicar entre atendentes)
+  e responde. A conversa fica no banco: se o cliente fechar o navegador e voltar em até **5 min**,
+  o widget retoma de onde parou; passando disso, é **encerrada automaticamente**. Selo de não
+  lidas no botão e no menu do admin. Cron `php spark suporte:fechar-inativos`. Os canais de
+  E-mail/WhatsApp seguem no modal dentro do chat (`templates/partials/suporte.php`, com
+  placeholder **`xxxx`**, trocar antes de divulgar). Não aparece para o SuperAdmin como cliente.
 - **Novo (painel do organizador):** refinamento de UI/UX. **Minhas listas**: stat cards com ícones,
   **busca e filtro de listas** por nome/tipo (com contadores atualizados nas abas), miniatura da capa
   com zoom, selo de rascunho, botões de **compartilhar (copiar link)** e **publicar rápido**.
@@ -140,7 +143,8 @@ Configurações) e **botões/campos padronizados**.
    tabela `evento_galeria`, `rsvp_acompanhantes.categoria`, o ENUM ampliado de
    `eventos.tipo_evento`, o check-in (`rsvp_confirmacoes.check_in_em/check_in_por`), as
    configurações do gateway PIX (`pix_gateway`, Mercado Pago e `mercadopago_public_key`) e a
-   tabela `demo_listas` (listas de exemplo gerenciáveis no admin).
+   tabela `demo_listas` (listas de exemplo gerenciáveis no admin) e as tabelas do chat de suporte
+   (`suporte_conversas` e `suporte_mensagens`).
 2. Garantir **`public/uploads/` gravável** (imagens dos presentes/capas/galeria).
 3. Antes de divulgar: **religar senha** (`AuthService::EXIGIR_SENHA = true`), definir
    `pix_gateway = mercadopago` com **Access Token + Public Key do mesmo ambiente E do mesmo
@@ -156,6 +160,8 @@ Configurações) e **botões/campos padronizados**.
 4. **Cron da conciliação** — agendar `php spark pedidos:conciliar` a cada 5 minutos (expira
    pedidos vencidos e confirma pagamentos com webhook perdido). Passo a passo no
    `tools/DEPLOY-HOSTINGER.md`.
+5. **Cron do suporte** — agendar `php spark suporte:fechar-inativos` (a cada 5 minutos) para
+   encerrar conversas do chat de suporte sem presença recente do cliente.
 
 ## Próximos módulos sugeridos
 1. **Convite nominal / link por convidado** (pré-cadastro + confirmação sem duplicados).

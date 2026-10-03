@@ -36,6 +36,7 @@ if ($superadmin) {
             ['rota' => 'admin', 'icone' => 'bi-speedometer2', 'rotulo' => 'Visão geral', 'exato' => true],
             ['rota' => 'admin/financeiro', 'icone' => 'bi-graph-up-arrow', 'rotulo' => 'Financeiro'],
             ['rota' => 'admin/saques', 'icone' => 'bi-cash-coin', 'rotulo' => 'Saques'],
+            ['rota' => 'admin/suporte', 'icone' => 'bi-headset', 'rotulo' => 'Suporte'],
         ]],
         ['rotulo' => 'Gestão', 'itens' => [
             ['rota' => 'admin/listas', 'icone' => 'bi-list-ul', 'rotulo' => 'Listas'],
@@ -252,7 +253,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
             <?php endif; ?>
             <?php if (! $superadmin): ?>
                 <button type="button" class="app-nav-link w-100 border-0 bg-transparent text-start"
-                        data-bs-toggle="modal" data-bs-target="#modalSuporte" title="Suporte">
+                        data-mlv-chat-abrir title="Suporte">
                     <i class="bi bi-headset"></i><span class="app-nav-text">Suporte</span>
                 </button>
             <?php endif; ?>
@@ -345,7 +346,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
             <?php endif; ?>
             <?php if (! $superadmin): ?>
                 <button type="button" class="app-nav-link w-100 border-0 bg-transparent text-start"
-                        data-bs-toggle="modal" data-bs-target="#modalSuporte">
+                        data-mlv-chat-abrir data-bs-dismiss="offcanvas">
                     <i class="bi bi-headset"></i><span>Suporte</span>
                 </button>
             <?php endif; ?>
@@ -358,6 +359,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
 
 <?php if (! $superadmin): ?>
     <?= view('templates/partials/suporte') ?>
+    <?= view('templates/partials/chat', ['canal' => 'painel', 'mostrarCanais' => true]) ?>
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -476,5 +478,35 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
     }, true);
 })();
 </script>
+<?php if ($superadmin): ?>
+<script>
+(function () {
+    var link = null;
+    Array.prototype.slice.call(document.querySelectorAll('.app-nav-link')).forEach(function (a) {
+        if (a.getAttribute('href') && a.getAttribute('href').indexOf('/admin/suporte') !== -1) { link = a; }
+    });
+    if (!link) { return; }
+
+    var badge = document.createElement('span');
+    badge.className = 'badge rounded-pill text-bg-danger ms-auto';
+    badge.style.display = 'none';
+    link.appendChild(badge);
+
+    function atualizar() {
+        fetch(<?= json_encode(site_url('admin/suporte/fila')) ?>, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                var n = d && d.fila && d.fila.aguardando ? d.fila.aguardando.length : 0;
+                if (n > 0) { badge.textContent = n > 9 ? '9+' : n; badge.style.display = ''; }
+                else { badge.style.display = 'none'; }
+            })
+            .catch(function () {});
+    }
+
+    atualizar();
+    setInterval(atualizar, 20000);
+})();
+</script>
+<?php endif; ?>
 </body>
 </html>

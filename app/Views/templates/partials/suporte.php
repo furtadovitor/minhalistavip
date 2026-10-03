@@ -1,6 +1,7 @@
 <?php
 /**
- * Botão flutuante + modal "Fale com uma pessoa de verdade" (painel do organizador).
+ * Modal "Fale com uma pessoa de verdade" (e-mail/WhatsApp), aberto pelo chat
+ * de suporte do painel do organizador.
  *
  * TODO: definir os canais reais de atendimento.
  * Basta trocar os dois valores abaixo (e-mail e WhatsApp). O link do WhatsApp
@@ -20,19 +21,6 @@ $whatsLink = $whatsDigitos !== '' ? 'https://wa.me/55' . $whatsDigitos : '#';
 $emailLink = 'mailto:' . $suporteEmail . '?subject=' . rawurlencode('Suporte - Minha Lista VIP');
 ?>
 <style>
-    .suporte-fab {
-        position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1045;
-        display: inline-flex; align-items: center; gap: .5rem;
-        background: var(--brand); color: #fff; border: 0;
-        padding: .7rem 1rem; border-radius: 999px; font-weight: 600; font-size: .9rem;
-        box-shadow: 0 .6rem 1.6rem rgba(17,24,39,.28);
-        transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-    }
-    .suporte-fab:hover { transform: translateY(-2px); color: #fff; filter: brightness(1.05); box-shadow: 0 1rem 2rem rgba(17,24,39,.34); }
-    .suporte-fab i { font-size: 1.15rem; }
-    .suporte-fab .rotulo { display: none; }
-    @media (min-width: 576px) { .suporte-fab .rotulo { display: inline; } }
-
     .suporte-icone {
         width: 64px; height: 64px; border-radius: 50%; margin: 0 auto;
         display: inline-flex; align-items: center; justify-content: center;
@@ -51,11 +39,6 @@ $emailLink = 'mailto:' . $suporteEmail . '?subject=' . rawurlencode('Suporte - M
     .suporte-canal-icone.mail { background: var(--brand-soft); color: var(--brand); }
     .suporte-canal-icone.whats { background: #25D366; color: #fff; }
 </style>
-
-<button type="button" class="suporte-fab" data-bs-toggle="modal" data-bs-target="#modalSuporte"
-        aria-label="Falar com o suporte">
-    <i class="bi bi-headset"></i><span class="rotulo">Suporte</span>
-</button>
 
 <div class="modal fade" id="modalSuporte" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

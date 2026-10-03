@@ -133,6 +133,14 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
     $routes->get('configuracoes', 'Admin\Configuracoes::index');
     $routes->post('configuracoes', 'Admin\Configuracoes::salvar');
 
+    // --- Suporte (chat ao vivo) ---
+    $routes->get('suporte', 'Admin\Suporte::index');
+    $routes->get('suporte/fila', 'Admin\Suporte::fila');
+    $routes->get('suporte/(:num)/mensagens', 'Admin\Suporte::mensagens/$1');
+    $routes->post('suporte/(:num)/assumir', 'Admin\Suporte::assumir/$1');
+    $routes->post('suporte/(:num)/mensagens', 'Admin\Suporte::enviar/$1');
+    $routes->post('suporte/(:num)/encerrar', 'Admin\Suporte::encerrar/$1');
+
     // --- Catálogo global ---
     $routes->get('catalogo', 'Admin\Catalogo::index');
     $routes->get('catalogo/novo', 'Admin\Catalogo::novo');
@@ -181,6 +189,11 @@ $routes->get('exemplos', 'Public\Demo::index');
 $routes->get('demo', 'Public\Demo::index');
 $routes->get('demo/(:segment)', 'Public\Demo::show/$1');
 $routes->match(['get', 'post'], 'buscar', 'Public\Busca::buscar');
+
+// Chat de suporte ao vivo (cliente: organizador ou visitante).
+$routes->get('suporte/conversa', 'Public\Suporte::estado');
+$routes->post('suporte/conversa/mensagens', 'Public\Suporte::enviar');
+$routes->post('suporte/conversa/encerrar', 'Public\Suporte::encerrar');
 
 // Atalhos de criação de lista por tipo de evento (chá de bebê, pet, natal...).
 $routes->get('criar-lista-de-presente', 'Public\CriarLista::index');
