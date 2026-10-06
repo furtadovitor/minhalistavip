@@ -115,7 +115,7 @@ class TipoEventoService
     ];
 
     /**
-     * Atalhos exibidos na Home — 16 tipos, em grade 4x4.
+     * Atalhos exibidos na Home — 15 tipos, em grade de 3 colunas (5 linhas).
      *
      * @var list<string>
      */
@@ -123,7 +123,7 @@ class TipoEventoService
         'casamento', 'cha_bebe', 'aniversario', 'cha_panela',
         'cha_cozinha', 'cha_revelacao', 'cha_fraldas', 'quinze_anos',
         'formatura', 'noivado', 'cha_lingerie', 'festa_infantil',
-        'amigo_secreto', 'festa_junina', 'natal', 'evento_pet',
+        'amigo_secreto', 'festa_junina', 'natal',
     ];
 
     /**
@@ -135,7 +135,7 @@ class TipoEventoService
     }
 
     /**
-     * Tipos em destaque (16) para a grade de atalhos da Home.
+     * Tipos em destaque (15) para a grade de atalhos da Home.
      *
      * @return array<string, array{slug: string, rotulo: string, icone: string, tema: string, cor_primaria: string, cor_secundaria: string}>
      */

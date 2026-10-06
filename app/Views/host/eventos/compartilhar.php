@@ -78,7 +78,7 @@ $whats   = 'https://api.whatsapp.com/send?text=' . rawurlencode($texto);
     if (btnNativo) {
         btnNativo.addEventListener('click', function () {
             if (navigator.share) {
-                navigator.share({ title: <?= json_encode($evento->titulo) ?>, url: link });
+                navigator.share({ title: <?= json_encode($evento->titulo, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, url: link });
             } else {
                 navigator.clipboard.writeText(link);
             }

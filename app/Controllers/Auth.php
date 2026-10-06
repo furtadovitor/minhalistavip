@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Entities\Usuario;
 use App\Models\UsuarioModel;
 use App\Services\AuthService;
+use App\Services\SenhaService;
 
 /**
  * Autenticação: login, logout e auto-cadastro de organizadores.
@@ -27,16 +28,26 @@ class Auth extends BaseController
         }
 
         if (! $this->validate($regras)) {
+            $mensagem = AuthService::EXIGIR_SENHA
+                ? 'Informe um e-mail válido e uma senha com pelo menos 6 caracteres.'
+                : 'Informe um e-mail válido.';
+
+            return redirect()->back()->withInput()->with('erro', $mensagem);
+        }
+
+        // Proteção contra força bruta: limita tentativas por IP (5 a cada 5 min).
+        if (! service('throttler')->check('login_' . md5($this->request->getIPAddress()), 5, 300)) {
             return redirect()->back()->withInput()
-                ->with('erro', 'Informe um e-mail válido.');
+                ->with('erro', 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.');
         }
 
         $email = (string) $this->request->getPost('email');
         $senha = (string) $this->request->getPost('senha');
 
         if (! $this->auth->tentarLogin($email, $senha)) {
+            // Mensagem genérica: não revela se o e-mail existe.
             return redirect()->back()->withInput()
-                ->with('erro', 'Não encontramos um usuário ativo com esse e-mail.');
+                ->with('erro', 'E-mail ou senha inválidos.');
         }
 
         $destino = session()->get('redirect_url') ?: site_url($this->auth->rotaInicial());
@@ -50,6 +61,78 @@ class Auth extends BaseController
         $this->auth->logout();
 
         return redirect()->to(site_url('login'))->with('sucesso', 'Sessão encerrada com sucesso.');
+    }
+
+    /**
+     * Formulário "Esqueci minha senha".
+     */
+    public function esqueciSenha()
+    {
+        return view('auth/esqueci_senha', ['titulo' => 'Esqueci minha senha']);
+    }
+
+    /**
+     * Envia o link de redefinição. A resposta é sempre genérica.
+     */
+    public function enviarRecuperacao()
+    {
+        if (! service('throttler')->check('recuperar_' . md5($this->request->getIPAddress()), 5, 900)) {
+            return redirect()->back()
+                ->with('erro', 'Muitas solicitações. Aguarde alguns minutos e tente novamente.');
+        }
+
+        if (! $this->validate(['email' => 'required|valid_email'])) {
+            return redirect()->back()->withInput()->with('erro', 'Informe um e-mail válido.');
+        }
+
+        (new SenhaService())->solicitar((string) $this->request->getPost('email'));
+
+        return redirect()->to(site_url('login'))->with(
+            'sucesso',
+            'Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. Verifique também a caixa de spam.'
+        );
+    }
+
+    /**
+     * Formulário de nova senha (valida o token do link).
+     */
+    public function redefinirSenha($token = null)
+    {
+        $usuario = (new SenhaService())->usuarioPorToken((string) $token);
+
+        if ($usuario === null) {
+            return redirect()->to(site_url('login'))
+                ->with('erro', 'Link inválido ou expirado. Solicite um novo.');
+        }
+
+        return view('auth/redefinir_senha', [
+            'titulo' => 'Definir nova senha',
+            'token'  => (string) $token,
+        ]);
+    }
+
+    /**
+     * Salva a nova senha e invalida o token.
+     */
+    public function salvarNovaSenha()
+    {
+        $token = (string) $this->request->getPost('token');
+
+        $regras = [
+            'senha'             => 'required|min_length[6]|max_length[72]',
+            'senha_confirmacao' => 'required|matches[senha]',
+        ];
+
+        if (! $this->validate($regras)) {
+            return redirect()->back()->withInput()->with('erros', $this->validator->getErrors());
+        }
+
+        if (! (new SenhaService())->redefinir($token, (string) $this->request->getPost('senha'))) {
+            return redirect()->to(site_url('login'))
+                ->with('erro', 'Link inválido ou expirado. Solicite um novo.');
+        }
+
+        return redirect()->to(site_url('login'))->with('sucesso', 'Senha alterada com sucesso! Faça login.');
     }
 
     public function registro()

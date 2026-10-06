@@ -80,9 +80,10 @@ class SandboxGateway implements GatewayPixInterface
 
     public function tokenValido(?string $token): bool
     {
-        $esperado = $this->config->texto('pix_webhook_token', 'sandbox-token');
+        // Sem token configurado, o webhook falha fechado (nunca aceita o default).
+        $esperado = trim((string) $this->config->texto('pix_webhook_token', ''));
 
-        return $esperado !== '' && is_string($token) && hash_equals($esperado, $token);
+        return $esperado !== '' && is_string($token) && $token !== '' && hash_equals($esperado, $token);
     }
 
     /**

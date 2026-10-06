@@ -15,13 +15,28 @@ class AuthFilter implements FilterInterface
     {
         helper('url');
 
-        if (session()->get('usuario_id')) {
-            return null;
+        $id = session()->get('usuario_id');
+
+        if (! $id) {
+            session()->set('redirect_url', (string) $request->getUri());
+
+            return redirect()->to(site_url('login'))->with('erro', 'Faça login para continuar.');
         }
 
-        session()->set('redirect_url', (string) $request->getUri());
+        // Revalida o usuário a cada requisição: se foi suspenso ou excluído
+        // depois do login, encerra a sessão imediatamente.
+        $usuario = model(\App\Models\UsuarioModel::class)->find($id);
 
-        return redirect()->to(site_url('login'))->with('erro', 'Faça login para continuar.');
+        if ($usuario === null || ! $usuario->isAtivo()) {
+            (new \App\Services\AuthService())->logout();
+
+            return redirect()->to(site_url('login'))->with('erro', 'Sua conta está inativa. Entre novamente.');
+        }
+
+        // Mantém o nível da sessão em sincronia com o banco (ACL confiável).
+        session()->set('usuario_nivel', $usuario->nivel);
+
+        return null;
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)

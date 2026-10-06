@@ -230,7 +230,7 @@ if (filter_var((string) $pedido->email_convidado, FILTER_VALIDATE_EMAIL)) {
         var csrf      = <?= json_encode(csrf_hash()) ?>;
         var existente = <?= $pagamentoPendente ? json_encode((string) $cobranca['gateway_transacao_id']) : 'null' ?>;
         var threeDs   = <?= $pagamentoPendente ? json_encode($cobranca['three_ds_info'] ?? null) : 'null' ?>;
-        var payer     = <?= json_encode($payer, JSON_UNESCAPED_UNICODE) ?>;
+        var payer     = <?= json_encode($payer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;
 
         var erroBox = document.getElementById('payment-erro');
         var statusBox = document.getElementById('statusScreenBrick_container');

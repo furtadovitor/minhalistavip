@@ -149,7 +149,7 @@ foreach (\App\Services\ModeloService::todos() as $chave => $modelo) {
             ? overlay + ", url('" + capaUrl + "') center/cover"
             : 'linear-gradient(135deg, ' + p + ', ' + s + ')';
 
-        el('pv-titulo').textContent = <?= json_encode($evento->titulo) ?>;
+        el('pv-titulo').textContent = <?= json_encode($evento->titulo, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         el('pv-titulo').style.fontFamily = fontes[t] || fontes.classico;
         el('pv-preco').style.color = p;
         const botao = el('pv-preco').parentElement.querySelector('span.btn');

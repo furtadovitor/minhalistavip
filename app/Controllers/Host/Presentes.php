@@ -184,7 +184,7 @@ class Presentes extends BaseController
             'tipo'            => (string) $this->request->getPost('tipo'),
             'valor'           => (float) $this->request->getPost('valor'),
             'quantidade_meta' => max(1, (int) $this->request->getPost('quantidade_meta')),
-            'link_afiliado'   => $texto('link_afiliado') ?: null,
+            'link_afiliado'   => $this->urlSegura($texto('link_afiliado')),
             'ativo'           => $this->request->getPost('ativo') ? 1 : 0,
             'ordem'           => (int) $this->request->getPost('ordem'),
         ];
@@ -193,5 +193,17 @@ class Presentes extends BaseController
     private function urlPresentes(int $eventoId): string
     {
         return site_url('painel/eventos/' . $eventoId . '/presentes');
+    }
+
+    /**
+     * Aceita apenas URLs http(s) como link de afiliado (evita "javascript:" e afins).
+     */
+    private function urlSegura(string $url): ?string
+    {
+        if ($url === '' || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        return preg_match('#^https?://#i', $url) === 1 ? $url : null;
     }
 }

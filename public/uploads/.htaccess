@@ -1,0 +1,5 @@
+# Diretório de uploads: só imagens enviadas pela plataforma.
+# Bloqueia qualquer tentativa de executar scripts aqui (defesa em profundidade).
+<FilesMatch "\.(php|phtml|php[0-9]|phar|pl|py|cgi|asp|aspx|jsp|shtml|htaccess)$">
+    Require all denied
+</FilesMatch>

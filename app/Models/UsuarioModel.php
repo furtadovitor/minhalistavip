@@ -23,6 +23,8 @@ class UsuarioModel extends Model
         'nome',
         'email',
         'senha',
+        'reset_senha_token',
+        'reset_senha_expira',
         'telefone',
         'cpf_cnpj',
         'data_nascimento',

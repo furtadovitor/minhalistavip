@@ -1,23 +1,21 @@
 <?php
 /**
- * Grade de atalhos por tipo de evento. Cada card leva à criação da lista
- * (/criar-lista-de-presente/{slug}).
+ * Atalhos por tipo de evento — cartões horizontais com o ícone à esquerda.
+ * Cada card leva à criação da lista (/criar-lista-de-presente/{slug}).
  *
  * @var array<string, array{slug: string, rotulo: string, icone: string, tema: string, cor_primaria: string, cor_secundaria: string}> $tipos
  */
 $tipos = $tipos ?? tipos_evento();
 ?>
 <?php foreach ($tipos as $chave => $tipo): ?>
-    <div class="col-6 col-md-4 col-lg-3">
-        <a class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-center transition-hover atalho-tipo"
+    <div class="col-12 col-sm-6 col-lg-4">
+        <a class="lp-atalho d-flex align-items-center gap-3 h-100 text-decoration-none rounded-4 p-2 pe-3"
            href="<?= esc(site_url('criar-lista-de-presente/' . $tipo['slug']), 'attr') ?>">
-            <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center">
-                <span class="atalho-icone rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
-                      style="background: <?= esc($tipo['cor_primaria'], 'attr') ?>1A; font-size: 1.6rem; width: 56px; height: 56px;">
-                    <?= esc($tipo['icone']) ?>
-                </span>
-                <span class="fw-semibold fs-7 text-dark"><?= esc($tipo['rotulo']) ?></span>
-            </div>
+            <span class="lp-atalho-icone"
+                  style="--atalho-a: <?= esc($tipo['cor_primaria'], 'attr') ?>; --atalho-b: <?= esc($tipo['cor_secundaria'], 'attr') ?>;"
+                  aria-hidden="true"><?= esc($tipo['icone']) ?></span>
+            <span class="lp-atalho-nome flex-grow-1 fw-semibold text-dark"><?= esc($tipo['rotulo']) ?></span>
+            <i class="bi bi-arrow-right lp-atalho-seta" aria-hidden="true"></i>
         </a>
     </div>
 <?php endforeach; ?>

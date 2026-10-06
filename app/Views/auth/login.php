@@ -44,7 +44,11 @@
             </button>
         </form>
 
-        <p class="text-center small mt-4 mb-0">
+        <p class="text-center small mt-3 mb-0">
+            <a href="<?= site_url('esqueci-senha') ?>" class="text-muted text-decoration-none">Esqueci minha senha</a>
+        </p>
+
+        <p class="text-center small mt-3 mb-0">
             Ainda não tem conta?
             <a href="<?= site_url('registro') ?>" class="text-brand fw-semibold text-decoration-none">Criar conta grátis</a>
         </p>

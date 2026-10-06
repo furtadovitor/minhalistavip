@@ -259,6 +259,11 @@ class Eventos extends BaseController
     {
         $valor = (string) $valor;
 
+        // Neutraliza fórmulas ao abrir o CSV no Excel/Sheets (CSV injection).
+        if (preg_match('/^[=+\-@\t]/', $valor) === 1) {
+            $valor = "'" . $valor;
+        }
+
         if (preg_match('/[";\r\n]/', $valor) === 1) {
             return '"' . str_replace('"', '""', $valor) . '"';
         }

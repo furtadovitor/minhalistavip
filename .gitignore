@@ -61,7 +61,8 @@ Vagrantfile
 !/writable/uploads/index.html
 
 # Uploads dos usuários (capas, presentes, galeria) — não versionar
-/public/uploads/
+/public/uploads/*
+!/public/uploads/.htaccess
 
 /writable/debugbar/*
 !/writable/debugbar/index.html

@@ -18,6 +18,12 @@ $routes->group('', ['filter' => 'guest'], static function (RouteCollection $rout
     $routes->get('registro', 'Auth::registro');
     $routes->post('registro', 'Auth::salvarRegistro');
 
+    // Redefinição de senha.
+    $routes->get('esqueci-senha', 'Auth::esqueciSenha');
+    $routes->post('esqueci-senha', 'Auth::enviarRecuperacao');
+    $routes->get('redefinir-senha/(:segment)', 'Auth::redefinirSenha/$1');
+    $routes->post('redefinir-senha', 'Auth::salvarNovaSenha');
+
     // "Entrar com Google" (OAuth 2.0 / OpenID Connect).
     $routes->get('auth/google', 'Auth::google');
     $routes->get('auth/google/callback', 'Auth::googleCallback');

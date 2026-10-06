@@ -228,6 +228,13 @@ class Convidados extends BaseController
 
     private function csv(string $valor): string
     {
-        return str_replace(["\r", "\n", ';'], [' ', ' ', ','], $valor);
+        $valor = str_replace(["\r", "\n", ';'], [' ', ' ', ','], $valor);
+
+        // Neutraliza fórmulas ao abrir o CSV no Excel/Sheets (CSV injection).
+        if (preg_match('/^[=+\-@\t]/', $valor) === 1) {
+            $valor = "'" . $valor;
+        }
+
+        return $valor;
     }
 }

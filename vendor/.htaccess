@@ -1,0 +1,2 @@
+# Nunca servir arquivos de dependências diretamente pela web.
+Require all denied

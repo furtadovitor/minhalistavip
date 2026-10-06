@@ -173,6 +173,40 @@
         color: var(--brand-dark);
     }
 
+    /* ---- Atalhos por tipo de evento (lista com ícone à esquerda) ---- */
+    .lp-atalho {
+        background: #fff;
+        border: 1px solid rgba(17, 24, 39, .08);
+        min-height: 64px;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .lp-atalho:hover {
+        transform: translateY(-2px);
+        border-color: rgba(79, 70, 229, .28);
+        box-shadow: 0 .7rem 1.4rem rgba(17, 24, 39, .10);
+    }
+    .lp-atalho:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .lp-atalho-icone {
+        width: 46px;
+        height: 46px;
+        border-radius: .8rem;
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        background: linear-gradient(135deg, var(--atalho-a, var(--brand)), var(--atalho-b, var(--brand-dark)));
+        box-shadow: 0 .35rem .8rem rgba(17, 24, 39, .16);
+    }
+    .lp-atalho-nome { font-size: .92rem; line-height: 1.2; overflow-wrap: anywhere; }
+    .lp-atalho-seta {
+        color: #C7CBD3;
+        font-size: .95rem;
+        flex: none;
+        transition: transform .18s ease, color .18s ease;
+    }
+    .lp-atalho:hover .lp-atalho-seta { color: var(--brand); transform: translateX(3px); }
+
     /* ---- Passos ---- */
     .lp-step-num {
         width: 34px;

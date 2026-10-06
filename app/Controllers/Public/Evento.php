@@ -85,6 +85,11 @@ class Evento extends BaseController
     {
         $evento = $this->buscarPublicado($slug);
 
+        if (! service('throttler')->check('rsvp_' . md5($this->request->getIPAddress()), 20, 600)) {
+            return redirect()->to(site_url($evento->slug) . '#presenca')
+                ->with('erro', 'Muitas confirmações em pouco tempo. Aguarde alguns minutos e tente novamente.');
+        }
+
         if (! $evento->permite_rsvp) {
             return redirect()->to(site_url($evento->slug))
                 ->with('erro', 'Este evento não está recebendo confirmações de presença.');
@@ -147,6 +152,11 @@ class Evento extends BaseController
     public function recado($slug = null)
     {
         $evento = $this->buscarPublicado($slug);
+
+        if (! service('throttler')->check('recado_' . md5($this->request->getIPAddress()), 20, 600)) {
+            return redirect()->to(site_url($evento->slug))
+                ->with('erro', 'Muitos recados em pouco tempo. Aguarde alguns minutos e tente novamente.');
+        }
 
         if (! $evento->permite_recados) {
             return redirect()->to(site_url($evento->slug))

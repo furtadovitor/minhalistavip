@@ -227,7 +227,8 @@ class MercadoPagoGateway implements GatewayPixInterface
         $segredo = $this->config->texto('mercadopago_webhook_secret');
 
         if ($segredo === '') {
-            return true;
+            // Sem segredo configurado, o webhook falha fechado.
+            return false;
         }
 
         $assinatura = (string) ($headers['x-signature'] ?? '');

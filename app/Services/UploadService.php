@@ -74,16 +74,23 @@ class UploadService
     public function apagar(?string $caminho, string $subpasta): void
     {
         $subpasta = trim($subpasta, '/');
-        $caminho   = (string) $caminho;
+        $caminho  = str_replace('\\', '/', (string) $caminho);
 
-        if ($caminho === '' || ! str_starts_with($caminho, 'uploads/' . $subpasta . '/')) {
+        // Rejeita caminhos relativos/absolutos e qualquer tentativa de "..".
+        if ($caminho === '' || str_contains($caminho, '..') || ! str_starts_with($caminho, 'uploads/' . $subpasta . '/')) {
             return;
         }
 
-        $absoluto = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $caminho);
+        $base = realpath(FCPATH . 'uploads' . DIRECTORY_SEPARATOR . $subpasta);
+        $abs  = realpath(FCPATH . ltrim($caminho, '/'));
 
-        if (is_file($absoluto)) {
-            unlink($absoluto);
+        // Só apaga se o arquivo resolvido estiver realmente dentro da subpasta.
+        if ($base === false || $abs === false || ! str_starts_with($abs, $base . DIRECTORY_SEPARATOR)) {
+            return;
+        }
+
+        if (is_file($abs)) {
+            unlink($abs);
         }
     }
 }

@@ -157,10 +157,22 @@ class Catalogo extends BaseController
             'descricao'      => $texto('descricao') ?: null,
             'tipo'           => (string) $this->request->getPost('tipo'),
             'valor_sugerido' => $decimal('valor_sugerido'),
-            'link_afiliado'  => $texto('link_afiliado') ?: null,
+            'link_afiliado'  => $this->urlSegura($texto('link_afiliado')),
             'ativo'          => $this->request->getPost('ativo') ? 1 : 0,
             'destaque'       => $this->request->getPost('destaque') ? 1 : 0,
             'ordem'          => (int) $this->request->getPost('ordem'),
         ];
+    }
+
+    /**
+     * Aceita apenas URLs http(s) como link de afiliado (evita "javascript:" e afins).
+     */
+    private function urlSegura(string $url): ?string
+    {
+        if ($url === '' || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        return preg_match('#^https?://#i', $url) === 1 ? $url : null;
     }
 }

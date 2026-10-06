@@ -244,7 +244,8 @@ class Checkout extends BaseController
      */
     public function simular($slug = null, $protocolo = null)
     {
-        if (ENVIRONMENT === 'production') {
+        // Simulação só no ambiente de desenvolvimento (nunca em produção/staging).
+        if (ENVIRONMENT !== 'development') {
             throw PageNotFoundException::forPageNotFound('Recurso indisponível.');
         }
 

@@ -32,11 +32,13 @@ class Pix extends BaseController
             $dados = [];
         }
 
-        // Token via query string (útil para testes manuais e no sandbox).
-        $token = $this->request->getGet('token');
+        // Token via query string — apenas fora de produção (testes manuais/sandbox).
+        if (ENVIRONMENT !== 'production') {
+            $token = $this->request->getGet('token');
 
-        if (is_string($token) && $token !== '' && ! isset($dados['token'])) {
-            $dados['token'] = $token;
+            if (is_string($token) && $token !== '' && ! isset($dados['token'])) {
+                $dados['token'] = $token;
+            }
         }
 
         $headers = [
@@ -63,7 +65,9 @@ class Pix extends BaseController
             $dados['consulta'] = $consulta['payload'] ?? $consulta;
             $status            = strtolower((string) ($consulta['status'] ?? ''));
         } else {
-            $status = strtolower((string) ($dados['status'] ?? 'pago'));
+            // Sem consulta ao gateway, exige status explícito no payload
+            // (nunca assume "pago" — evita confirmação forjada).
+            $status = strtolower((string) ($dados['status'] ?? ''));
         }
 
         if (! in_array($status, ['pago', 'paid', 'approved', 'aprovado', 'confirmed'], true)) {

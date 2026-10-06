@@ -12,15 +12,14 @@ use App\Models\UsuarioModel;
 class AuthService
 {
     /**
-     * ⚠️ LOGIN SEM SENHA.
+     * Login com senha.
      *
-     * Quando `false`, o login aceita apenas o e-mail (a senha não é conferida).
-     * Para voltar a exigir senha, mude para `true`.
-     *
-     * ATENÇÃO: com `false`, qualquer pessoa que saiba um e-mail cadastrado
-     * consegue entrar (inclusive o SuperAdmin). Use com cautela.
+     * Quando `true`, o login exige e-mail + senha (padrão de produção).
+     * Quando `false`, o login aceita apenas o e-mail (a senha não é conferida) —
+     * use somente em ambiente controlado, pois qualquer pessoa que saiba um
+     * e-mail cadastrado consegue entrar, inclusive o SuperAdmin.
      */
-    public const EXIGIR_SENHA = false;
+    public const EXIGIR_SENHA = true;
 
     protected UsuarioModel $usuarios;
 
@@ -48,6 +47,9 @@ class AuthService
 
     public function registrarSessao(Usuario $usuario): void
     {
+        // Evita fixação de sessão: gera um novo ID logo após autenticar.
+        session()->regenerate(true);
+
         $this->usuarios->update($usuario->id, ['ultimo_login_em' => date('Y-m-d H:i:s')]);
 
         session()->set([
@@ -61,6 +63,7 @@ class AuthService
     public function logout(): void
     {
         session()->remove(['usuario_id', 'usuario_nome', 'usuario_email', 'usuario_nivel']);
+        session()->regenerate(true);
     }
 
     public function estaLogado(): bool

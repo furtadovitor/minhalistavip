@@ -14,6 +14,12 @@ class Busca extends BaseController
 {
     public function buscar()
     {
+        // Evita enumeração de protocolos/slugs e abuso do endpoint.
+        if (! service('throttler')->check('busca_' . md5($this->request->getIPAddress()), 30, 600)) {
+            return redirect()->to(site_url('/') . '#buscar')
+                ->with('erro', 'Muitas buscas em pouco tempo. Aguarde alguns minutos e tente novamente.');
+        }
+
         $termo = trim((string) (
             $this->request->getPost('termo')
             ?? $this->request->getGet('termo')

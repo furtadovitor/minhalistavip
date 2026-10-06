@@ -184,7 +184,7 @@ class Demos extends BaseController
      */
     private function resolverCapa(?string $capaAtual): array
     {
-        $capa = trim((string) $this->request->getPost('capa')) ?: null;
+        $capa = $this->normalizarCapa(trim((string) $this->request->getPost('capa')));
 
         if ($this->request->getPost('remover_capa')) {
             $this->upload->apagar($capaAtual, 'demos');
@@ -193,6 +193,27 @@ class Demos extends BaseController
         }
 
         return $this->upload->imagem($this->request->getFile('capa_arquivo'), 'demos', $capa);
+    }
+
+    /**
+     * A capa digitada só pode ser uma URL http(s) ou um arquivo já salvo em
+     * uploads/demos/. Nunca um caminho arbitrário do sistema (path traversal).
+     */
+    private function normalizarCapa(string $capa): ?string
+    {
+        if ($capa === '') {
+            return null;
+        }
+
+        if (preg_match('#^https?://#i', $capa) === 1) {
+            return filter_var($capa, FILTER_VALIDATE_URL) !== false ? $capa : null;
+        }
+
+        if (preg_match('#^uploads/demos/[A-Za-z0-9._-]+$#', $capa) === 1) {
+            return $capa;
+        }
+
+        return null;
     }
 
     /**

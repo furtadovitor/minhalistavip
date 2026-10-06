@@ -115,6 +115,15 @@ class Suporte extends BaseController
      */
     public function retomar()
     {
+        // Limita tentativas de adivinhar o código de atendimento por IP.
+        if (! service('throttler')->check('suporte_retomar_' . md5($this->request->getIPAddress()), 10, 600)) {
+            return $this->json([
+                'ok'   => false,
+                'erro' => 'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
+                'csrf' => csrf_hash(),
+            ]);
+        }
+
         $codigo = (string) $this->request->getPost('codigo');
         $conv   = $this->suporte->porCodigo($codigo);
 
