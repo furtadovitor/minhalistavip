@@ -89,7 +89,7 @@ $temas = \App\Services\ModeloService::rotulos();
 
             <div class="card border-0 shadow-sm rounded-4 mb-3">
                 <div class="card-body">
-                    <h2 class="h6 text-uppercase text-muted mb-3">Financeiro e PIX</h2>
+                    <h2 class="h6 text-uppercase text-muted mb-3">Comissão da plataforma</h2>
 
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -102,41 +102,7 @@ $temas = \App\Services\ModeloService::rotulos();
                                     Organizador (descontada do líquido)
                                 </option>
                             </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label" for="percentual_taxa">Taxa (%)</label>
-                            <input type="number" step="0.01" min="0" max="100" class="form-control"
-                                   id="percentual_taxa" name="percentual_taxa"
-                                   value="<?= esc($valor('percentual_taxa')) ?>" placeholder="Padrão da plataforma">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label" for="meta_valor">Meta (R$)</label>
-                            <input type="number" step="0.01" min="0" class="form-control"
-                                   id="meta_valor" name="meta_valor" value="<?= esc($valor('meta_valor')) ?>">
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-5">
-                            <label class="form-label" for="pix_tipo">Tipo de chave PIX</label>
-                            <select class="form-select" id="pix_tipo" name="pix_tipo">
-                                <option value="">—</option>
-                                <?php foreach (['cpf' => 'CPF', 'cnpj' => 'CNPJ', 'email' => 'E-mail', 'telefone' => 'Telefone', 'aleatoria' => 'Aleatória'] as $chave => $rotulo): ?>
-                                    <option value="<?= esc($chave) ?>" <?= $valor('pix_tipo') === $chave ? 'selected' : '' ?>>
-                                        <?= esc($rotulo) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-7">
-                            <label class="form-label" for="pix_chave">Chave PIX</label>
-                            <input type="text" class="form-control" id="pix_chave" name="pix_chave"
-                                   value="<?= esc($valor('pix_chave')) ?>">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="pix_nome">Nome do titular da chave</label>
-                            <input type="text" class="form-control" id="pix_nome" name="pix_nome"
-                                   value="<?= esc($valor('pix_nome')) ?>">
+                            <div class="form-text">A comissão da plataforma é fixa em 10%.</div>
                         </div>
                     </div>
                 </div>

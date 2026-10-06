@@ -50,7 +50,7 @@ class Auth extends BaseController
                 ->with('erro', 'E-mail ou senha inválidos.');
         }
 
-        $destino = session()->get('redirect_url') ?: site_url($this->auth->rotaInicial());
+        $destino = $this->auth->destinoSeguro(session()->get('redirect_url'));
         session()->remove('redirect_url');
 
         return redirect()->to($destino)->with('sucesso', 'Bem-vindo(a) de volta!');
@@ -280,7 +280,7 @@ class Auth extends BaseController
             return redirect()->to(site_url('login'))->with('erro', $resultado['mensagem']);
         }
 
-        $destino = session()->get('redirect_url') ?: site_url($this->auth->rotaInicial());
+        $destino = $this->auth->destinoSeguro(session()->get('redirect_url'));
         session()->remove('redirect_url');
 
         return redirect()->to($destino)->with('sucesso', $resultado['mensagem']);

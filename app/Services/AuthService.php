@@ -62,7 +62,7 @@ class AuthService
 
     public function logout(): void
     {
-        session()->remove(['usuario_id', 'usuario_nome', 'usuario_email', 'usuario_nivel']);
+        session()->remove(['usuario_id', 'usuario_nome', 'usuario_email', 'usuario_nivel', 'redirect_url']);
         session()->regenerate(true);
     }
 
@@ -89,6 +89,53 @@ class AuthService
     public function rotaInicial(): string
     {
         return $this->nivel() === 'superadmin' ? 'admin' : 'painel';
+    }
+
+    /**
+     * Valida o destino pós-login: precisa ser do próprio site e acessível pelo
+     * nível do usuário. Caso contrário, devolve a rota inicial.
+     *
+     * Evita open redirect e o caso de um organizador ser enviado para /admin
+     * (onde veria "você não tem permissão") por causa de um redirect_url antigo.
+     */
+    public function destinoSeguro(?string $destino): string
+    {
+        $padrao = site_url($this->rotaInicial());
+
+        if ($destino === null || trim($destino) === '') {
+            return $padrao;
+        }
+
+        $partes = parse_url($destino);
+
+        if ($partes === false) {
+            return $padrao;
+        }
+
+        // Só aceita o próprio domínio (ou caminho relativo).
+        if (! empty($partes['host'])) {
+            $hostBase = (string) parse_url(base_url(), PHP_URL_HOST);
+
+            if ($hostBase === '' || strcasecmp((string) $partes['host'], $hostBase) !== 0) {
+                return $padrao;
+            }
+        }
+
+        // Descobre o primeiro segmento do caminho (sem o baseURL).
+        $basePath = (string) (parse_url(base_url(), PHP_URL_PATH) ?? '');
+        $caminho  = (string) ($partes['path'] ?? '');
+
+        if ($basePath !== '' && str_starts_with($caminho, $basePath)) {
+            $caminho = substr($caminho, strlen($basePath));
+        }
+
+        $caminho = ltrim($caminho, '/');
+
+        if (str_starts_with($caminho, 'admin') && $this->nivel() !== 'superadmin') {
+            return $padrao;
+        }
+
+        return $destino;
     }
 
     /**

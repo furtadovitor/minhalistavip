@@ -199,17 +199,8 @@ class Evento extends BaseController
     {
         $id = (int) $eventoId;
 
-        $decimal = static function ($valor): ?float {
-            return ($valor === null || $valor === '') ? null : (float) $valor;
-        };
-
         $dados = [
-            'quem_paga_taxa'  => (string) $this->request->getPost('quem_paga_taxa'),
-            'percentual_taxa' => $decimal($this->request->getPost('percentual_taxa')),
-            'meta_valor'      => $decimal($this->request->getPost('meta_valor')),
-            'pix_tipo'        => $this->request->getPost('pix_tipo') ?: null,
-            'pix_chave'       => $this->texto('pix_chave') ?: null,
-            'pix_nome'        => $this->texto('pix_nome') ?: null,
+            'quem_paga_taxa' => (string) $this->request->getPost('quem_paga_taxa'),
         ];
 
         return $this->salvar($id, $dados, 'forma-pagamento', 'Forma de pagamento atualizada.');

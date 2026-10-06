@@ -66,8 +66,8 @@
             <div class="card border-0 shadow-sm rounded-4" style="position: sticky; top: 5rem;">
                 <div class="card-body p-4">
                     <p class="text-muted fs-7">
-                        As alterações valem para toda a plataforma. A taxa padrão é usada quando o
-                        evento não define um percentual próprio.
+                        As alterações valem para toda a plataforma. A comissão definida aqui vale para
+                        todas as listas e não é editável por evento.
                     </p>
                     <div class="d-grid gap-2">
                         <button class="btn btn-brand"><i class="bi bi-check2 me-1"></i>Salvar configurações</button>

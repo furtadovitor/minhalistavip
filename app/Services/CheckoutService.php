@@ -59,9 +59,9 @@ class CheckoutService
     public function resumo(Evento $evento, array $presente, int $quantidade): array
     {
         $valorPresentes = round(((float) $presente['valor']) * max(1, $quantidade), 2);
-        $percentual     = $evento->percentual_taxa !== null ? (float) $evento->percentual_taxa : null;
 
-        return $this->taxa->calcular($valorPresentes, (string) $evento->quem_paga_taxa, $percentual);
+        // A comissão é sempre o percentual fixo da plataforma (não há taxa por evento).
+        return $this->taxa->calcular($valorPresentes, (string) $evento->quem_paga_taxa);
     }
 
     /**

@@ -151,12 +151,6 @@ class Eventos extends BaseController
     {
         $texto = fn (string $campo): string => trim((string) $this->request->getPost($campo));
 
-        $decimal = function (string $campo): ?float {
-            $valor = $this->request->getPost($campo);
-
-            return ($valor === null || $valor === '') ? null : (float) $valor;
-        };
-
         $inteiro = function (string $campo): ?int {
             $valor = $this->request->getPost($campo);
 
@@ -178,12 +172,7 @@ class Eventos extends BaseController
             'cor_primaria'     => cor_hex($texto('cor_primaria'), '#8e44ad'),
             'cor_secundaria'   => cor_hex($texto('cor_secundaria'), '#f39c12'),
             'quem_paga_taxa'   => (string) $this->request->getPost('quem_paga_taxa'),
-            'percentual_taxa'  => $decimal('percentual_taxa'),
-            'meta_valor'       => $decimal('meta_valor'),
             'limite_convidados' => $inteiro('limite_convidados'),
-            'pix_chave'        => $texto('pix_chave') ?: null,
-            'pix_tipo'         => $this->request->getPost('pix_tipo') ?: null,
-            'pix_nome'         => $texto('pix_nome') ?: null,
             'permite_rsvp'     => $this->request->getPost('permite_rsvp') ? 1 : 0,
             'permite_recados'  => $this->request->getPost('permite_recados') ? 1 : 0,
             'exibir_valores'   => $this->request->getPost('exibir_valores') ? 1 : 0,

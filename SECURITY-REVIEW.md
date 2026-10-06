@@ -53,6 +53,7 @@ Melhorias aplicadas em `app/Controllers/Auth.php` e `app/Services/AuthService.ph
 | 14 | Baixo | `app/Config/Session.php` | `regenerateDestroy = true`. |
 | 15 | Médio | `public/uploads/.htaccess`, `vendor/.htaccess`, `.gitignore` | Bloqueio de execução de scripts em uploads e de acesso direto a `vendor/`. |
 | 16 | Alto | `env.producao` | `cookie.secure = true`, `forceGlobalSecureRequests = true`, `DBDebug = false` (ver item 3). |
+| 17 | Médio | `app/Services/AuthService.php`, `app/Controllers/Auth.php` | Destino pós-login validado (`destinoSeguro`): evita open redirect e evita cair em `/admin` sem permissão por um `redirect_url` antigo; `redirect_url` limpo no logout. |
 
 ### 2.1 Redefinição de senha ("esqueci minha senha")
 

@@ -286,7 +286,7 @@ $slides = [
                         <?php else: ?>
                             <i class="bi bi-2-circle me-1"></i>Próximo passo: entrar ou criar sua conta grátis.
                             Já tem conta?
-                            <a href="<?= site_url('login') ?>" class="text-brand fw-semibold text-decoration-none">Entrar</a>
+                            <button type="submit" class="btn btn-link p-0 text-brand fw-semibold text-decoration-none align-baseline">Entrar</button>
                         <?php endif; ?>
                     </p>
                 </form>
