@@ -12,9 +12,21 @@ $titulo = $titulo ?? 'Minha Lista VIP';
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= esc($titulo) ?></title>
 
-<link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-<link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
-<link rel="apple-touch-icon" href="<?= base_url('apple-touch-icon.png') ?>">
+<?php
+/**
+ * URL do favicon com cache-busting (?v=timestamp) — o navegador guarda
+ * favicons por muito tempo; assim ele recarrega quando o arquivo muda.
+ */
+$faviconUrl = static function (string $arquivo): string {
+    $caminho = FCPATH . $arquivo;
+    $versao  = is_file($caminho) ? (string) filemtime($caminho) : '1';
+
+    return base_url($arquivo) . '?v=' . $versao;
+};
+?>
+<link rel="icon" href="<?= $faviconUrl('favicon.ico') ?>" sizes="any">
+<link rel="icon" type="image/svg+xml" href="<?= $faviconUrl('favicon.svg') ?>">
+<link rel="apple-touch-icon" href="<?= $faviconUrl('apple-touch-icon.png') ?>">
 <meta name="theme-color" content="#722ED4">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

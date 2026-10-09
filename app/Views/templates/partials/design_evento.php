@@ -23,9 +23,18 @@ $fonte = \App\Services\ModeloService::tipografia((string) $tema);
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= esc($titulo) ?></title>
 
-<link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-<link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
-<link rel="apple-touch-icon" href="<?= base_url('apple-touch-icon.png') ?>">
+<?php
+/** Favicon com cache-busting (?v=timestamp) — ver design_system.php. */
+$faviconUrl = static function (string $arquivo): string {
+    $caminho = FCPATH . $arquivo;
+    $versao  = is_file($caminho) ? (string) filemtime($caminho) : '1';
+
+    return base_url($arquivo) . '?v=' . $versao;
+};
+?>
+<link rel="icon" href="<?= $faviconUrl('favicon.ico') ?>" sizes="any">
+<link rel="icon" type="image/svg+xml" href="<?= $faviconUrl('favicon.svg') ?>">
+<link rel="apple-touch-icon" href="<?= $faviconUrl('apple-touch-icon.png') ?>">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
