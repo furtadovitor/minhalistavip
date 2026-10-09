@@ -5,12 +5,24 @@
  * Uso: <head><?= view('templates/partials/design_system', ['titulo' => '...']) ?></head>
  *
  * @var string|null $titulo
+ * @var array|null  $seo  SEO: descricao, imagem, tipo, url, noindex, jsonld
  */
 $titulo = $titulo ?? 'Minha Lista VIP';
+$seo    = $seo ?? [];
 ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= esc($titulo) ?></title>
+
+<?= view('templates/partials/seo', [
+    'seo_titulo'    => $titulo,
+    'seo_descricao' => $seo['descricao'] ?? null,
+    'seo_imagem'    => $seo['imagem'] ?? null,
+    'seo_tipo'      => $seo['tipo'] ?? 'website',
+    'seo_url'       => $seo['url'] ?? null,
+    'seo_noindex'   => $seo['noindex'] ?? false,
+    'seo_jsonld'    => $seo['jsonld'] ?? [],
+]) ?>
 
 <?php
 /**

@@ -14,6 +14,7 @@ $titulo        = $titulo ?? 'Evento';
 $corPrimaria   = cor_hex($corPrimaria ?? null, '#4F46E5');
 $corSecundaria = cor_hex($corSecundaria ?? null, '#10B981');
 $escuro        = $escuro ?? false;
+$seo           = $seo ?? [];
 
 /** Tipografia e estilo por tema (catálogo central em ModeloService). */
 $tema  = $tema ?? 'classico';
@@ -22,6 +23,16 @@ $fonte = \App\Services\ModeloService::tipografia((string) $tema);
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= esc($titulo) ?></title>
+
+<?= view('templates/partials/seo', [
+    'seo_titulo'    => $titulo,
+    'seo_descricao' => $seo['descricao'] ?? null,
+    'seo_imagem'    => $seo['imagem'] ?? null,
+    'seo_tipo'      => $seo['tipo'] ?? 'website',
+    'seo_url'       => $seo['url'] ?? null,
+    'seo_noindex'   => $seo['noindex'] ?? false,
+    'seo_jsonld'    => $seo['jsonld'] ?? [],
+]) ?>
 
 <?php
 /** Favicon com cache-busting (?v=timestamp) — ver design_system.php. */

@@ -47,6 +47,10 @@ class CriarLista extends BaseController
             'tipos'   => TipoEventoService::todos(),
             'logado'  => $this->auth->estaLogado(),
             'valores' => $this->request->getPost() ?: ($pendente['dados'] ?? []),
+            'seo'     => [
+                'descricao' => 'Crie sua lista de presentes online e grátis em 1 minuto: escolha o tipo de evento, personalize o site e convide. Os convidados presenteiam via PIX.',
+                'tipo'      => 'website',
+            ],
         ]);
     }
 

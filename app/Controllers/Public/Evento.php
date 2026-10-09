@@ -56,6 +56,37 @@ class Evento extends BaseController
             $maxAcompanhantes = min(20, max(0, (int) $resumo['vagas'] - 1));
         }
 
+        // SEO: descrição, imagem de compartilhamento (capa) e dados estruturados.
+        $capaUrl = ! empty($evento->imagem_capa)
+            ? (str_starts_with((string) $evento->imagem_capa, 'http')
+                ? (string) $evento->imagem_capa
+                : base_url((string) $evento->imagem_capa))
+            : null;
+
+        $horaEvento    = ! empty($evento->horario) ? substr((string) $evento->horario, 0, 5) : '00:00';
+        $dataIsoSchema = $evento->data_evento !== null
+            ? $evento->data_evento->format('Y-m-d') . 'T' . $horaEvento . ':00-03:00'
+            : null;
+
+        $descricaoEvento = trim(
+            (! empty($evento->subtitulo) ? $evento->subtitulo . '. ' : '')
+            . 'Lista de presentes de ' . $evento->titulo . ' — presenteie pelo site com PIX.'
+        );
+
+        $schemaEvento = array_filter([
+            '@context'            => 'https://schema.org',
+            '@type'               => 'Event',
+            'name'                => $evento->titulo,
+            'startDate'           => $dataIsoSchema,
+            'description'         => $evento->subtitulo ?: null,
+            'image'               => $capaUrl,
+            'url'                 => site_url($evento->slug),
+            'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+            'eventStatus'         => 'https://schema.org/EventScheduled',
+            'location'            => ! empty($evento->local_nome) ? ['@type' => 'Place', 'name' => $evento->local_nome] : null,
+            'organizer'           => ['@type' => 'Organization', 'name' => 'Minha Lista VIP', 'url' => base_url()],
+        ], static fn ($valor) => $valor !== null);
+
         return view('hotsite/lista', [
             'titulo'    => $evento->titulo,
             'evento'    => $evento,
@@ -78,6 +109,13 @@ class Evento extends BaseController
             ],
             'rsvpEncerrado'     => $rsvpEncerrado,
             'maxAcompanhantes'  => $maxAcompanhantes,
+            'seo'               => [
+                'descricao' => $descricaoEvento,
+                'imagem'    => $capaUrl,
+                'tipo'      => 'website',
+                'url'       => site_url($evento->slug),
+                'jsonld'    => [$schemaEvento],
+            ],
         ]);
     }
 

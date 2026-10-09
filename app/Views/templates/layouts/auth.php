@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <?= view('templates/partials/design_system', ['titulo' => ($titulo ?? 'Minha Lista VIP') . ' · Minha Lista VIP']) ?>
+    <?= view('templates/partials/design_system', [
+        'titulo' => ($titulo ?? 'Minha Lista VIP') . ' · Minha Lista VIP',
+        // Login/registro/redefinição nunca entram no índice de busca.
+        'seo'    => array_merge(['noindex' => true], (array) ($seo ?? [])),
+    ]) ?>
 </head>
 <body class="hero-gradient">
 <div class="auth-shell">

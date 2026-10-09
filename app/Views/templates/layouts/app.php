@@ -84,7 +84,11 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <?= view('templates/partials/design_system', ['titulo' => ($titulo ?? 'Painel') . ' · Minha Lista VIP']) ?>
+    <?= view('templates/partials/design_system', [
+        'titulo' => ($titulo ?? 'Painel') . ' · Minha Lista VIP',
+        // Painel/admin nunca entram no índice de busca.
+        'seo'    => array_merge(['noindex' => true], (array) ($seo ?? [])),
+    ]) ?>
     <style>
         .app-sidebar {
             width: 264px;

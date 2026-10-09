@@ -49,6 +49,7 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         'corSecundaria' => $evento->cor_secundaria,
         'tema'          => $evento->tema ?? 'classico',
         'escuro'        => $escuro,
+        'seo'           => $seo ?? null,
     ]) ?>
     <style>
         html { scroll-behavior: smooth; }

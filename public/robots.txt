@@ -1,2 +1,13 @@
 User-agent: *
-Disallow: 
+Allow: /
+
+# Áreas privadas / transacionais — não devem ser rastreadas.
+Disallow: /painel
+Disallow: /admin
+Disallow: /suporte
+Disallow: /logout
+Disallow: /buscar
+Disallow: /*/presentear/
+Disallow: /*/pedido/
+
+Sitemap: https://minhalistavip.com.br/sitemap.xml

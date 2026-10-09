@@ -14,6 +14,7 @@
         'corPrimaria'   => $evento->cor_primaria,
         'corSecundaria' => $evento->cor_secundaria,
         'tema'          => $evento->tema ?? 'classico',
+        'seo'           => ['noindex' => true],
     ]) ?>
 </head>
 <body class="bg-body-tertiary">

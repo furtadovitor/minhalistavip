@@ -126,6 +126,14 @@ class Demo extends BaseController
             'status'           => 'publicado',
         ];
 
+        $capaDemo = trim((string) ($demo['capa'] ?? ''));
+        $seoDemo  = [
+            'descricao' => trim((string) ($demo['resumo'] ?? '')) ?: ('Exemplo de lista de presentes: ' . $demo['titulo'] . '.'),
+            'imagem'    => $capaDemo !== '' ? $capaDemo : null,
+            'tipo'      => 'website',
+            'url'       => site_url('demo/' . $demo['slug']),
+        ];
+
         return view('hotsite/lista', [
             'titulo'    => $demo['titulo'] . ' (exemplo)',
             'evento'    => $evento,
@@ -142,6 +150,7 @@ class Demo extends BaseController
                 'arrecadado'     => 0.0,
                 'confirmados'    => count($recados),
             ],
+            'seo'       => $seoDemo,
         ]);
     }
 }

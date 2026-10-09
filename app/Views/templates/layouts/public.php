@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <?= view('templates/partials/design_system', ['titulo' => ($titulo ?? 'Minha Lista VIP') . ' · Minha Lista VIP']) ?>
+    <?= view('templates/partials/design_system', [
+        'titulo' => ($titulo ?? 'Minha Lista VIP') . ' · Minha Lista VIP',
+        'seo'    => $seo ?? null,
+    ]) ?>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">

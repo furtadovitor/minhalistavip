@@ -191,6 +191,9 @@ $routes->group('admin', ['filter' => ['auth', 'role:superadmin']], static functi
 // ---------------------------------------------------------------------------
 // PÁGINAS PÚBLICAS DE APOIO (exemplos, busca do convidado, criação rápida).
 // ---------------------------------------------------------------------------
+// Sitemap para os buscadores (precisa vir antes do catch-all de hotsite).
+$routes->get('sitemap.xml', 'Public\Sitemap::index');
+
 $routes->get('exemplos', 'Public\Demo::index');
 $routes->get('demo', 'Public\Demo::index');
 $routes->get('demo/(:segment)', 'Public\Demo::show/$1');
