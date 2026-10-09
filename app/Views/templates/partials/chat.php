@@ -29,7 +29,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
 ?>
 <style>
     .mlv-chat-fab {
-        position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1055;
+        position: fixed; right: 1.25rem; bottom: calc(1.25rem + env(safe-area-inset-bottom)); z-index: 1055;
         width: 58px; height: 58px; border-radius: 50%; border: 0;
         background: linear-gradient(135deg, var(--brand, #722ED4), var(--brand-dark, #5B21B6));
         color: #fff; display: inline-flex; align-items: center; justify-content: center;
@@ -60,7 +60,28 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
         display: flex; flex-direction: column;
     }
     @media (max-width: 575.98px) {
-        .mlv-chat-panel { right: .5rem; left: .5rem; bottom: .5rem; width: auto; height: calc(100vh - 1rem); max-height: none; }
+        /* No mobile o chat vira uma "tela cheia" (estilo app), respeitando a área
+           segura (notch/barra inferior) e o teclado on-screen. */
+        .mlv-chat-panel {
+            inset: 0;
+            width: 100%;
+            height: 100vh;   /* fallback */
+            height: 100dvh;  /* encolhe quando o teclado abre */
+            max-height: none;
+            border-radius: 0;
+        }
+        .mlv-chat-head { padding: .75rem .9rem; padding-top: calc(.75rem + env(safe-area-inset-top)); }
+        .mlv-chat-head .mlv-chat-avatar { width: 34px; height: 34px; font-size: 1.05rem; }
+        .mlv-chat-head-actions button { width: 36px; height: 36px; }
+        .mlv-chat-body { padding: .85rem .8rem; overscroll-behavior: contain; }
+        .mlv-chat-body .mlv-msg { max-width: 88%; font-size: .9rem; }
+        .mlv-chat-form { padding: .6rem .7rem; padding-bottom: calc(.6rem + env(safe-area-inset-bottom)); }
+        /* 16px evita o zoom automático do iOS ao focar o campo */
+        .mlv-chat-ident input,
+        .mlv-chat-codigo-linha input,
+        .mlv-chat-compose textarea { font-size: 16px; }
+        .mlv-chat-compose button { width: 44px; height: 44px; }
+        .mlv-chat-codigo-linha button { padding: 0 1.1rem; }
     }
     .mlv-chat-panel[hidden] { display: none; }
 
@@ -223,6 +244,24 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
     var st = { aberto: false, conversaId: null, ultimoId: 0, autenticado: false, enviando: false, timer: null };
     var vazioEl = body.querySelector('.mlv-chat-vazio');
 
+    // No mobile, mantém o painel dentro da área realmente visível — assim o
+    // campo de texto não fica escondido atrás do teclado on-screen.
+    var ehMobile = window.matchMedia('(max-width: 575.98px)');
+    function ajustarAltura() {
+        if (st.aberto && ehMobile.matches && window.visualViewport) {
+            panel.style.height = Math.round(window.visualViewport.height) + 'px';
+            panel.style.top = Math.round(window.visualViewport.offsetTop) + 'px';
+        } else {
+            panel.style.height = '';
+            panel.style.top = '';
+        }
+    }
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', ajustarAltura);
+        window.visualViewport.addEventListener('scroll', ajustarAltura);
+    }
+    window.addEventListener('resize', ajustarAltura);
+
     function rolar() {
         var perto = body.scrollHeight - body.scrollTop - body.clientHeight < 120;
         if (perto) { body.scrollTop = body.scrollHeight; }
@@ -353,7 +392,9 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
         panel.hidden = false;
         fab.hidden = true;
         setBadge(0);
-        setTimeout(function () { texto.focus(); rolar(); }, 50);
+        ajustarAltura();
+        setTimeout(function () { texto.focus(); ajustarAltura(); rolar(); }, 50);
+        setTimeout(ajustarAltura, 350); // depois que o teclado termina de abrir
         ciclo();
     }
 
@@ -361,6 +402,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
         st.aberto = false;
         panel.hidden = true;
         fab.hidden = false;
+        ajustarAltura();
         ciclo();
     }
 
