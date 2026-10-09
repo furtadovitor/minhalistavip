@@ -46,7 +46,20 @@ class SuporteService
         $this->aplicarIdentidade($builder, $identidade);
         $linha = $builder->orderBy('id', 'DESC')->get()->getRowArray();
 
-        return $linha === null ? null : $this->comNaoLidas($linha, 'cliente');
+        if ($linha === null) {
+            return null;
+        }
+
+        // Expiração "preguiçosa": sem presença do cliente por TIMEOUT_MINUTOS,
+        // encerra na hora — sem depender do cron. O cron só faz a limpeza de
+        // conversas em que o cliente nunca mais volta.
+        if ($this->inativa($linha)) {
+            $this->encerrar((int) $linha['id'], 'sistema');
+
+            return null;
+        }
+
+        return $this->comNaoLidas($linha, 'cliente');
     }
 
     /**
@@ -362,6 +375,22 @@ class SuporteService
             'ultima_mensagem_preview' => 'Conversa encerrada.',
             'atualizado_em'           => $agora,
         ]);
+    }
+
+    /**
+     * A conversa está sem presença do cliente há mais de TIMEOUT_MINUTOS?
+     *
+     * @param array<string, mixed> $conv
+     */
+    private function inativa(array $conv): bool
+    {
+        $ref = $conv['cliente_visto_em'] ?: ($conv['criado_em'] ?? null);
+
+        if (empty($ref)) {
+            return false;
+        }
+
+        return strtotime((string) $ref) < time() - self::TIMEOUT_MINUTOS * 60;
     }
 
     /**

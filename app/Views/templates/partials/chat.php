@@ -178,6 +178,9 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
                         <i class="bi bi-envelope"></i>
                     </button>
                 <?php endif; ?>
+                <button type="button" id="mlvChatSair" title="Sair da conversa" aria-label="Sair da conversa" hidden>
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
                 <button type="button" id="mlvChatMin" title="Minimizar" aria-label="Minimizar">
                     <i class="bi bi-dash-lg"></i>
                 </button>
@@ -230,6 +233,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
     var compose = document.getElementById('mlvChatCompose');
     var statusEl = document.getElementById('mlvChatStatus');
     var hint    = document.getElementById('mlvChatHint');
+    var sairBtn = document.getElementById('mlvChatSair');
 
     var cfg = {
         canal: root.dataset.canal || 'site',
@@ -357,6 +361,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
             if (!st.autenticado) { mostrarIdent(); } else { ident.hidden = true; codigoBox.hidden = true; compose.hidden = false; }
             setStatus(null);
             setBadge(0);
+            sairBtn.hidden = true;
             return;
         }
 
@@ -371,6 +376,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
         compose.hidden = false;
         setStatus(d.conversa);
         setBadge(d.conversa.nao_lidas || 0);
+        sairBtn.hidden = false;
     }
 
     function ciclo() {
@@ -406,6 +412,36 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
         ciclo();
     }
 
+    // Encerra a conversa (libera o atendimento) e volta o widget ao início.
+    function sair() {
+        if (!st.conversaId) { fechar(); return; }
+
+        sairBtn.disabled = true;
+
+        post(cfg.encerrar, {}).then(function () {
+            st.conversaId = null;
+            st.ultimoId = 0;
+            body.innerHTML = '';
+            vazioEl = null;
+            sistemaLocal('Você saiu da conversa.');
+            codigoBox.hidden = true;
+            compose.hidden = false;
+            setStatus(null);
+            setBadge(0);
+            sairBtn.hidden = true;
+            if (st.autenticado) {
+                ident.hidden = true;
+                hint.textContent = 'Um atendente responde por aqui.';
+            } else {
+                mostrarIdent();
+            }
+        }).catch(function () {
+            hint.textContent = 'Não foi possível sair agora. Tente novamente.';
+        }).then(function () {
+            sairBtn.disabled = false;
+        });
+    }
+
     function post(url, dados) {
         var fd = new FormData();
         Object.keys(dados || {}).forEach(function (k) { fd.append(k, dados[k]); });
@@ -422,6 +458,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
 
     fab.addEventListener('click', abrir);
     document.getElementById('mlvChatMin').addEventListener('click', fechar);
+    sairBtn.addEventListener('click', sair);
 
     Array.prototype.slice.call(document.querySelectorAll('[data-mlv-chat-abrir]')).forEach(function (botao) {
         botao.addEventListener('click', function (e) { e.preventDefault(); abrir(); });

@@ -250,6 +250,18 @@ para conferir manualmente, rode pelo SSH.
 > Sem o cron o sistema continua funcionando: o webhook confirma os pagamentos e a expiração só
 > atrasa. Mas o cron é o que garante a limpeza dos pedidos vencidos e a recuperação de webhooks.
 
+### Cron do chat de suporte (recomendado)
+
+O chat encerra a conversa sozinho depois de **5 minutos sem presença do cliente** — isso já acontece
+na hora, quando o cliente volta. Mesmo assim, agende o comando abaixo para limpar as conversas de
+quem **nunca mais voltou** (a cada 5 minutos, junto com o anterior):
+
+```bash
+/usr/bin/php /home/uXXXXXX/domains/SEU-DOMINIO.com.br/minhalistavip/spark suporte:fechar-inativos
+```
+
+Opicionalmente aceita os minutos como argumento: `suporte:fechar-inativos 5` (padrão: 5).
+
 ---
 
 ## Login com Google (opcional)
