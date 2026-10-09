@@ -212,6 +212,10 @@ $routes->post('criar-lista-de-presente', 'Public\CriarLista::criar');
 $routes->get('criar-lista-de-presente/(:segment)', 'Public\CriarLista::form/$1');
 $routes->post('criar-lista-de-presente/(:segment)', 'Public\CriarLista::criar/$1');
 
+// Landing pages de SEO por tipo de evento (conteúdo + FAQ).
+$routes->get('lista-de-presentes', 'Public\Landing::index');
+$routes->get('lista-de-presentes/(:segment)', 'Public\Landing::show/$1');
+
 // ---------------------------------------------------------------------------
 // WEBHOOKS dos gateways de pagamento (isentos de CSRF — ver Config\Filters).
 // ---------------------------------------------------------------------------

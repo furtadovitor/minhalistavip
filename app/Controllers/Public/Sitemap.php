@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Models\DemoListaModel;
+use App\Services\LandingService;
 
 /**
  * Sitemap XML para os buscadores: páginas fixas + exemplos + hotsites publicados.
@@ -16,7 +17,17 @@ class Sitemap extends BaseController
         $urls = [
             ['loc' => site_url('/'), 'changefreq' => 'weekly', 'priority' => '1.0'],
             ['loc' => site_url('criar-lista-de-presente'), 'changefreq' => 'monthly', 'priority' => '0.9'],
+            ['loc' => site_url('lista-de-presentes'), 'changefreq' => 'weekly', 'priority' => '0.8'],
         ];
+
+        // Landing pages de SEO por tipo de evento.
+        foreach (LandingService::paginas() as $pagina) {
+            $urls[] = [
+                'loc'        => site_url('lista-de-presentes/' . $pagina['slug']),
+                'changefreq' => 'monthly',
+                'priority'   => '0.7',
+            ];
+        }
 
         // Listas de exemplo (conteúdo público, bom para SEO).
         foreach ((new DemoListaModel())->publicadas() as $demo) {

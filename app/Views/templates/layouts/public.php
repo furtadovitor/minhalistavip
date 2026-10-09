@@ -54,6 +54,7 @@
                 <p class="text-white fw-semibold mb-2 fs-7 text-uppercase">Plataforma</p>
                 <ul class="list-unstyled fs-7">
                     <li class="mb-1"><a href="<?= site_url('criar-lista-de-presente') ?>">Criar lista</a></li>
+                    <li class="mb-1"><a href="<?= site_url('lista-de-presentes') ?>">Listas por tipo</a></li>
                     <li class="mb-1"><a href="<?= site_url('login') ?>">Entrar</a></li>
                     <li class="mb-1"><a href="<?= site_url('/') ?>#exemplos">Exemplos</a></li>
                 </ul>

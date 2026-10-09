@@ -236,7 +236,7 @@ class EventoService
         'login', 'registro', 'logout', 'painel', 'admin',
         'api', 'webhooks', 'uploads', 'assets', 'vendor',
         'home', 'index', 'www', 'e', 'sitemap', 'robots', 'favicon',
-        'demo', 'exemplos', 'buscar', 'criar-lista-de-presente',
+        'demo', 'exemplos', 'buscar', 'criar-lista-de-presente', 'lista-de-presentes',
     ];
 
     public function slugReservado(string $slug): bool
