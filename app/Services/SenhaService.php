@@ -110,13 +110,13 @@ class SenhaService
 
         return <<<HTML
         <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#111827">
-            <h2 style="color:#4F46E5;margin-bottom:.5rem">Redefinir sua senha</h2>
+            <h2 style="color:#722ED4;margin-bottom:.5rem">Redefinir sua senha</h2>
             <p>Olá, {$nome}!</p>
             <p>Recebemos um pedido para redefinir a senha da sua conta na Minha Lista VIP.
                O link é válido por {self::VALIDADE_MINUTOS} minutos e só pode ser usado uma vez.</p>
             <p style="text-align:center;margin:1.5rem 0">
                 <a href="{$url}"
-                   style="background:#4F46E5;color:#fff;text-decoration:none;padding:.7rem 1.4rem;border-radius:.6rem;display:inline-block">
+                   style="background:#722ED4;color:#fff;text-decoration:none;padding:.7rem 1.4rem;border-radius:.6rem;display:inline-block">
                     Criar nova senha
                 </a>
             </p>

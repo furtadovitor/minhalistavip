@@ -19,7 +19,7 @@ if (! function_exists('cor_hex')) {
      * (#abc). Devolve $padrao quando o valor é inválido — protege o CSS do tema
      * (uma cor inválida deixava o herói/botões brancos).
      */
-    function cor_hex(?string $cor, string $padrao = '#4F46E5'): string
+    function cor_hex(?string $cor, string $padrao = '#722ED4'): string
     {
         $cor = trim((string) $cor);
 

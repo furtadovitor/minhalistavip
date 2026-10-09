@@ -10,7 +10,7 @@
         position: relative;
         overflow: hidden;
         background:
-            radial-gradient(900px 420px at 8% -15%, rgba(79, 70, 229, .20), transparent 60%),
+            radial-gradient(900px 420px at 8% -15%, rgba(114, 46, 212, .20), transparent 60%),
             radial-gradient(760px 420px at 95% -5%, rgba(16, 185, 129, .16), transparent 55%),
             linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
     }
@@ -20,7 +20,7 @@
         inset: auto -10% -40% auto;
         width: 480px;
         height: 480px;
-        background: radial-gradient(closest-side, rgba(79, 70, 229, .10), transparent);
+        background: radial-gradient(closest-side, rgba(114, 46, 212, .10), transparent);
         pointer-events: none;
     }
     .lp-pill {
@@ -28,7 +28,7 @@
         align-items: center;
         gap: .4rem;
         background: #fff;
-        border: 1px solid rgba(79, 70, 229, .18);
+        border: 1px solid rgba(114, 46, 212, .18);
         box-shadow: 0 .5rem 1.2rem rgba(17, 24, 39, .06);
         color: var(--brand-dark);
         font-weight: 600;
@@ -182,7 +182,7 @@
     }
     .lp-atalho:hover {
         transform: translateY(-2px);
-        border-color: rgba(79, 70, 229, .28);
+        border-color: rgba(114, 46, 212, .28);
         box-shadow: 0 .7rem 1.4rem rgba(17, 24, 39, .10);
     }
     .lp-atalho:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
@@ -388,7 +388,7 @@
     /* ---- Adereços ---- */
     .lp-quote { border-left: 3px solid var(--brand); }
     .accordion-button:not(.collapsed) { color: var(--brand-dark); background: var(--brand-soft); }
-    .accordion-button:focus { box-shadow: 0 0 0 .2rem rgba(79, 70, 229, .15); }
+    .accordion-button:focus { box-shadow: 0 0 0 .2rem rgba(114, 46, 212, .15); }
 
     @media (max-width: 575.98px) {
         .lp-float-badge { left: .4rem; }
@@ -791,7 +791,7 @@
              'texto' => 'Adorei poder confirmar presença pelo site e deixar recado no mural. Deu tudo certo e foi rápido de montar.'],
             ['nome' => 'Marcos Vinícius', 'cidade' => 'Recife/PE', 'evento' => 'Chá revelação', 'cor' => '#10B981',
              'texto' => 'Muito fácil de usar no celular. Criei a lista enquanto tomava um café e compartilhei na hora com os convidados.'],
-            ['nome' => 'Fernanda Lopes', 'cidade' => 'Florianópolis/SC', 'evento' => 'Chá de casa nova', 'cor' => '#4F46E5',
+            ['nome' => 'Fernanda Lopes', 'cidade' => 'Florianópolis/SC', 'evento' => 'Chá de casa nova', 'cor' => '#722ED4',
              'texto' => 'A cota livre foi ótima: cada um contribuiu com o valor que podia. O valor caiu direto na minha carteira, sem complicação.'],
         ];
         ?>
@@ -907,7 +907,7 @@
 <!-- ========================== CTA FINAL ========================= -->
 <section class="py-5">
     <div class="container">
-        <div class="lp-reveal p-4 p-md-5 rounded-4 text-white text-center" style="background: linear-gradient(135deg, #4F46E5, #4338CA);">
+        <div class="lp-reveal p-4 p-md-5 rounded-4 text-white text-center" style="background: linear-gradient(135deg, #722ED4, #5B21B6);">
             <h2 class="fw-bold mb-2">Crie a sua lista agora, é grátis</h2>
             <p class="mb-4 opacity-75">Site, convite e lista de presentes no ar em poucos minutos para receber presentes via PIX.</p>
             <div class="d-flex flex-wrap gap-2 justify-content-center">

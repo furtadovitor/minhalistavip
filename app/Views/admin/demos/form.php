@@ -171,7 +171,7 @@ $tiposRotulos = array_values(array_map(static fn (array $t): string => $t['rotul
                         <div class="col-6 col-md-3">
                             <label class="form-label fw-semibold fs-7" for="cor_primaria">Cor primária</label>
                             <input type="color" class="form-control form-control-color w-100" id="cor_primaria"
-                                   name="cor_primaria" value="<?= esc($campo('cor_primaria', '#4F46E5')) ?>">
+                                   name="cor_primaria" value="<?= esc($campo('cor_primaria', '#722ED4')) ?>">
                         </div>
                         <div class="col-6 col-md-3">
                             <label class="form-label fw-semibold fs-7" for="cor_secundaria">Cor secundária</label>

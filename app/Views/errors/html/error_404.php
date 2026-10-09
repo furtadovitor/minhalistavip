@@ -16,11 +16,11 @@ helper('url');
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        :root { --brand: #4F46E5; --brand-dark: #4338CA; --brand-soft: #EEF2FF; --bg: #F9FAFB; }
+        :root { --brand: #722ED4; --brand-dark: #5B21B6; --brand-soft: #F3EDFE; --bg: #F9FAFB; }
         body {
             font-family: 'Inter', system-ui, sans-serif;
             background:
-                radial-gradient(1200px 400px at 10% -10%, rgba(79, 70, 229, .18), transparent 60%),
+                radial-gradient(1200px 400px at 10% -10%, rgba(114, 46, 212, .18), transparent 60%),
                 radial-gradient(900px 400px at 90% 0%, rgba(16, 185, 129, .15), transparent 55%),
                 linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
             min-height: 100vh;

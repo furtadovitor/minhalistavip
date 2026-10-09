@@ -1,107 +1,132 @@
 <?php
 
 /**
- * Gera os assets rasterizados da marca "Minha Lista VIP" (mesmo desenho do
- * public/favicon.svg) para navegadores e dispositivos que não usam SVG.
+ * Gera os assets de favicon da marca "Minha Lista VIP" a partir da imagem-fonte
+ * public/logo_mlvp.png, para navegadores e dispositivos que não usam SVG.
+ *
+ * A imagem é recortada nas bordas transparentes e centralizada num quadrado,
+ * garantindo que a marca fique legível também em 16 px.
  *
  * Uso:  php tools/gerar-favicon.php
  *
  * Produz em /public:
- *   - favicon.ico         (16, 32 e 48 px)
- *   - favicon-192.png     (Android/atalho)
- *   - apple-touch-icon.png (180 px, quadrado — o iOS arredonda)
+ *   - favicon.ico          (16, 32 e 48 px, PNG embutido)
+ *   - favicon-192.png      (Android/atalho)
+ *   - apple-touch-icon.png (180 px, quadrado e opaco — o iOS arredonda)
+ *   - favicon.svg          (mesma imagem embutida, para navegadores com SVG)
  */
 
 $public = dirname(__DIR__) . '/public';
+$origem = $public . '/logo_mlvp.png';
 
 if (! extension_loaded('gd')) {
     fwrite(STDERR, "A extensao GD do PHP e necessaria.\n");
     exit(1);
 }
 
-/** Cor do gradiente (#6366F1 -> #7C3AED) na linha y. */
-function gradiente(int $y, int $size): array
-{
-    $t = $size > 1 ? $y / ($size - 1) : 0;
-
-    return [
-        (int) round(0x63 + (0x7C - 0x63) * $t),
-        (int) round(0x66 + (0x3A - 0x66) * $t),
-        (int) round(0xF1 + (0xED - 0xF1) * $t),
-    ];
+if (! is_file($origem)) {
+    fwrite(STDERR, "Imagem de origem nao encontrada: {$origem}\n");
+    exit(1);
 }
 
-/** Quadrado arredondado (raio em unidades do design de 48). */
-function dentroQuadArredondado(float $x, float $y, float $size, float $raio): bool
+/** Carrega o PNG de origem preservando o canal alfa. */
+function carregarOrigem(string $arquivo): \GdImage
 {
-    if ($x < 0 || $y < 0 || $x > $size || $y > $size) {
-        return false;
+    $img = imagecreatefrompng($arquivo);
+    if ($img === false) {
+        fwrite(STDERR, "Nao foi possivel ler o PNG: {$arquivo}\n");
+        exit(1);
     }
 
-    $cx = min(max($x, $raio), $size - $raio);
-    $cy = min(max($y, $raio), $size - $raio);
-    $dx = $x - $cx;
-    $dy = $y - $cy;
-
-    return $dx * $dx + $dy * $dy <= $raio * $raio;
-}
-
-/**
- * Desenha a marca num quadrado de $size px. $raio em unidades de 48
- * (13 = padrão arredondado; 0 = quadrado cheio para o apple-touch-icon).
- */
-function renderMarca(int $size, float $raio = 13.0): \GdImage
-{
-    $img = imagecreatetruecolor($size, $size);
     imagealphablending($img, false);
     imagesavealpha($img, true);
-    imagefilledrectangle($img, 0, 0, $size - 1, $size - 1,
-        imagecolorallocatealpha($img, 0, 0, 0, 127));
-
-    $esc = $size / 48.0;
-
-    // Fundo: quadrado arredondado com gradiente.
-    for ($y = 0; $y < $size; $y++) {
-        [$r, $g, $b] = gradiente($y, $size);
-        $corFundo = imagecolorallocatealpha($img, $r, $g, $b, 0);
-
-        for ($x = 0; $x < $size; $x++) {
-            if (dentroQuadArredondado($x / $esc, $y / $esc, 48.0, $raio)) {
-                imagesetpixel($img, $x, $y, $corFundo);
-            }
-        }
-    }
-
-    // Monograma "M" em branco (traço grosso com cantos/caps arredondados).
-    $pontos = [[15.0, 33.0], [15.0, 15.0], [24.0, 27.0], [33.0, 15.0], [33.0, 33.0]];
-    $thick  = max(2, (int) round(5.2 * $esc));
-    $branco = imagecolorallocatealpha($img, 255, 255, 255, 0);
-
-    imagesetthickness($img, $thick);
-    for ($i = 0; $i < count($pontos) - 1; $i++) {
-        imageline(
-            $img,
-            (int) round($pontos[$i][0] * $esc), (int) round($pontos[$i][1] * $esc),
-            (int) round($pontos[$i + 1][0] * $esc), (int) round($pontos[$i + 1][1] * $esc),
-            $branco
-        );
-    }
-    foreach ($pontos as $p) {
-        imagefilledellipse($img, (int) round($p[0] * $esc), (int) round($p[1] * $esc), $thick, $thick, $branco);
-    }
 
     return $img;
 }
 
-/** Reamostra para o tamanho final (borda suave). */
-function redimensionar(int $size, float $raio): \GdImage
+/**
+ * Recorta as bordas totalmente transparentes e devolve um quadrado com a
+ * marca centralizada e uma pequena folga (proporcional ao conteúdo).
+ */
+function recortarEmQuadrado(\GdImage $src, float $folga = 0.10): \GdImage
 {
-    $base = renderMarca(512, $raio);
+    $w = imagesx($src);
+    $h = imagesy($src);
+
+    $minX = $w;
+    $minY = $h;
+    $maxX = -1;
+    $maxY = -1;
+
+    for ($y = 0; $y < $h; $y++) {
+        for ($x = 0; $x < $w; $x++) {
+            $alpha = (imagecolorat($src, $x, $y) >> 24) & 0x7F;
+            if ($alpha < 120) { // considera visível (opacidade razoável)
+                if ($x < $minX) {
+                    $minX = $x;
+                }
+                if ($x > $maxX) {
+                    $maxX = $x;
+                }
+                if ($y < $minY) {
+                    $minY = $y;
+                }
+                if ($y > $maxY) {
+                    $maxY = $y;
+                }
+            }
+        }
+    }
+
+    if ($maxX < $minX || $maxY < $minY) { // imagem totalmente transparente
+        $minX = $minY = 0;
+        $maxX = $w - 1;
+        $maxY = $h - 1;
+    }
+
+    $cw = $maxX - $minX + 1;
+    $ch = $maxY - $minY + 1;
+
+    $lado = (int) round(max($cw, $ch) * (1 + 2 * $folga));
+
+    $quadrado = imagecreatetruecolor($lado, $lado);
+    imagealphablending($quadrado, false);
+    imagesavealpha($quadrado, true);
+    imagefilledrectangle($quadrado, 0, 0, $lado - 1, $lado - 1,
+        imagecolorallocatealpha($quadrado, 0, 0, 0, 127));
+
+    imagecopy(
+        $quadrado,
+        $src,
+        (int) round(($lado - $cw) / 2),
+        (int) round(($lado - $ch) / 2),
+        $minX,
+        $minY,
+        $cw,
+        $ch
+    );
+
+    return $quadrado;
+}
+
+/** Reamostra a base quadrada para o tamanho final (borda suave). */
+function redimensionar(\GdImage $base, int $size, bool $opaco = false): \GdImage
+{
     $final = imagecreatetruecolor($size, $size);
     imagealphablending($final, false);
     imagesavealpha($final, true);
-    imagecopyresampled($final, $base, 0, 0, 0, 0, $size, $size, 512, 512);
-    imagedestroy($base);
+
+    if ($opaco) {
+        imagefilledrectangle($final, 0, 0, $size - 1, $size - 1,
+            imagecolorallocate($final, 255, 255, 255));
+        imagealphablending($final, true);
+    } else {
+        imagefilledrectangle($final, 0, 0, $size - 1, $size - 1,
+            imagecolorallocatealpha($final, 0, 0, 0, 127));
+    }
+
+    imagecopyresampled($final, $base, 0, 0, 0, 0, $size, $size,
+        imagesx($base), imagesy($base));
 
     return $final;
 }
@@ -134,10 +159,14 @@ function montarIco(array $porTamanho): string
     return pack('vvv', 0, 1, $count) . $entries . $dados;
 }
 
+$origemImg = carregarOrigem($origem);
+$base      = recortarEmQuadrado($origemImg);
+imagedestroy($origemImg);
+
 // ---- favicon.ico (16, 32, 48) ----
 $pngs = [];
 foreach ([16, 32, 48] as $tamanho) {
-    $img = redimensionar($tamanho, 13.0);
+    $img = redimensionar($base, $tamanho);
     $pngs[$tamanho] = pngBytes($img);
     imagedestroy($img);
 }
@@ -145,15 +174,30 @@ file_put_contents($public . '/favicon.ico', montarIco($pngs));
 echo "[ok] public/favicon.ico\n";
 
 // ---- favicon-192.png ----
-$img = redimensionar(192, 13.0);
+$img = redimensionar($base, 192);
 imagepng($img, $public . '/favicon-192.png');
 imagedestroy($img);
 echo "[ok] public/favicon-192.png\n";
 
-// ---- apple-touch-icon.png (quadrado, iOS arredonda) ----
-$img = redimensionar(180, 0.0);
+// ---- apple-touch-icon.png (quadrado e opaco, o iOS arredonda) ----
+$img = redimensionar($base, 180, true);
 imagepng($img, $public . '/apple-touch-icon.png');
 imagedestroy($img);
 echo "[ok] public/apple-touch-icon.png\n";
+
+// ---- favicon.svg (imagem embutida, para navegadores com suporte a SVG) ----
+$imgSvg  = redimensionar($base, 192);
+$svgPng  = base64_encode(pngBytes($imgSvg));
+imagedestroy($imgSvg);
+$svg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 192 192" width="192" height="192" role="img" aria-label="Minha Lista VIP">
+    <image width="192" height="192" xlink:href="data:image/png;base64,{$svgPng}"/>
+</svg>
+
+SVG;
+file_put_contents($public . '/favicon.svg', $svg);
+echo "[ok] public/favicon.svg\n";
+
+imagedestroy($base);
 
 echo "Pronto.\n";

@@ -265,6 +265,14 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
             color: #fff; font-size: .78rem; text-align: left; line-height: 1.2;
             background: linear-gradient(180deg, transparent, rgba(0,0,0,.7));
         }
+        /* ---------- GALERIA AMPLIADA (cards maiores) ---------- */
+        .galeria-grid.galeria-expandida {
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+        @media (max-width: 575.98px) {
+            .galeria-grid.galeria-expandida { grid-template-columns: 1fr; }
+        }
 
         /* ---------- RSVP ---------- */
         .rsvp-icone {
@@ -394,25 +402,6 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
             </div>
         <?php endif; ?>
 
-        <div class="hero-stats mb-4">
-            <div class="hero-stat">
-                <strong><?= (int) $stats['cotas_vendidas'] ?><span class="fs-6 fw-normal opacity-75">/<?= (int) $stats['cotas_total'] ?></span></strong>
-                <span>Cotas presenteadas</span>
-            </div>
-            <?php if (! empty($evento->permite_rsvp)): ?>
-                <div class="hero-stat">
-                    <strong><?= (int) $stats['confirmados'] ?></strong>
-                    <span>Confirmações</span>
-                </div>
-            <?php endif; ?>
-            <?php if ($percentualMeta !== null): ?>
-                <div class="hero-stat">
-                    <strong><?= (int) $percentualMeta ?>%</strong>
-                    <span>Da meta</span>
-                </div>
-            <?php endif; ?>
-        </div>
-
         <div class="hero-cta d-flex flex-wrap gap-2 justify-content-center">
             <?php if (! empty($evento->permite_rsvp) && $modo !== 'demo' && ! $rsvpEncerrado): ?>
                 <a class="btn btn-light" href="#presenca"><i class="bi bi-check2-circle me-1"></i>Confirmar presença</a>
@@ -452,25 +441,6 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         </div>
     <?php endif; ?>
 
-    <?php if ($percentualMeta !== null): ?>
-        <div class="card border-0 shadow-sm meta-card mb-4 reveal">
-            <div class="card-body p-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-end mb-2">
-                    <div>
-                        <p class="text-uppercase fs-8 fw-semibold text-muted mb-1">Meta do evento</p>
-                        <p class="h4 fw-bold mb-0"><?= esc(moeda_brl($stats['arrecadado'])) ?>
-                            <span class="fs-6 fw-normal text-muted">de <?= esc(moeda_brl($evento->meta_valor)) ?></span>
-                        </p>
-                    </div>
-                    <span class="fs-5 fw-bold" style="color: var(--cor-primaria);"><?= (int) $percentualMeta ?>%</span>
-                </div>
-                <div class="progress" style="height: 10px;">
-                    <div class="progress-bar" role="progressbar" style="width: <?= (int) $percentualMeta ?>%; background-color: var(--cor-primaria);"></div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <!-- ===================== PRESENÇA (RSVP) ===================== -->
     <?php if (! empty($evento->permite_rsvp)): ?>
         <section id="presenca" class="py-3">
@@ -478,14 +448,7 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
                 <div class="card-body p-4 p-md-5 text-center">
                     <span class="rsvp-icone">💌</span>
                     <h2 class="h3 secao-titulo mb-1">Confirme sua presença</h2>
-                    <?php if (! empty($evento->limite_convidados)): ?>
-                        <p class="secao-sub mb-4">
-                            <?= (int) $stats['confirmados'] ?> confirmação(ões) ·
-                            limite de <?= (int) $evento->limite_convidados ?> convidados
-                        </p>
-                    <?php else: ?>
-                        <p class="secao-sub mb-4">Sua resposta ajuda o organizador a preparar tudo com carinho.</p>
-                    <?php endif; ?>
+                    <p class="secao-sub mb-4">Sua resposta ajuda o organizador a preparar tudo com carinho.</p>
 
                     <?php if ($modo === 'demo'): ?>
                         <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
@@ -592,20 +555,7 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
                                     <p class="presente-desc"><?= esc($presente['descricao']) ?></p>
                                 <?php endif; ?>
 
-                                <?php if ($metaP > 1): ?>
-                                    <div class="progress mb-1" style="height: 6px;">
-                                        <div class="progress-bar" role="progressbar"
-                                             style="width: <?= $pctP ?>%; background-color: var(--cor-primaria);"></div>
-                                    </div>
-                                    <p class="presente-cotas mb-3">
-                                        <?= $vendidasP ?>/<?= $metaP ?> cotas
-                                        <?php if ($disponivel > 0): ?>
-                                            · <span class="presente-faltam">faltam <?= $disponivel ?></span>
-                                        <?php endif; ?>
-                                    </p>
-                                <?php else: ?>
-                                    <div class="mb-3"></div>
-                                <?php endif; ?>
+                                <div class="mb-3"></div>
 
                                 <div class="mt-auto d-flex align-items-center justify-content-between gap-2">
                                     <?php if ($exibirValores): ?>
@@ -670,6 +620,11 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
                         <?php endif; ?>
                     </button>
                 <?php endforeach; ?>
+            </div>
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-presentear px-4" id="btn-expandir-galeria" aria-expanded="false">
+                    <i class="bi bi-arrows-fullscreen me-1"></i>Expandir galeria
+                </button>
             </div>
         </section>
     <?php endif; ?>
@@ -1155,6 +1110,20 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
         img.src = botao.getAttribute('data-img') || '';
         leg.textContent = texto;
         leg.style.display = texto ? '' : 'none';
+    });
+})();
+
+(function () {
+    const btn = document.getElementById('btn-expandir-galeria');
+    const grid = document.querySelector('.galeria-grid');
+    if (!btn || !grid) { return; }
+
+    btn.addEventListener('click', function () {
+        const expandida = grid.classList.toggle('galeria-expandida');
+        btn.setAttribute('aria-expanded', expandida ? 'true' : 'false');
+        btn.innerHTML = expandida
+            ? '<i class="bi bi-arrows-angle-contract me-1"></i>Recolher galeria'
+            : '<i class="bi bi-arrows-fullscreen me-1"></i>Expandir galeria';
     });
 })();
 </script>

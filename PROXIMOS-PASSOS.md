@@ -125,11 +125,14 @@ Configurações) e **botões/campos padronizados**.
   `usuarios.google_id` (migration `000027`). O botão aparece no login/registro **só quando**
   `google.clientId`/`google.clientSecret` estão no `.env` (Config\Google). Passo a passo no
   `tools/DEPLOY-HOSTINGER.md`.
-- **Novo (identidade):** **logo** "Minha Lista VIP" — monograma **"M"** branco sobre um squircle com
-  gradiente indigo→violeta. Partial inline `templates/partials/logo.php` (marca + wordmark, com
-  variante clara e "VIP" em gradiente), usada nos layouts público, painel e autenticação. Assets:
-  `public/favicon.svg`, `public/favicon.ico`, `public/favicon-192.png`, `public/apple-touch-icon.png`
-  e `public/assets/logo.svg`. Rasters gerados por `tools/gerar-favicon.php` (GD).
+- **Novo (identidade):** **logo** "Minha Lista VIP" — o **presente** à esquerda + wordmark
+  **"Minha Lista"** em preto e o selo **"VIP"** em roxo coroado (coroa colorida). O partial
+  `templates/partials/logo.php` usa os rasters `public/assets/logo_mlvp_real.png` (lockup compacto;
+  fonte com margens em `logo_mlvp_real_fonte.png`), `logo_mlvp_real_claro.png` (variante clara p/
+  fundo escuro, ex.: rodapé) e `logo_mlvp_marca.png` (só o presente, no favicon e no menu recolhido),
+  usada nos layouts público, painel e autenticação. Favicon (o presente): `public/favicon.svg`,
+  `public/favicon.ico`, `favicon-192.png` e `apple-touch-icon.png` (fonte `public/logo_mlvp.png`).
+  Rasters gerados por `tools/gerar-favicon.php` e `tools/gerar-logo.php` (GD).
 - **Novo (front-end):** **animações de UI** na Home — revelação ao rolar com
   `IntersectionObserver` + entrada escalonada ("stagger") no hero, seções, cards, carrosséis e
   FAQ; barras de progresso do mockup animando; blob de fundo do hero flutuando; micro-interações

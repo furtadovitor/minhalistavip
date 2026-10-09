@@ -217,6 +217,8 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
         body.menu-collapsed .app-sidebar .user-block { display: none; }
         body.menu-collapsed .app-sidebar .app-nav-link { justify-content: center; padding-left: .5rem; padding-right: .5rem; }
         body.menu-collapsed .app-sidebar .app-brand { justify-content: center; }
+        body.menu-collapsed .app-sidebar .brand-img-full { display: none; }
+        body.menu-collapsed .app-sidebar .brand-img-mark { display: block; }
         body.menu-collapsed .app-sidebar .sidebar-foot { text-align: center; }
 
         @media (max-width: 991.98px) {
@@ -411,7 +413,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
             showCancelButton: true,
             confirmButtonText: destrutivo ? 'Sim, continuar' : 'Confirmar',
             cancelButtonText: 'Cancelar',
-            confirmButtonColor: destrutivo ? '#DC3545' : '#4F46E5',
+            confirmButtonColor: destrutivo ? '#DC3545' : '#722ED4',
             cancelButtonColor: '#6B7280',
             reverseButtons: true,
             focusCancel: true,

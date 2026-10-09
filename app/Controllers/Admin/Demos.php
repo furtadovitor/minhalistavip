@@ -164,7 +164,7 @@ class Demos extends BaseController
             'resumo'           => $texto('resumo') ?: null,
             'descricao'        => $texto('descricao') ?: null,
             'mensagem_convite' => $texto('mensagem_convite') ?: null,
-            'cor_primaria'     => $cor($texto('cor_primaria'), '#4F46E5'),
+            'cor_primaria'     => $cor($texto('cor_primaria'), '#722ED4'),
             'cor_secundaria'   => $cor($texto('cor_secundaria'), '#7C3AED'),
             'tema'             => $texto('tema') ?: 'classico',
             'escuro'           => $this->request->getPost('escuro') ? 1 : 0,

@@ -18,8 +18,8 @@ $corSecundaria = $corSecundaria ?? null;
 
 $estiloCores = '';
 if ($corPrimaria !== null && $corPrimaria !== '') {
-    $estiloCores  = '--brand:' . cor_hex($corPrimaria, '#4F46E5') . ';';
-    $estiloCores .= '--brand-dark:' . cor_hex($corSecundaria ?? null, '#4338CA') . ';';
+    $estiloCores  = '--brand:' . cor_hex($corPrimaria, '#722ED4') . ';';
+    $estiloCores .= '--brand-dark:' . cor_hex($corSecundaria ?? null, '#5B21B6') . ';';
 }
 
 $urlEstado   = site_url('suporte/conversa');
@@ -31,7 +31,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
     .mlv-chat-fab {
         position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1055;
         width: 58px; height: 58px; border-radius: 50%; border: 0;
-        background: linear-gradient(135deg, var(--brand, #4F46E5), var(--brand-dark, #4338CA));
+        background: linear-gradient(135deg, var(--brand, #722ED4), var(--brand-dark, #5B21B6));
         color: #fff; display: inline-flex; align-items: center; justify-content: center;
         font-size: 1.5rem; box-shadow: 0 12px 28px rgba(17,24,39,.30);
         transition: transform .15s ease, box-shadow .15s ease;
@@ -44,9 +44,9 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
     }
     .mlv-chat-fab.pulsar { animation: mlvPulse 1.8s infinite; }
     @keyframes mlvPulse {
-        0% { box-shadow: 0 0 0 0 rgba(79,70,229,.45); }
-        70% { box-shadow: 0 0 0 16px rgba(79,70,229,0); }
-        100% { box-shadow: 0 0 0 0 rgba(79,70,229,0); }
+        0% { box-shadow: 0 0 0 0 rgba(114,46,212,.45); }
+        70% { box-shadow: 0 0 0 16px rgba(114,46,212,0); }
+        100% { box-shadow: 0 0 0 0 rgba(114,46,212,0); }
     }
     @media (max-width: 991.98px) {
         .mlv-chat--hotsite .mlv-chat-fab { right: auto; left: 1rem; }
@@ -67,7 +67,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
     .mlv-chat-head {
         display: flex; align-items: center; gap: .6rem;
         padding: .85rem 1rem; color: #fff;
-        background: linear-gradient(135deg, var(--brand, #4F46E5), var(--brand-dark, #4338CA));
+        background: linear-gradient(135deg, var(--brand, #722ED4), var(--brand-dark, #5B21B6));
     }
     .mlv-chat-head .mlv-chat-avatar {
         width: 38px; height: 38px; border-radius: 50%; flex: none;
@@ -89,7 +89,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
     }
     .mlv-chat-body .mlv-msg { max-width: 82%; padding: .55rem .75rem; border-radius: .9rem; font-size: .86rem; line-height: 1.35; white-space: pre-wrap; word-wrap: break-word; }
     .mlv-chat-body .mlv-msg .hora { display: block; font-size: .65rem; opacity: .65; margin-top: .2rem; }
-    .mlv-msg.cliente { align-self: flex-end; background: var(--brand, #4F46E5); color: #fff; border-bottom-right-radius: .25rem; }
+    .mlv-msg.cliente { align-self: flex-end; background: var(--brand, #722ED4); color: #fff; border-bottom-right-radius: .25rem; }
     .mlv-msg.atendente { align-self: flex-start; background: #fff; color: #111827; border: 1px solid #E5E7EB; border-bottom-left-radius: .25rem; }
     .mlv-msg.sistema { align-self: center; background: transparent; color: #6B7280; font-size: .72rem; text-align: center; }
     .mlv-chat-vazio { text-align: center; color: #9CA3AF; font-size: .82rem; margin: auto; padding: 1rem; }
@@ -109,7 +109,7 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
     .mlv-chat-form { border-top: 1px solid #E5E7EB; padding: .65rem .7rem .55rem; background: #fff; }
     .mlv-chat-ident { display: grid; gap: .4rem; margin-bottom: .5rem; }
     .mlv-chat-ident input, .mlv-chat-codigo-linha input { font-size: .85rem; }
-    .mlv-chat-link { background: none; border: 0; color: var(--brand, #4F46E5); font-size: .74rem; font-weight: 600; padding: .15rem 0; text-align: left; }
+    .mlv-chat-link { background: none; border: 0; color: var(--brand, #722ED4); font-size: .74rem; font-weight: 600; padding: .15rem 0; text-align: left; }
     .mlv-chat-codigo { display: grid; gap: .45rem; margin-bottom: .55rem; }
     .mlv-chat-codigo-titulo { font-size: .82rem; font-weight: 600; margin: 0; color: #111827; }
     .mlv-chat-codigo-linha { display: flex; gap: .4rem; }
@@ -120,10 +120,10 @@ $urlEncerrar = site_url('suporte/conversa/encerrar');
         flex: 1 1 auto; resize: none; max-height: 120px; border: 1px solid #D1D5DB;
         border-radius: .8rem; padding: .5rem .7rem; font-size: .88rem; line-height: 1.3; width: 100%;
     }
-    .mlv-chat-compose textarea:focus { outline: 0; border-color: var(--brand, #4F46E5); box-shadow: 0 0 0 3px rgba(79,70,229,.15); }
+    .mlv-chat-compose textarea:focus { outline: 0; border-color: var(--brand, #722ED4); box-shadow: 0 0 0 3px rgba(114,46,212,.15); }
     .mlv-chat-compose button {
         flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; color: #fff;
-        background: var(--brand, #4F46E5); display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem;
+        background: var(--brand, #722ED4); display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem;
     }
     .mlv-chat-compose button:disabled { opacity: .5; }
     .mlv-chat-hint { font-size: .68rem; color: #9CA3AF; text-align: center; margin: .4rem 0 0; }

@@ -1,41 +1,37 @@
 <?php
 /**
- * Logo da plataforma: marca (presente) + wordmark.
+ * Logo da plataforma: lockup "Minha Lista VIP" (marca + wordmark).
  *
- * É renderizada inline para usar a tipografia carregada na própria página
- * (Plus Jakarta Sans). O favicon é o mesmo desenho, sem o texto.
+ * Usa os assets rasterizados em public/assets (ver tools/gerar-logo.php).
+ * Para fundos escuros use ['claro' => true]; com ['nome' => false] renderiza
+ * apenas a marca (ícone), sem o nome.
  *
  * Uso: <?= view('templates/partials/logo', ['altura' => 30]) ?>
- *      <?= view('templates/partials/logo', ['claro' => true]) ?>  (fundos escuros)
+ *      <?= view('templates/partials/logo', ['claro' => true]) ?>   (fundos escuros)
+ *      <?= view('templates/partials/logo', ['nome' => false]) ?>   (só a marca)
  *
- * @var int|null    $altura  Tamanho da marca (px). Padrão: 34
- * @var bool|null   $claro   Wordmark em tom claro (para fundo escuro)
+ * @var int|null    $altura  Altura da logo em px. Padrão: 34
+ * @var bool|null   $claro   Versão clara do lockup (para fundo escuro)
  * @var string|null $classe  Classes extras no wrapper
  * @var bool|null   $nome    Exibir o nome ao lado da marca (padrão: true)
- * @var int|null    $texto   Tamanho do wordmark (px). Padrão: proporcional à marca
  */
 $altura = (int) ($altura ?? 34);
 $claro  = (bool) ($claro ?? false);
 $nome   = $nome ?? true;
 $classe = trim('brand-logo ' . ($claro ? 'brand-logo--claro ' : '') . ($classe ?? ''));
-$gid    = 'mlv-grad-' . substr(md5(uniqid('', true)), 0, 8);
 
-$texto = (int) ($texto ?? max(15, (int) round($altura * 0.52)));
+$marca = 'assets/logo_mlvp_marca.png';
+$full  = $claro ? 'assets/logo_mlvp_real_claro.png' : 'assets/logo_mlvp_real.png';
+$estilo = 'height: ' . $altura . 'px; width: auto;';
 ?>
-<span class="<?= esc($classe) ?>" style="--brand-text-size: <?= $texto ?>px;">
-    <svg class="brand-mark" width="<?= $altura ?>" height="<?= $altura ?>" viewBox="0 0 48 48" fill="none"
-         aria-hidden="true" focusable="false">
-        <defs>
-            <linearGradient id="<?= $gid ?>" x1="6" y1="2" x2="42" y2="46" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#6366F1"/>
-                <stop offset="1" stop-color="#7C3AED"/>
-            </linearGradient>
-        </defs>
-        <rect width="48" height="48" rx="13" fill="url(#<?= $gid ?>)"/>
-        <path d="M15 33 V15 L24 27 L33 15 V33" fill="none" stroke="#ffffff" stroke-width="5.2"
-              stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+<span class="<?= esc($classe) ?>">
     <?php if ($nome): ?>
-        <span class="brand-word">Minha Lista<span class="brand-vip">VIP</span></span>
+        <img class="brand-img brand-img-full" src="<?= base_url($full) ?>" alt="Minha Lista VIP"
+             height="<?= $altura ?>" style="<?= $estilo ?>">
+        <img class="brand-img brand-img-mark" src="<?= base_url($marca) ?>" alt="Minha Lista VIP"
+             height="<?= $altura ?>" style="<?= $estilo ?>">
+    <?php else: ?>
+        <img class="brand-img" src="<?= base_url($marca) ?>" alt="Minha Lista VIP"
+             height="<?= $altura ?>" style="<?= $estilo ?>">
     <?php endif; ?>
 </span>

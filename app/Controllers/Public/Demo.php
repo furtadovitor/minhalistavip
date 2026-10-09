@@ -116,7 +116,7 @@ class Demo extends BaseController
             'mensagem_convite' => $demo['mensagem_convite'] ?? null,
             'local_nome'       => $demo['local'] ?? null,
             'imagem_capa'      => $demo['capa'] ?? null,
-            'cor_primaria'     => $demo['cor_primaria'] ?: '#4F46E5',
+            'cor_primaria'     => $demo['cor_primaria'] ?: '#722ED4',
             'cor_secundaria'   => $demo['cor_secundaria'] ?: '#7C3AED',
             'tema'             => $demo['tema'] ?? 'classico',
             'permite_rsvp'     => true,

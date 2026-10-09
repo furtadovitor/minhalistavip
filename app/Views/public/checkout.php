@@ -40,10 +40,6 @@
                             <?php endif; ?>
                             <p class="mb-0 fs-7">
                                 Valor da cota: <strong><?= esc(moeda_brl($presente['valor'])) ?></strong>
-                                <span class="text-muted">
-                                    · <?= (int) $presente['quantidade_vendida'] ?>/<?= (int) $presente['quantidade_meta'] ?> cotas presenteadas
-                                    · <?= (int) $disponiveis ?> disponível(is)
-                                </span>
                             </p>
                         </div>
                     </div>
