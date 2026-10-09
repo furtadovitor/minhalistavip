@@ -27,7 +27,7 @@ $urlCanonica = preg_replace('/[?#].*$/', '', $urlCanonica);
 
 $imagem = trim((string) ($seo_imagem ?? ''));
 if ($imagem === '') {
-    $imagem = base_url('assets/logo_mlvp_real.png');
+    $imagem = base_url('assets/og-default.png');
 } elseif (! str_starts_with($imagem, 'http')) {
     $imagem = base_url(ltrim($imagem, '/'));
 }

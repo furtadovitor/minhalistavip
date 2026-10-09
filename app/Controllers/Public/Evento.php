@@ -57,11 +57,25 @@ class Evento extends BaseController
         }
 
         // SEO: descrição, imagem de compartilhamento (capa) e dados estruturados.
-        $capaUrl = ! empty($evento->imagem_capa)
-            ? (str_starts_with((string) $evento->imagem_capa, 'http')
-                ? (string) $evento->imagem_capa
-                : base_url((string) $evento->imagem_capa))
-            : null;
+        // Se a capa não existir no servidor, deixa nulo -> o SEO usa a imagem
+        // padrão da marca (evita preview quebrado no compartilhamento).
+        $capaUrl = null;
+        if (! empty($evento->imagem_capa)) {
+            $caminhoCapa = (string) $evento->imagem_capa;
+
+            $absoluto = FCPATH . ltrim($caminhoCapa, '/');
+
+            if (str_starts_with($caminhoCapa, 'http')) {
+                $capaUrl = $caminhoCapa;
+            } elseif (is_file($absoluto)) {
+                $info = @getimagesize($absoluto);
+
+                // Redes sociais exigem ~200px; placeholders pequenos caem no padrão.
+                if ($info !== false && $info[0] >= 200 && $info[1] >= 200) {
+                    $capaUrl = base_url($caminhoCapa);
+                }
+            }
+        }
 
         $horaEvento    = ! empty($evento->horario) ? substr((string) $evento->horario, 0, 5) : '00:00';
         $dataIsoSchema = $evento->data_evento !== null
