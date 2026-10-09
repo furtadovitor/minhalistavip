@@ -420,6 +420,23 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
         }).then(function (r) { return r.isConfirmed; });
     }
 
+    // Expostos para scripts de páginas (ex.: chat do admin) usarem os mesmos modais.
+    window.mlvConfirmar = perguntar;
+    window.mlvAviso = function (mensagem, tipo) {
+        if (typeof Swal === 'undefined') {
+            window.alert(mensagem);
+            return Promise.resolve();
+        }
+
+        return Swal.fire({
+            title: tipo === 'error' ? 'Ops...' : 'Aviso',
+            text: mensagem,
+            icon: tipo || 'info',
+            confirmButtonText: 'Entendi',
+            confirmButtonColor: '#722ED4',
+        });
+    };
+
     function enviar(form, submitter) {
         if (form.requestSubmit) {
             if (submitter) {

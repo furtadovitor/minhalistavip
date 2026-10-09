@@ -60,7 +60,7 @@ class Auth extends BaseController
     {
         $this->auth->logout();
 
-        return redirect()->to(site_url('login'))->with('sucesso', 'Sessão encerrada com sucesso.');
+        return redirect()->to(site_url('/'))->with('sucesso', 'Você saiu da sua conta.');
     }
 
     /**

@@ -129,6 +129,15 @@ $filaJson = json_encode([
         });
     }
 
+    // Usa os modais do SweetAlert2 do painel; cai no nativo se não carregarem.
+    function confirmar(mensagem) {
+        return window.mlvConfirmar ? window.mlvConfirmar(mensagem) : Promise.resolve(window.confirm(mensagem));
+    }
+    function aviso(mensagem) {
+        if (window.mlvAviso) { return window.mlvAviso(mensagem, 'error'); }
+        window.alert(mensagem);
+    }
+
     function itemHtml(c) {
         var classe = (c.id === st.id) ? ' ativo' : '';
         var badge = c.nao_lidas > 0 ? '<span class="sup-badge">' + (c.nao_lidas > 9 ? '9+' : c.nao_lidas) + '</span>' : '';
@@ -257,7 +266,7 @@ $filaJson = json_encode([
         if (!st.id) { return; }
         post(FLUXO.base + '/' + st.id + '/assumir', {}).then(function (d) {
             if (d && d.ok) { abrir(st.id); carregarFila(); }
-            else if (d && d.erro) { carregarFila(); alert(d.erro); }
+            else if (d && d.erro) { carregarFila(); aviso(d.erro); }
         });
     }
 
@@ -279,18 +288,20 @@ $filaJson = json_encode([
                 renderMensagens(d.mensagens);
                 carregarFila();
             } else if (d && d.erro) {
-                alert(d.erro);
+                aviso(d.erro);
             }
         }).then(function () { st.enviando = false; botao.disabled = false; });
     }
 
     function encerrar() {
         if (!st.id) { return; }
-        if (!window.confirm('Encerrar esta conversa?')) { return; }
-        post(FLUXO.base + '/' + st.id + '/encerrar', {}).then(function () {
-            st.id = null; st.ultimoId = 0;
-            elChat.innerHTML = '<div class="sup-vazio"><i class="bi bi-check2-circle" style="font-size:2.2rem;"></i><p class="mt-2 mb-0">Conversa encerrada.</p></div>';
-            carregarFila();
+        confirmar('Encerrar esta conversa?').then(function (ok) {
+            if (!ok) { return; }
+            post(FLUXO.base + '/' + st.id + '/encerrar', {}).then(function () {
+                st.id = null; st.ultimoId = 0;
+                elChat.innerHTML = '<div class="sup-vazio"><i class="bi bi-check2-circle" style="font-size:2.2rem;"></i><p class="mt-2 mb-0">Conversa encerrada.</p></div>';
+                carregarFila();
+            });
         });
     }
 
