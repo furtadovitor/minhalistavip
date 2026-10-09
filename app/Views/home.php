@@ -6,6 +6,10 @@
     /* =====================================================================
        Landing page (estilos escopados na Home) — prefixo .lp-
        ===================================================================== */
+    /* Alternância de fundo das seções: "cor sim, cor não" (branco / roxinho bem claro) */
+    body { background-color: #fff; }
+    .lp-sec-alt { background-color: #F8F5FF; }
+
     .lp-hero {
         position: relative;
         overflow: hidden;
@@ -107,26 +111,6 @@
         flex: none;
         font-size: 1.05rem;
     }
-    .lp-float-badge,
-    .lp-float-pix {
-        position: absolute;
-        background: #fff;
-        border-radius: .8rem;
-        box-shadow: 0 .8rem 1.8rem rgba(17, 24, 39, .16);
-        font-size: .78rem;
-        font-weight: 700;
-        padding: .5rem .75rem;
-        display: inline-flex;
-        align-items: center;
-        gap: .35rem;
-    }
-    .lp-float-badge { top: 3.2rem; left: .5rem; color: var(--brand-dark); }
-    .lp-float-pix { bottom: 3.4rem; right: .5rem; color: #047857; }
-    @media (min-width: 992px) {
-        .lp-float-badge { left: -1rem; }
-        .lp-float-pix { right: -1rem; }
-    }
-
     /* ---- Faixa de confiança ---- */
     .lp-strip {
         background: #111827;
@@ -389,11 +373,6 @@
     .lp-quote { border-left: 3px solid var(--brand); }
     .accordion-button:not(.collapsed) { color: var(--brand-dark); background: var(--brand-soft); }
     .accordion-button:focus { box-shadow: 0 0 0 .2rem rgba(114, 46, 212, .15); }
-
-    @media (max-width: 575.98px) {
-        .lp-float-badge { left: .4rem; }
-        .lp-float-pix { right: .4rem; }
-    }
 </style>
 
 <script>document.documentElement.classList.add('lp-js');</script>
@@ -480,8 +459,6 @@
                             </div>
                         </div>
                     </div>
-                    <span class="lp-float-badge"><i class="bi bi-magic text-brand"></i> Grátis</span>
-                    <span class="lp-float-pix"><i class="bi bi-qr-code"></i> Receba por PIX</span>
                 </div>
             </div>
         </div>
@@ -570,7 +547,7 @@
 </section>
 
 <!-- ============================ PILARES ============================ -->
-<section class="py-5 bg-light" id="pilares">
+<section class="py-5 lp-sec-alt" id="pilares">
     <div class="container py-4">
         <div class="lp-reveal text-center mb-5" style="max-width: 720px; margin: 0 auto;">
             <span class="lp-eyebrow mb-2">Três ferramentas, uma só plataforma</span>
@@ -645,7 +622,7 @@
 </section>
 
 <!-- ============================ RECURSOS ============================ -->
-<section class="py-5 bg-light" id="recursos">
+<section class="py-5 lp-sec-alt" id="recursos">
     <div class="container py-4">
         <div class="lp-reveal text-center mb-5" style="max-width: 720px; margin: 0 auto;">
             <span class="lp-eyebrow mb-2">Recursos</span>
@@ -712,7 +689,7 @@
 
 <!-- ======================= LISTAS DE EXEMPLO ==================== -->
 <?php if (! empty($demos)): ?>
-<section class="py-5 bg-light" id="exemplos">
+<section class="py-5 lp-sec-alt" id="exemplos">
     <div class="container py-4">
         <div class="lp-reveal text-center mb-5">
             <span class="lp-eyebrow mb-2">Inspire-se</span>
@@ -836,7 +813,7 @@
 </section>
 
 <!-- ============================ DÚVIDAS ============================ -->
-<section class="py-5" id="duvidas">
+<section class="py-5 lp-sec-alt" id="duvidas">
     <div class="container py-4" style="max-width: 860px;">
         <div class="lp-reveal text-center mb-5">
             <span class="lp-eyebrow mb-2">Perguntas frequentes</span>
@@ -873,7 +850,7 @@
 </section>
 
 <!-- ===================== BUSCA DO CONVIDADO ===================== -->
-<section class="py-5 bg-light" id="buscar">
+<section class="py-5" id="buscar">
     <div class="container" style="max-width: 820px;">
         <div class="lp-reveal card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-md-5 text-center">
@@ -905,7 +882,7 @@
 </section>
 
 <!-- ========================== CTA FINAL ========================= -->
-<section class="py-5">
+<section class="py-5 lp-sec-alt">
     <div class="container">
         <div class="lp-reveal p-4 p-md-5 rounded-4 text-white text-center" style="background: linear-gradient(135deg, #722ED4, #5B21B6);">
             <h2 class="fw-bold mb-2">Crie a sua lista agora, é grátis</h2>
