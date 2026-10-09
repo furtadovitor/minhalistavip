@@ -6,6 +6,7 @@ use App\Entities\Usuario;
 use App\Models\UsuarioModel;
 use App\Services\AuthService;
 use App\Services\SenhaService;
+use App\Services\TrackService;
 
 /**
  * Autenticação: login, logout e auto-cadastro de organizadores.
@@ -168,6 +169,8 @@ class Auth extends BaseController
 
         $model = new UsuarioModel();
         $model->insert($usuario);
+
+        TrackService::evento('sign_up', ['method' => 'email']);
 
         return redirect()->to(site_url('login'))
             ->with('sucesso', 'Conta criada! Faça login para começar.');

@@ -8,6 +8,7 @@
     ]) ?>
 </head>
 <body class="hero-gradient">
+<?= view('templates/partials/analytics_body') ?>
 <div class="auth-shell">
     <div class="auth-card">
         <div class="text-center mb-4">

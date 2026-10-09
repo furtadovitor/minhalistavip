@@ -233,6 +233,7 @@ $renderGrupos = static function (array $grupos) use ($estaAtivo): void {
     </style>
 </head>
 <body>
+<?= view('templates/partials/analytics_body') ?>
 <div class="d-flex" style="min-height: 100vh;">
     <!-- Sidebar (desktop) -->
     <aside class="app-sidebar d-none d-lg-flex flex-column p-3 flex-shrink-0">

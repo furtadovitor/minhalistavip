@@ -358,6 +358,7 @@ $navInicial = ! empty($evento->permite_rsvp) ? 'presenca' : 'presentes';
     <script>document.documentElement.classList.add('hotsite-js');</script>
 </head>
 <body class="bg-body-tertiary <?= $escuro ? 'tema-escuro' : '' ?>">
+<?= view('templates/partials/analytics_body') ?>
 
 <?php if ($modo === 'demo'): ?>
     <div class="faixa-demo py-2">

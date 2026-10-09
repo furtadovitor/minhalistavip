@@ -18,6 +18,7 @@
     ]) ?>
 </head>
 <body class="bg-body-tertiary">
+<?= view('templates/partials/analytics_body') ?>
 <header class="hero py-5 text-center">
     <div class="container" style="max-width: 620px;">
         <div class="display-5 mb-2"><i class="bi bi-check-circle-fill" style="color: var(--cor-secundaria);"></i></div>

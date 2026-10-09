@@ -4,6 +4,7 @@ namespace App\Controllers\Host;
 
 use App\Controllers\BaseController;
 use App\Services\EventoService;
+use App\Services\TrackService;
 use App\Services\UploadService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -63,6 +64,11 @@ class Eventos extends BaseController
         if ($evento === null) {
             return redirect()->back()->withInput()->with('erros', $this->eventos->erros());
         }
+
+        TrackService::evento('create_list', [
+            'tipo'   => (string) $evento->tipo_evento,
+            'origem' => 'painel',
+        ]);
 
         if ($erroCapa !== null) {
             return redirect()->to($this->urlPresentes((int) $evento->id))->with('erro', $erroCapa);

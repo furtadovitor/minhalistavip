@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Services\EventoService;
 use App\Services\ModeloService;
 use App\Services\TipoEventoService;
+use App\Services\TrackService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 /**
@@ -122,6 +123,11 @@ class CriarLista extends BaseController
         if ($evento === null) {
             return redirect()->back()->withInput()->with('erros', $servico->erros());
         }
+
+        TrackService::evento('create_list', [
+            'tipo'   => (string) $evento->tipo_evento,
+            'origem' => 'rapida',
+        ]);
 
         return redirect()->to(site_url('painel/eventos/' . $evento->id . '/presentes'))
             ->with('sucesso', 'Lista criada! Agora adicione os presentes.');

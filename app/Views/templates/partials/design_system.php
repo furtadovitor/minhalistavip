@@ -24,6 +24,8 @@ $seo    = $seo ?? [];
     'seo_jsonld'    => $seo['jsonld'] ?? [],
 ]) ?>
 
+<?= view('templates/partials/analytics') ?>
+
 <?php
 /**
  * URL do favicon com cache-busting (?v=timestamp) — o navegador guarda

@@ -34,6 +34,8 @@ $fonte = \App\Services\ModeloService::tipografia((string) $tema);
     'seo_jsonld'    => $seo['jsonld'] ?? [],
 ]) ?>
 
+<?= view('templates/partials/analytics') ?>
+
 <?php
 /** Favicon com cache-busting (?v=timestamp) — ver design_system.php. */
 $faviconUrl = static function (string $arquivo): string {

@@ -7,6 +7,7 @@
     ]) ?>
 </head>
 <body>
+<?= view('templates/partials/analytics_body') ?>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
     <div class="container">
         <a class="navbar-brand p-0" href="<?= site_url('/') ?>">

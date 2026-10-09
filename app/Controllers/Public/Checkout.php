@@ -13,6 +13,7 @@ use App\Services\EventoService;
 use App\Services\PagamentoService;
 use App\Services\PresenteEventoService;
 use App\Services\PixService;
+use App\Services\TrackService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -60,6 +61,17 @@ class Checkout extends BaseController
             return redirect()->to(site_url($evento->slug))
                 ->with('erro', 'Todas as cotas deste presente já foram presenteadas.');
         }
+
+        TrackService::evento('begin_checkout', [
+            'currency' => 'BRL',
+            'value'    => (float) ($presente['valor'] ?? 0),
+            'items'    => [[
+                'item_id'   => (string) ($presente['id'] ?? ''),
+                'item_name' => (string) ($presente['nome'] ?? 'Presente'),
+                'price'     => (float) ($presente['valor'] ?? 0),
+                'quantity'  => 1,
+            ]],
+        ]);
 
         return view('public/checkout', [
             'evento'      => $evento,
@@ -133,12 +145,26 @@ class Checkout extends BaseController
             return redirect()->to(site_url($evento->slug . '/pedido/' . $pedido->protocolo));
         }
 
+        $presente = $pedido->presente_evento_id !== null
+            ? (new PresenteEventoModel())->find((int) $pedido->presente_evento_id)
+            : null;
+
+        TrackService::evento('purchase', [
+            'transaction_id' => (string) $pedido->protocolo,
+            'currency'       => 'BRL',
+            'value'          => (float) $pedido->valor_total,
+            'items'          => [[
+                'item_id'   => (string) ($pedido->presente_evento_id ?? ''),
+                'item_name' => (string) ($presente['nome'] ?? 'Presente'),
+                'price'     => (float) $pedido->valor_total,
+                'quantity'  => 1,
+            ]],
+        ]);
+
         return view('public/obrigado', [
             'evento'   => $evento,
             'pedido'   => $pedido,
-            'presente' => $pedido->presente_evento_id !== null
-                ? (new PresenteEventoModel())->find((int) $pedido->presente_evento_id)
-                : null,
+            'presente' => $presente,
         ]);
     }
 

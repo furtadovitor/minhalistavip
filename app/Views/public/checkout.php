@@ -10,6 +10,7 @@
     ]) ?>
 </head>
 <body class="bg-body-tertiary">
+<?= view('templates/partials/analytics_body') ?>
 <header class="hero py-4">
     <div class="container" style="max-width: 900px;">
         <p class="text-uppercase small mb-1 opacity-75"><?= esc(str_replace('_', ' ', $evento->tipo_evento)) ?></p>

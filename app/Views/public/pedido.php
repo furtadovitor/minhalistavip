@@ -36,6 +36,7 @@ if (filter_var((string) $pedido->email_convidado, FILTER_VALIDATE_EMAIL)) {
     ]) ?>
 </head>
 <body class="bg-body-tertiary">
+<?= view('templates/partials/analytics_body') ?>
 <header class="hero py-4">
     <div class="container" style="max-width: 760px;">
         <p class="text-uppercase small mb-1 opacity-75"><?= esc($evento->titulo) ?></p>
